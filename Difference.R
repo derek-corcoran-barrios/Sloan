@@ -13,13 +13,6 @@ library(rasterVis)
 library(dplyr)
 
 #function to make the hexbin dataframe
-makeHexData <- function(df) {
-  h <- hexbin(df$LOC_X, df$LOC_Y, nbins, xbnds = xbnds, ybnds = ybnds, IDs = TRUE)
-  data.frame(hcell2xy(h),
-             PPS = tapply(as.numeric(as.character(df$SHOT_MADE_FLAG))*ifelse(tolower(df$SHOT_TYPE) == "3pt field goal", 3, 2), h@cID, FUN = function(z) sum(z)/length(z)),
-             ST = tapply(df$SHOT_MADE_FLAG, h@cID, FUN = function(z) length(z)),
-             cid = h@cell)
-}
 
 #shot Comparison function
 
@@ -32,6 +25,13 @@ ShotComparison <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, nbins
   xbnds <- range(c(SeasondataOff$LOC_X, deff$LOC_X))
   ybnds <- range(c(SeasondataOff$LOC_Y, deff$LOC_Y))
   #Make hexbin dataframes out of the teams
+  makeHexData <- function(df) {
+    h <- hexbin(df$LOC_X, df$LOC_Y, nbins, xbnds = xbnds, ybnds = ybnds, IDs = TRUE)
+    data.frame(hcell2xy(h),
+               PPS = tapply(as.numeric(as.character(df$SHOT_MADE_FLAG))*ifelse(tolower(df$SHOT_TYPE) == "3pt field goal", 3, 2), h@cID, FUN = function(z) sum(z)/length(z)),
+               ST = tapply(df$SHOT_MADE_FLAG, h@cID, FUN = function(z) length(z)),
+               cid = h@cell)
+  }
   ##Total NBA data
   Totalhex <- makeHexData(SeasondataOff)
   ##Defensive team data
@@ -81,7 +81,36 @@ ShotComparison <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, nbins
                           axis.text.x = element_blank(),
                           axis.text.y = element_blank(),
                           legend.title = element_blank(),
-                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold")) + ggtitle(Paste("Offensive\n Shot Chart")) + scale_fill_gradient2(name="Off PPS")
+                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold")) + ggtitle(paste(OffTeam, "Offensive\n Shot Chart", sep = " ")) + scale_fill_gradient2(name="Off PPS")
+  DEF <- ggplot(DiffDeff)  + 
+    annotation_custom(court, -250, 250, -52, 418) +
+    geom_hex(aes(x = x, y = y, fill = PPS),
+             stat = "identity", alpha = 0.8) +
+    guides(alpha = FALSE, size = FALSE) +
+    
+    coord_fixed()  +theme(line = element_blank(),
+                          axis.title.x = element_blank(),
+                          axis.title.y = element_blank(),
+                          axis.text.x = element_blank(),
+                          axis.text.y = element_blank(),
+                          legend.title = element_blank(),
+                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold")) + ggtitle(paste(DefTown, "defensive\n Shot Chart", sep = " ")) + scale_fill_gradient2(name="Def PPS")
+  
+  COMP <- ggplot(Comparison)  + 
+    annotation_custom(court, -250, 250, -52, 418) +
+    geom_hex(aes(x = x.x, y = y.x, fill = Diff),
+             stat = "identity", alpha = 0.8) +
+    guides(alpha = FALSE, size = FALSE) +
+    
+    coord_fixed()  +theme(line = element_blank(),
+                          axis.title.x = element_blank(),
+                          axis.title.y = element_blank(),
+                          axis.text.x = element_blank(),
+                          axis.text.y = element_blank(),
+                          legend.title = element_blank(),
+                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold")) + ggtitle("Comparison\n Shot Chart") + scale_fill_gradient2(name="Difference\n PPS")
+
+  grid.arrange(DEF, OFF, COMP, ncol=3)
   
   return(list(Off = DiffOff, deff = DiffDeff, Comparison = Comparison, Total = Totalhex, PPSAA = PPSAA))
 }
