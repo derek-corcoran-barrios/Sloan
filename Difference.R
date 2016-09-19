@@ -117,3 +117,44 @@ ShotComparison <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, nbins
 
 str(ShotComparison(OffTeam = "Boston Celtics", DefTown = "San Antonio", SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 40))
 
+
+Offensive_teams <- as.character(unique(shotDataTotal2016$TEAM_NAME))
+
+defenseve_names <- names(shotDatafDef2016)
+
+df <- data.frame(matrix(ncol = 30, nrow = 30))
+colnames(df) <- as.character(unique(shotDataTotal2016$TEAM_NAME))
+rownames(df) <- names(shotDatafDef2016)
+
+for (i in 1:3) {
+  for (j in 1:3){
+    df[rownames(df) == defenseve_names[j],colnames(df) == Offensive_teams[i]] <- ShotComparison(OffTeam = Offensive_team, DefTown = defenseve_names[j], SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 30)
+  }
+}
+
+
+###Example
+
+Cols <- c(1:3)
+Rows <- c(4:6)
+DF <- data.frame(matrix(nrow = 3, ncol = 3))
+colnames(DF) <- Cols
+rownames(DF) <- Rows
+
+a <- 1
+b <- 2
+c <- 3
+d <- 4
+e <- 5
+f <- 6
+
+FX <- function(x , y){
+  S <- (x^2)+ (y^3)
+  return(S)
+}
+
+for (i in 1:length(Cols)){
+  for(j in 1:length(Rows)){
+    DF[i, j] <- FX(Rows[i], Cols[j])
+  }
+}
