@@ -296,7 +296,6 @@ BOSDEF <- ggplot(BostonDiffDeff)  +
   annotation_custom(court, -250, 250, -52, 418) +
     geom_hex(aes(x = x, y = y, fill = PPS),
              stat = "identity", alpha = 0.8) +
-    scale_fill_gradientn (colours = c("blue","red")) +
     guides(alpha = FALSE, size = FALSE) +
 
   coord_fixed()  +theme(line = element_blank(),
