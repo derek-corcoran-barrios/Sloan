@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "\nBostonOff <- filter(shotDataTotal2016, TEAM_NAME == \"Boston Celtics\")\n\nSAOff <- filter(shotDataTotal2016, TEAM_NAME == \"San Antonio Spurs\")\n\nBostonDef<- shotDatafDef2016[[2]]\n\nSADef <- shotDatafDef2016[[23]]\n\n## find the bounds for the complete data \nxbnds <- range(c(shotDataTotal2016$LOC_X, BostonDef$LOC_X))\nybnds <- range(c(shotDataTotal2016$LOC_Y, BostonDef$LOC_Y))\nnbins <- 40\n\n#  function to make a data.frame for geom_hex that can be used with stat_identity\nmakeHexData <- function(df) {\n  h <- hexbin(df$LOC_X, df$LOC_Y, nbins, xbnds = xbnds, ybnds = ybnds, IDs = TRUE)\n  data.frame(hcell2xy(h),\n             PPS = tapply(as.numeric(as.character(df$SHOT_MADE_FLAG))*ifelse(tolower(df$SHOT_TYPE) == \"3pt field goal\", 3, 2), h@cID, FUN = function(z) sum(z)/length(z)),\n             ST = tapply(df$SHOT_MADE_FLAG, h@cID, FUN = function(z) length(z)),\n             cid = h@cell)\n}\n#make dataframes of the hex with percentages\nTotalhex <- makeHexData(shotDataTotal2016)\nBostonDefhex <- makeHexData(BostonDef)\nSAOffhex <- makeHexData(SAOff)\n\n##  not all cells are present in each binning, we need to merge by cellID\nBostonDeffbyCell <- merge(Totalhex, BostonDefhex, by = \"cid\", all = T)\nSAOffByCell <- merge(Totalhex, SAOffhex, by = \"cid\", all = T)\n\n\n##  when calculating the difference empty cells should count as 0\nBostonDeffbyCell$PPS.x[is.na(BostonDeffbyCell$PPS.x)] <- 0\nBostonDeffbyCell$PPS.y[is.na(BostonDeffbyCell$PPS.y)] <- 0\n\nSAOffByCell$PPS.x[is.na(SAOffByCell$PPS.x)] <- 0\nSAOffByCell$PPS.y[is.na(SAOffByCell$PPS.y)] <- 0\nSAOffByCell$ST.y[is.na(SAOffByCell$ST.y)] <- 0\n\n\n##  make a \"difference\" data.frame\nBostonDiffDeff <- data.frame(x = ifelse(is.na(BostonDeffbyCell$x.x), BostonDeffbyCell$x.y, BostonDeffbyCell$x.x),\n                   y = ifelse(is.na(BostonDeffbyCell$y.x), BostonDeffbyCell$y.y, BostonDeffbyCell$y.x),\n                   PPS= BostonDeffbyCell$PPS.y - BostonDeffbyCell$PPS.x,\n                   cid= BostonDeffbyCell$cid, \n                   ST = BostonDeffbyCell$ST.y)\n\nSADiffOff <- data.frame(x = ifelse(is.na(SAOffByCell$x.x), SAOffByCell$x.y, SAOffByCell$x.x),\n                             y = ifelse(is.na(SAOffByCell$y.x), SAOffByCell$y.y, SAOffByCell$y.x),\n                             PPS= SAOffByCell$PPS.y - SAOffByCell$PPS.x,\n                             ST = SAOffByCell$ST.x,\n                             cid = SAOffByCell$cid)\n\nComparison <- merge(SADiffOff, BostonDiffDeff, by = \"cid\", all = T) \nComparison <- Comparison[,-c(6:7)]\nComparison$Diff <- c(Comparison$PPS.x + Comparison$PPS.y)\n\n\nweighted.mean((Comparison$PPS.x + Comparison$PPS.y), Comparison$ST)",
+    "created" : 1472743028200.000,
+    "dirty" : true,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1781910347",
+    "id" : "E4466CA6",
+    "lastKnownWriteTime" : 1474064335,
+    "last_content_update" : 1474297419110,
+    "path" : "~/Sloan/Difference.R",
+    "project_path" : "Difference.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

@@ -1,0 +1,333 @@
+---
+title: "Spatial"
+author: "Derek Corcoran"
+date: "September 1, 2016"
+output: pdf_document
+---
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(rjson)
+library(grid)
+library(gridExtra)
+library(png)
+library(RCurl)
+library(ggplot2)
+library(jpeg)
+library(hexbin)
+library(sp)
+library(knitr)
+library(raster)
+library(rasterVis)
+library(dplyr)
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, results='hide'}
+
+by_team <- read.csv("~/Sloan/by_team.csv")
+by_team <- by_team[-1,-1]
+View(by_team)
+```
+
+#2015
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, results='hide'}
+# shot data for Stephen Curry
+teamID <- by_team$team_id
+teamName <- by_team$team_city
+defensiveURL <- list()
+shotData <- list()
+shotDatafDef <- list()
+
+
+for (i in 1:length(teamID)){
+defensiveURL[[i]] <- paste("http://stats.nba.com/stats/shotchartdetail?CFID=33&CFPARAMS=2014-15&ContextFilter=&ContextMeasure=FGA&DateFrom=&DateTo=&GameID=&GameSegment=&LastNGames=0&LeagueID=00&Location=&MeasureType=Base&Month=0&OpponentTeamID=", by_team$team_id[i],"&Outcome=&PaceAdjust=N&PerMode=PerGame&Period=0&PlayerID=0&PlusMinus=N&Position=&Rank=N&RookieYear=&Season=2014-15&SeasonSegment=&SeasonType=Regular+Season&TeamID=0&VsConference=&VsDivision=&mode=Advanced&showDetails=0&showShots=1&showZones=0", sep = "")
+
+# import from JSON
+shotData[[i]] <- fromJSON(file = defensiveURL[[i]], method="C")
+
+# unlist shot data, save into a data frame
+shotDatafDef[[i]] <- data.frame(matrix(unlist(shotData[[i]]$resultSets[[1]][[3]]), ncol=21, byrow = TRUE))
+
+# shot data headers
+colnames(shotDatafDef[[i]]) <- shotData[[i]]$resultSets[[1]][[2]]
+
+# covert x and y coordinates into numeric
+shotDatafDef[[i]]$LOC_X <- as.numeric(as.character(shotDatafDef[[i]]$LOC_X))
+shotDatafDef[[i]]$LOC_Y <- as.numeric(as.character(shotDatafDef[[i]]$LOC_Y))
+shotDatafDef[[i]]$SHOT_DISTANCE <- as.numeric(as.character(shotDatafDef[[i]]$SHOT_DISTANCE))
+}
+
+names(shotDatafDef) <- teamName
+# have a look at the data
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, results='hide'}
+shotURLtotal <- paste("http://stats.nba.com/stats/shotchartdetail?CFID=33&CFPARAMS=2014-15&ContextFilter=&ContextMeasure=FGA&DateFrom=&DateTo=&GameID=&GameSegment=&LastNGames=0&LeagueID=00&Location=&MeasureType=Base&Month=0&OpponentTeamID=0&Outcome=&PaceAdjust=N&PerMode=PerGame&Period=0&PlayerID=0&PlusMinus=N&Position=&Rank=N&RookieYear=&Season=2014-15&SeasonSegment=&SeasonType=Regular+Season&TeamID=0&VsConference=&VsDivision=&mode=Advanced&showDetails=0&showShots=1&showZones=0", sep = "")
+
+# import from JSON
+shotDataTotal <- fromJSON(file = shotURLtotal, method="C")
+
+# unlist shot data, save into a data frame
+shotDataTotal <- data.frame(matrix(unlist(shotDataTotal$resultSets[[1]][[3]]), ncol=21, byrow = TRUE))
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE}
+colnames(shotDataTotal) <- colnames(shotDatafDef[[1]])
+
+# covert x and y coordinates into numeric
+shotDataTotal$LOC_X <- as.numeric(as.character(shotDataTotal$LOC_X))
+shotDataTotal$LOC_Y <- as.numeric(as.character(shotDataTotal$LOC_Y))
+shotDataTotal$SHOT_DISTANCE <- as.numeric(as.character(shotDataTotal$SHOT_DISTANCE))
+
+
+shotDataTotal2015 <- shotDataTotal
+
+shotDatafDef2015 <- shotDatafDef
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE}
+colnames(shotDataTotal) <- colnames(shotDatafDef[[1]])
+
+# covert x and y coordinates into numeric
+shotDataTotal$LOC_X <- as.numeric(as.character(shotDataTotal$LOC_X))
+shotDataTotal$LOC_Y <- as.numeric(as.character(shotDataTotal$LOC_Y))
+shotDataTotal$SHOT_DISTANCE <- as.numeric(as.character(shotDataTotal$SHOT_DISTANCE))
+
+
+shotDataTotal2015 <- shotDataTotal
+
+shotDatafDef2015 <- shotDatafDef
+```
+
+#2016
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, results='hide'}
+defensiveURL <- list()
+shotData <- list()
+shotDatafDef <- list()
+
+
+for (i in 1:length(teamID)){
+defensiveURL[[i]] <- paste("http://stats.nba.com/stats/shotchartdetail?CFID=33&CFPARAMS=2015-16&ContextFilter=&ContextMeasure=FGA&DateFrom=&DateTo=&GameID=&GameSegment=&LastNGames=0&LeagueID=00&Location=&MeasureType=Base&Month=0&OpponentTeamID=", by_team$team_id[i],"&Outcome=&PaceAdjust=N&PerMode=PerGame&Period=0&PlayerID=0&PlusMinus=N&Position=&Rank=N&RookieYear=&Season=2015-16&SeasonSegment=&SeasonType=Regular+Season&TeamID=0&VsConference=&VsDivision=&mode=Advanced&showDetails=0&showShots=1&showZones=0", sep = "")
+
+# import from JSON
+shotData[[i]] <- fromJSON(file = defensiveURL[[i]], method="C")
+
+# unlist shot data, save into a data frame
+shotDatafDef[[i]] <- data.frame(matrix(unlist(shotData[[i]]$resultSets[[1]][[3]]), ncol=21, byrow = TRUE))
+
+# shot data headers
+colnames(shotDatafDef[[i]]) <- shotData[[i]]$resultSets[[1]][[2]]
+
+# covert x and y coordinates into numeric
+shotDatafDef[[i]]$LOC_X <- as.numeric(as.character(shotDatafDef[[i]]$LOC_X))
+shotDatafDef[[i]]$LOC_Y <- as.numeric(as.character(shotDatafDef[[i]]$LOC_Y))
+shotDatafDef[[i]]$SHOT_DISTANCE <- as.numeric(as.character(shotDatafDef[[i]]$SHOT_DISTANCE))
+}
+
+names(shotDatafDef) <- teamName
+# have a look at the data
+shotDatafDef2016 <- shotDatafDef
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, results='hide'}
+shotURLtotal <- paste("http://stats.nba.com/stats/shotchartdetail?CFID=33&CFPARAMS=2015-16&ContextFilter=&ContextMeasure=FGA&DateFrom=&DateTo=&GameID=&GameSegment=&LastNGames=0&LeagueID=00&Location=&MeasureType=Base&Month=0&OpponentTeamID=0&Outcome=&PaceAdjust=N&PerMode=PerGame&Period=0&PlayerID=0&PlusMinus=N&Position=&Rank=N&RookieYear=&Season=2015-16&SeasonSegment=&SeasonType=Regular+Season&TeamID=0&VsConference=&VsDivision=&mode=Advanced&showDetails=0&showShots=1&showZones=0", sep = "")
+
+# import from JSON
+shotDataTotal <- fromJSON(file = shotURLtotal, method="C")
+
+# unlist shot data, save into a data frame
+shotDataTotal <- data.frame(matrix(unlist(shotDataTotal$resultSets[[1]][[3]]), ncol=21, byrow = TRUE))
+colnames(shotDataTotal) <- colnames(shotDatafDef[[1]])
+
+# covert x and y coordinates into numeric
+shotDataTotal$LOC_X <- as.numeric(as.character(shotDataTotal$LOC_X))
+shotDataTotal$LOC_Y <- as.numeric(as.character(shotDataTotal$LOC_Y))
+shotDataTotal$SHOT_DISTANCE <- as.numeric(as.character(shotDataTotal$SHOT_DISTANCE))
+
+
+shotDataTotal2016 <- shotDataTotal
+
+```
+
+
+#2014
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, results='hide'}
+defensiveURL <- list()
+shotData <- list()
+shotDatafDef <- list()
+
+
+for (i in 1:length(teamID)){
+defensiveURL[[i]] <- paste("http://stats.nba.com/stats/shotchartdetail?CFID=33&CFPARAMS=2013-14&ContextFilter=&ContextMeasure=FGA&DateFrom=&DateTo=&GameID=&GameSegment=&LastNGames=0&LeagueID=00&Location=&MeasureType=Base&Month=0&OpponentTeamID=", by_team$team_id[i],"&Outcome=&PaceAdjust=N&PerMode=PerGame&Period=0&PlayerID=0&PlusMinus=N&Position=&Rank=N&RookieYear=&Season=2013-14&SeasonSegment=&SeasonType=Regular+Season&TeamID=0&VsConference=&VsDivision=&mode=Advanced&showDetails=0&showShots=1&showZones=0", sep = "")
+
+# import from JSON
+shotData[[i]] <- fromJSON(file = defensiveURL[[i]], method="C")
+
+# unlist shot data, save into a data frame
+shotDatafDef[[i]] <- data.frame(matrix(unlist(shotData[[i]]$resultSets[[1]][[3]]), ncol=21, byrow = TRUE))
+
+# shot data headers
+colnames(shotDatafDef[[i]]) <- shotData[[i]]$resultSets[[1]][[2]]
+
+# covert x and y coordinates into numeric
+shotDatafDef[[i]]$LOC_X <- as.numeric(as.character(shotDatafDef[[i]]$LOC_X))
+shotDatafDef[[i]]$LOC_Y <- as.numeric(as.character(shotDatafDef[[i]]$LOC_Y))
+shotDatafDef[[i]]$SHOT_DISTANCE <- as.numeric(as.character(shotDatafDef[[i]]$SHOT_DISTANCE))
+}
+
+names(shotDatafDef) <- teamName
+# have a look at the data
+shotDatafDef2014 <- shotDatafDef
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, results='hide'}
+shotURLtotal <- paste("http://stats.nba.com/stats/shotchartdetail?CFID=33&CFPARAMS=2013-14&ContextFilter=&ContextMeasure=FGA&DateFrom=&DateTo=&GameID=&GameSegment=&LastNGames=0&LeagueID=00&Location=&MeasureType=Base&Month=0&OpponentTeamID=0&Outcome=&PaceAdjust=N&PerMode=PerGame&Period=0&PlayerID=0&PlusMinus=N&Position=&Rank=N&RookieYear=&Season=2013-14&SeasonSegment=&SeasonType=Regular+Season&TeamID=0&VsConference=&VsDivision=&mode=Advanced&showDetails=0&showShots=1&showZones=0", sep = "")
+
+# import from JSON
+shotDataTotal <- fromJSON(file = shotURLtotal, method="C")
+
+# unlist shot data, save into a data frame
+shotDataTotal <- data.frame(matrix(unlist(shotDataTotal$resultSets[[1]][[3]]), ncol=21, byrow = TRUE))
+colnames(shotDataTotal) <- colnames(shotDatafDef[[1]])
+
+# covert x and y coordinates into numeric
+shotDataTotal$LOC_X <- as.numeric(as.character(shotDataTotal$LOC_X))
+shotDataTotal$LOC_Y <- as.numeric(as.character(shotDataTotal$LOC_Y))
+shotDataTotal$SHOT_DISTANCE <- as.numeric(as.character(shotDataTotal$SHOT_DISTANCE))
+
+
+shotDataTotal2014 <- shotDataTotal
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,}
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, results='hide'}
+
+court <-  readRDS("court.rds")
+```
+
+```{r, cache = TRUE}
+
+BostonOff <- filter(shotDataTotal2016, TEAM_NAME == "Boston Celtics")
+
+SAOff <- filter(shotDataTotal2016, TEAM_NAME == "San Antonio Spurs")
+
+BostonDef<- shotDatafDef2016[[2]]
+
+SADef <- shotDatafDef2016[[23]]
+
+## find the bounds for the complete data 
+xbnds <- range(c(shotDataTotal2016$LOC_X, BostonDef$LOC_X))
+ybnds <- range(c(shotDataTotal2016$LOC_Y, BostonDef$LOC_Y))
+nbins <- 40
+
+#  function to make a data.frame for geom_hex that can be used with stat_identity
+makeHexData <- function(df) {
+  h <- hexbin(df$LOC_X, df$LOC_Y, nbins, xbnds = xbnds, ybnds = ybnds, IDs = TRUE)
+  data.frame(hcell2xy(h),
+             PPS = tapply(as.numeric(as.character(df$SHOT_MADE_FLAG))*ifelse(tolower(df$SHOT_TYPE) == "3pt field goal", 3, 2), h@cID, FUN = function(z) sum(z)/length(z)),
+             ST = tapply(df$SHOT_MADE_FLAG, h@cID, FUN = function(z) length(z)),
+             cid = h@cell)
+}
+#make dataframes of the hex with percentages
+Totalhex <- makeHexData(shotDataTotal2016)
+BostonDefhex <- makeHexData(BostonDef)
+SAOffhex <- makeHexData(SAOff)
+
+##  not all cells are present in each binning, we need to merge by cellID
+BostonDeffbyCell <- merge(Totalhex, BostonDefhex, by = "cid", all = T)
+SAOffByCell <- merge(Totalhex, SAOffhex, by = "cid", all = T)
+
+
+##  when calculating the difference empty cells should count as 0
+BostonDeffbyCell$PPS.x[is.na(BostonDeffbyCell$PPS.x)] <- 0
+BostonDeffbyCell$PPS.y[is.na(BostonDeffbyCell$PPS.y)] <- 0
+
+SAOffByCell$PPS.x[is.na(SAOffByCell$PPS.x)] <- 0
+SAOffByCell$PPS.y[is.na(SAOffByCell$PPS.y)] <- 0
+SAOffByCell$ST.y[is.na(SAOffByCell$ST.y)] <- 0
+
+
+##  make a "difference" data.frame
+BostonDiffDeff <- data.frame(x = ifelse(is.na(BostonDeffbyCell$x.x), BostonDeffbyCell$x.y, BostonDeffbyCell$x.x),
+                   y = ifelse(is.na(BostonDeffbyCell$y.x), BostonDeffbyCell$y.y, BostonDeffbyCell$y.x),
+                   PPS= BostonDeffbyCell$PPS.y - BostonDeffbyCell$PPS.x,
+                   cid= BostonDeffbyCell$cid)
+
+SADiffOff <- data.frame(x = ifelse(is.na(SAOffByCell$x.x), SAOffByCell$x.y, SAOffByCell$x.x),
+                             y = ifelse(is.na(SAOffByCell$y.x), SAOffByCell$y.y, SAOffByCell$y.x),
+                             PPS= SAOffByCell$PPS.y - SAOffByCell$PPS.x,
+                             ST = SAOffByCell$ST.x,
+                             cid = SAOffByCell$cid)
+
+Comparison <- merge(SADiffOff, BostonDiffDeff, by = "cid", all = T) 
+Comparison <- Comparison[,-c(6:7)]
+Comparison$Diff <- c(Comparison$PPS.x + Comparison$PPS.y)
+
+
+weighted.mean((Comparison$PPS.x + Comparison$PPS.y), Comparison$ST)
+### Plot Difference data.frame hex
+
+SAOFF <- ggplot(SADiffOff)  + 
+  annotation_custom(court, -250, 250, -52, 418) +
+    geom_hex(aes(x = x, y = y, fill = PPS),
+             stat = "identity", alpha = 0.8) +
+    scale_fill_gradientn (colours = c("blue","red")) +
+    guides(alpha = FALSE, size = FALSE) +
+
+  coord_fixed()  +theme(line = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        legend.title = element_blank(),
+        plot.title = element_text(size = 17, lineheight = 1.2, face = "bold")) + ggtitle("SA Offensive\n Shot Chart") + scale_fill_gradient2(name="Off PPS")
+
+BOSDEF <- ggplot(BostonDiffDeff)  + 
+  annotation_custom(court, -250, 250, -52, 418) +
+    geom_hex(aes(x = x, y = y, fill = PPS),
+             stat = "identity", alpha = 0.8) +
+    scale_fill_gradientn (colours = c("blue","red")) +
+    guides(alpha = FALSE, size = FALSE) +
+
+  coord_fixed()  +theme(line = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        legend.title = element_blank(),
+        plot.title = element_text(size = 17, lineheight = 1.2, face = "bold")) + ggtitle("Bos Deffensive\n Shot Chart") + scale_fill_gradient2(name="Def PPS")
+
+COMP <- ggplot(Comparison)  + 
+  annotation_custom(court, -250, 250, -52, 418) +
+    geom_hex(aes(x = x.x, y = y.x, fill = Diff),
+             stat = "identity", alpha = 0.8) +
+    scale_fill_gradientn (colours = c("blue","red")) +
+    guides(alpha = FALSE, size = FALSE) +
+
+  coord_fixed()  +theme(line = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        legend.title = element_blank(),
+        plot.title = element_text(size = 17, lineheight = 1.2, face = "bold")) + ggtitle("Comparison\n Shot Chart") + scale_fill_gradient2(name="Difference\n PPS")
+
+
+
+BOSDEF
+
+SAOFF
+grid.arrange(BOSDEF, SAOFF, ncol=2)
+
+
+```

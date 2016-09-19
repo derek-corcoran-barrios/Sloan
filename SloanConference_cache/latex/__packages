@@ -1,0 +1,17 @@
+base
+rjson
+gridExtra
+png
+bitops
+RCurl
+ggplot2
+jpeg
+hexbin
+sp
+knitr
+raster
+lattice
+RColorBrewer
+latticeExtra
+rasterVis
+dplyr
