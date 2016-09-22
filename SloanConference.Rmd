@@ -449,3 +449,12 @@ write.csv(df2016, "datos2016.csv")
 colMeans(df2016, na.rm = TRUE)
 min(df2016)
 ```
+
+```{r, cache=TRUE}
+saveRDS(shotDataTotal2016, "shotDataTotal2016.rds")
+saveRDS(shotDatafDef2016, "shotDatafDef2016.rds")
+saveRDS(shotDataTotal2015, "shotDataTotal2015.rds")
+saveRDS(shotDatafDef2015, "shotDatafDef2015.rds")
+saveRDS(shotDataTotal2014, "shotDataTotal2014.rds")
+saveRDS(shotDatafDef2014, "shotDatafDef2014")
+```
