@@ -158,3 +158,6 @@ for (i in 1:length(Cols)){
     DF[i, j] <- FX(Rows[i], Cols[j])
   }
 }
+
+
+

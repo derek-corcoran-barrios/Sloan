@@ -327,7 +327,7 @@ Com2$PPSAA
 ```
 
 ```{r, cache=TRUE}
-ShotComparison <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, nbins = 40) {
+ShotComparison <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, nbins = 30) {
   #Filter the offensive data of the Offensive Team
   Off <- filter(SeasondataOff, TEAM_NAME == OffTeam)
   #Filter the Deffensive data of the Defensive team
@@ -430,16 +430,14 @@ ShotComparison <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, nbins
 Offensive_teams <- as.character(unique(shotDataTotal2016$TEAM_NAME))
 
 defenseve_names <- names(shotDatafDef2016)
-df <- data.frame(matrix(ncol = 30, nrow = 30))
-colnames(df) <- as.character(unique(shotDataTotal2016$TEAM_NAME))
-rownames(df) <- names(shotDatafDef2016)
-
-comparisons <- list()
+df2016 <- data.frame(matrix(ncol = 30, nrow = 30))
+colnames(df2016) <- as.character(unique(shotDataTotal2016$TEAM_NAME))
+rownames(df2016) <- names(shotDatafDef2016)
 
 system.time(for (i in 1:length(Offensive_teams)) {
   Offensive_team <- Offensive_teams[i]
   for (j in 1:length(defenseve_names)){
-    df[j,i] <- ShotComparison(OffTeam = Offensive_team, DefTown =                        defenseve_names[j], SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 30)
+    df2016[j,i] <- ShotComparison(OffTeam = Offensive_team, DefTown =                        defenseve_names[j], SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 30)
   }
 })
 
@@ -447,13 +445,7 @@ system.time(for (i in 1:length(Offensive_teams)) {
 ```
 
 ```{r, cache=TRUE}
-df
-
-max(df)
-
-min(df)
-
-write.csv(df, "datos2016.csv")
-
-summary(df)
+write.csv(df2016, "datos2016.csv")
+colMeans(df2016, na.rm = TRUE)
+min(df2016)
 ```
