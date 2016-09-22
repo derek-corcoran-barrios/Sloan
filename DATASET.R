@@ -10,18 +10,11 @@ NBAOdds$Diff <- (NBAOdds$Score - NBAOdds$Score.1)
 
 NBAOdds$Year <- year(NBAOdds$Date)
 
-plot(NBAOdds$Diff, NBAOdds$Home.Spread)
 
-
-ggplot(NBAOdds, aes(x = Home.Spread, y = Diff)) + geom_point() + geom_smooth()
-
-View(NBAOdds)
-
-Odds2016 <- filter(NBAOdds, Year == 2016)
+Odds2015_2016 <- filter(NBAOdds, Year == 2016 | Year == 2015)
 
 datos2016 <- read.csv("~/Sloan/datos2016.csv", row.names=1)
-
-summary(Odds2016$Away)
+datos2015 <- read.csv("~/Sloan/datos2015.csv", row.names=1)
 
 #LA == clippers, Los Angeles == LAKERS
 
@@ -86,18 +79,90 @@ rownames(datos2016) <- gsub("Los Angeles", "LAL", rownames(datos2016))
 colnames(datos2016) <- gsub("Minnesota.Timberwolves", "MIN", colnames(datos2016))
 rownames(datos2016) <- gsub("Minnesota", "MIN", rownames(datos2016))
 
-Odds2016$defAPPS <- NA
-Odds2016$offAPPS <- NA
+
+colnames(datos2015) <- gsub("Detroit.Pistons", "DET", colnames(datos2015))
+rownames(datos2015) <- gsub("Detroit", "DET", rownames(datos2015))
+colnames(datos2015) <- gsub("Atlanta.Hawks", "ATL", colnames(datos2015))
+rownames(datos2015) <- gsub("Atlanta", "ATL", rownames(datos2015))
+colnames(datos2015) <- gsub("Chicago.Bulls", "CHI", colnames(datos2015))
+rownames(datos2015) <- gsub("Chicago", "CHI", rownames(datos2015))
+colnames(datos2015) <- gsub("Boston.Celtics", "BOS", colnames(datos2015))
+rownames(datos2015) <- gsub("Boston", "BOS", rownames(datos2015))
+colnames(datos2015) <- gsub("Cleveland.Cavaliers", "CLE", colnames(datos2015))
+rownames(datos2015) <- gsub("Cleveland", "CLE", rownames(datos2015))
+colnames(datos2015) <- gsub("New.Orleans.Pelicans", "NOH", colnames(datos2015))
+rownames(datos2015) <- gsub("New Orleans", "NOH", rownames(datos2015))
+colnames(datos2015) <- gsub("Golden.State.Warriors", "GS", colnames(datos2015))
+rownames(datos2015) <- gsub("Golden State", "GS", rownames(datos2015))
+colnames(datos2015) <- gsub("Orlando.Magic", "ORL", colnames(datos2015))
+rownames(datos2015) <- gsub("Orlando", "ORL", rownames(datos2015))
+colnames(datos2015) <- gsub("Washington.Wizards", "WAS", colnames(datos2015))
+rownames(datos2015) <- gsub("Washington", "WAS", rownames(datos2015))
+colnames(datos2015) <- gsub("Philadelphia.76ers", "PHI", colnames(datos2015))
+rownames(datos2015) <- gsub("Philadelphia", "PHI", rownames(datos2015))
+colnames(datos2015) <- gsub("Brooklyn.Nets", "BKN", colnames(datos2015))
+rownames(datos2015) <- gsub("Brooklyn", "BKN", rownames(datos2015))
+colnames(datos2015) <- gsub("Utah.Jazz", "UTA", colnames(datos2015))
+rownames(datos2015) <- gsub("Utah.Jazz", "UTA", rownames(datos2015))
+colnames(datos2015) <- gsub("Miami.Heat", "MIA", colnames(datos2015))
+rownames(datos2015) <- gsub("Miami", "MIA", rownames(datos2015))
+colnames(datos2015) <- gsub("Charlotte.Hornets", "CHR", colnames(datos2015))
+rownames(datos2015) <- gsub("Charlotte", "CHR", rownames(datos2015))
+colnames(datos2015) <- gsub("Toronto.Raptors", "TOR", colnames(datos2015))
+rownames(datos2015) <- gsub("Toronto", "TOR", rownames(datos2015))
+colnames(datos2015) <- gsub("Indiana.Pacers", "IND", colnames(datos2015))
+rownames(datos2015) <- gsub("Indiana", "IND", rownames(datos2015))
+colnames(datos2015) <- gsub("Houston.Rockets", "HOU", colnames(datos2015))
+rownames(datos2015) <- gsub("Houston", "HOU", rownames(datos2015))
+colnames(datos2015) <- gsub("Denver.Nuggets", "DEN", colnames(datos2015))
+rownames(datos2015) <- gsub("Denver", "DEN", rownames(datos2015))
+colnames(datos2015) <- gsub("Memphis.Grizzlies", "MEM", colnames(datos2015))
+rownames(datos2015) <- gsub("Memphis", "MEM", rownames(datos2015))
+colnames(datos2015) <- gsub("New.York.Knicks", "NY", colnames(datos2015))
+rownames(datos2015) <- gsub("New York", "NY", rownames(datos2015))
+colnames(datos2015) <- gsub("Milwaukee.Bucks", "MIL", colnames(datos2015))
+rownames(datos2015) <- gsub("Milwaukee", "MIL", rownames(datos2015))
+colnames(datos2015) <- gsub("Oklahoma.City.Thunder", "OKC", colnames(datos2015))
+rownames(datos2015) <- gsub("Oklahoma City", "OKC", rownames(datos2015))
+colnames(datos2015) <- gsub("San.Antonio.Spurs", "SAN", colnames(datos2015))
+rownames(datos2015) <- gsub("San Antonio", "SAN", rownames(datos2015))
+colnames(datos2015) <- gsub("Dallas.Mavericks", "DAL", colnames(datos2015))
+rownames(datos2015) <- gsub("Dallas", "DAL", rownames(datos2015))
+colnames(datos2015) <- gsub("Phoenix.Suns", "PHO", colnames(datos2015))
+rownames(datos2015) <- gsub("Phoenix", "PHO", rownames(datos2015))
+colnames(datos2015) <- gsub("Portland.Trail.Blazers", "POR", colnames(datos2015))
+rownames(datos2015) <- gsub("Portland", "POR", rownames(datos2015))
+colnames(datos2015) <- gsub("Los.Angeles.Clippers", "LAC", colnames(datos2015))
+rownames(datos2015) <- gsub("LA", "LAC", rownames(datos2015))
+colnames(datos2015) <- gsub("Sacramento.Kings", "SAC", colnames(datos2015))
+rownames(datos2015) <- gsub("Sacramento", "SAC", rownames(datos2015))
+colnames(datos2015) <- gsub("Los.Angeles.Lakers", "LAL", colnames(datos2015))
+rownames(datos2015) <- gsub("Los Angeles", "LAL", rownames(datos2015))
+colnames(datos2015) <- gsub("Minnesota.Timberwolves", "MIN", colnames(datos2015))
+rownames(datos2015) <- gsub("Minnesota", "MIN", rownames(datos2015))
 
 
-for (i in 1:nrow(Odds2016)) {
-  
-  Odds2016$offAPPS[i]<- datos2016[rownames(datos2016) == Odds2016$Home[i],colnames(datos2016) == Odds2016$Away[i]]
-  Odds2016$defAPPS[i] <- datos2016[rownames(datos2016) == Odds2016$Away[i],colnames(datos2016) == Odds2016$Home[i]]
+
+
+
+Odds2015_2016$defAPPS <- NA
+Odds2015_2016$offAPPS <- NA
+
+datos <- list(datos2015 = datos2015, datos2016= datos2016)
+
+
+for (i in 1:nrow(Odds2015_2016)) {
+  if (Odds2015_2016$Year[i] == 2016){
+  Odds2015_2016$offAPPS[i]<- datos$datos2016[rownames(datos$datos2016) == Odds2015_2016$Home[i],colnames(datos$datos2016) == Odds2015_2016$Away[i]]
+  Odds2015_2016$defAPPS[i] <- datos$datos2016[rownames(datos$datos2016) == Odds2015_2016$Away[i],colnames(datos$datos2016) == Odds2015_2016$Home[i]]
+  }
+  if (Odds2015_2016$Year[i] == 2015){
+    Odds2015_2016$offAPPS[i]<- datos$datos2015[rownames(datos$datos2015) == Odds2015_2016$Home[i],colnames(datos$datos2015) == Odds2015_2016$Away[i]]
+    Odds2015_2016$defAPPS[i] <- datos$datos2015[rownames(datos$datos2015) == Odds2015_2016$Away[i],colnames(datos$datos2015) == Odds2015_2016$Home[i]]
+  }
 }
-
-ggplot(Odds2016, aes(x = defAPPS, y = Diff)) + geom_point() + geom_smooth()
-ggplot(Odds2016, aes(x = offAPPS, y = Diff)) + geom_point() + geom_smooth()
+ggplot(Odds2015_2016, aes(x = defAPPS, y = Diff)) + geom_point() + geom_smooth()
+ggplot(Odds2015_2016, aes(x = offAPPS, y = Diff)) + geom_point() + geom_smooth()
 
 
 #Odds2016$defAPPS[1]<- datos2016[rownames(datos2016) == Odds2016$Home[1],colnames(datos2016) == Odds2016$Away[1]]

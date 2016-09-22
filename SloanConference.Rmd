@@ -446,8 +446,6 @@ system.time(for (i in 1:length(Offensive_teams)) {
 
 ```{r, cache=TRUE}
 write.csv(df2016, "datos2016.csv")
-colMeans(df2016, na.rm = TRUE)
-min(df2016)
 ```
 
 ```{r, cache=TRUE}
@@ -456,5 +454,25 @@ saveRDS(shotDatafDef2016, "shotDatafDef2016.rds")
 saveRDS(shotDataTotal2015, "shotDataTotal2015.rds")
 saveRDS(shotDatafDef2015, "shotDatafDef2015.rds")
 saveRDS(shotDataTotal2014, "shotDataTotal2014.rds")
-saveRDS(shotDatafDef2014, "shotDatafDef2014")
+saveRDS(shotDatafDef2014, "shotDatafDef2014.rds")
+```
+
+```{r, cache=TRUE}
+
+Offensive_teams <- as.character(unique(shotDataTotal2015$TEAM_NAME))
+
+defenseve_names <- names(shotDatafDef2015)
+df2015 <- data.frame(matrix(ncol = 30, nrow = 30))
+colnames(df2015) <- as.character(unique(shotDataTotal2015$TEAM_NAME))
+rownames(df2015) <- names(shotDatafDef2015)
+
+system.time(for (i in 1:length(Offensive_teams)) {
+  Offensive_team <- Offensive_teams[i]
+  for (j in 1:length(defenseve_names)){
+    df2015[j,i] <- ShotComparison(OffTeam = Offensive_team, DefTown =                        defenseve_names[j], SeasondataOff = shotDataTotal2015, SeasonDataDef = shotDatafDef2015, nbins = 30)
+  }
+})
+
+write.csv(df2015, "datos2015.csv")
+
 ```
