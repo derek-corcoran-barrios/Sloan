@@ -17,6 +17,8 @@ datos2016 <- read.csv("~/Sloan/datos2016.csv", row.names=1)
 datos2015 <- read.csv("~/Sloan/datos2015.csv", row.names=1)
 datos2014 <- read.csv("~/Sloan/datos2014.csv", row.names=1)
 datos2013 <- read.csv("~/Sloan/datos2013.csv", row.names=1)
+datos2012 <- read.csv("~/Sloan/datos2012.csv", row.names=1)
+
 
 
 #LA == clippers, Los Angeles == LAKERS

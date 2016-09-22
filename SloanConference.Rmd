@@ -552,9 +552,9 @@ shotDataTotal2013 <- shotDataTotal
 
 ```{r, cache=TRUE}
 
-Offensive_teams <- as.character(unique(shotDataTotal2014$TEAM_NAME))
+Offensive_teams <- as.character(unique(shotDataTotal2013$TEAM_NAME))
 
-defenseve_names <- names(shotDatafDef2014)
+defenseve_names <- names(shotDatafDef2013)
 df2013 <- data.frame(matrix(ncol = 30, nrow = 30))
 colnames(df2013) <- as.character(unique(shotDataTotal2013$TEAM_NAME))
 rownames(df2013) <- names(shotDatafDef2013)
@@ -566,7 +566,79 @@ system.time(for (i in 1:length(Offensive_teams)) {
   }
 })
 
-write.csv(df2014, "datos2013.csv")
-saveRDS(shotDataTotal2014, "shotDataTotal2013.rds")
-saveRDS(shotDatafDef2014, "shotDatafDef2013.rds")
+write.csv(df2013, "datos2013.csv")
+saveRDS(shotDataTotal2013, "shotDataTotal2013.rds")
+saveRDS(shotDatafDef2013, "shotDatafDef2013.rds")
+```
+
+#2012
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, results='hide'}
+defensiveURL <- list()
+shotData <- list()
+shotDatafDef <- list()
+
+
+for (i in 1:length(teamID)){
+defensiveURL[[i]] <- paste("http://stats.nba.com/stats/shotchartdetail?CFID=33&CFPARAMS=2011-12&ContextFilter=&ContextMeasure=FGA&DateFrom=&DateTo=&GameID=&GameSegment=&LastNGames=0&LeagueID=00&Location=&MeasureType=Base&Month=0&OpponentTeamID=", by_team$team_id[i],"&Outcome=&PaceAdjust=N&PerMode=PerGame&Period=0&PlayerID=0&PlusMinus=N&Position=&Rank=N&RookieYear=&Season=2011-12&SeasonSegment=&SeasonType=Regular+Season&TeamID=0&VsConference=&VsDivision=&mode=Advanced&showDetails=0&showShots=1&showZones=0", sep = "")
+
+# import from JSON
+shotData[[i]] <- fromJSON(file = defensiveURL[[i]], method="C")
+
+# unlist shot data, save into a data frame
+shotDatafDef[[i]] <- data.frame(matrix(unlist(shotData[[i]]$resultSets[[1]][[3]]), ncol=21, byrow = TRUE))
+
+# shot data headers
+colnames(shotDatafDef[[i]]) <- shotData[[i]]$resultSets[[1]][[2]]
+
+# covert x and y coordinates into numeric
+shotDatafDef[[i]]$LOC_X <- as.numeric(as.character(shotDatafDef[[i]]$LOC_X))
+shotDatafDef[[i]]$LOC_Y <- as.numeric(as.character(shotDatafDef[[i]]$LOC_Y))
+shotDatafDef[[i]]$SHOT_DISTANCE <- as.numeric(as.character(shotDatafDef[[i]]$SHOT_DISTANCE))
+}
+
+names(shotDatafDef) <- teamName
+# have a look at the data
+shotDatafDef2012 <- shotDatafDef
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, cache=TRUE, results='hide'}
+shotURLtotal <- paste("http://stats.nba.com/stats/shotchartdetail?CFID=33&CFPARAMS=2011-12&ContextFilter=&ContextMeasure=FGA&DateFrom=&DateTo=&GameID=&GameSegment=&LastNGames=0&LeagueID=00&Location=&MeasureType=Base&Month=0&OpponentTeamID=0&Outcome=&PaceAdjust=N&PerMode=PerGame&Period=0&PlayerID=0&PlusMinus=N&Position=&Rank=N&RookieYear=&Season=2011-12&SeasonSegment=&SeasonType=Regular+Season&TeamID=0&VsConference=&VsDivision=&mode=Advanced&showDetails=0&showShots=1&showZones=0", sep = "")
+
+# import from JSON
+shotDataTotal <- fromJSON(file = shotURLtotal, method="C")
+
+# unlist shot data, save into a data frame
+shotDataTotal <- data.frame(matrix(unlist(shotDataTotal$resultSets[[1]][[3]]), ncol=21, byrow = TRUE))
+colnames(shotDataTotal) <- colnames(shotDatafDef[[1]])
+
+# covert x and y coordinates into numeric
+shotDataTotal$LOC_X <- as.numeric(as.character(shotDataTotal$LOC_X))
+shotDataTotal$LOC_Y <- as.numeric(as.character(shotDataTotal$LOC_Y))
+shotDataTotal$SHOT_DISTANCE <- as.numeric(as.character(shotDataTotal$SHOT_DISTANCE))
+
+
+shotDataTotal2012 <- shotDataTotal
+
+```
+
+```{r, cache=TRUE}
+
+Offensive_teams <- as.character(unique(shotDataTotal2012$TEAM_NAME))
+
+defenseve_names <- names(shotDatafDef2012)
+df2012 <- data.frame(matrix(ncol = 30, nrow = 30))
+colnames(df2012) <- as.character(unique(shotDataTotal2012$TEAM_NAME))
+rownames(df2012) <- names(shotDatafDef2012)
+
+system.time(for (i in 1:length(Offensive_teams)) {
+  Offensive_team <- Offensive_teams[i]
+  for (j in 1:length(defenseve_names)){
+    df2012[j,i] <- ShotComparison(OffTeam = Offensive_team, DefTown =                        defenseve_names[j], SeasondataOff = shotDataTotal2012, SeasonDataDef = shotDatafDef2012, nbins = 30)
+  }
+})
+
+write.csv(df2012, "datos2012.csv")
+saveRDS(shotDataTotal2012, "shotDataTotal2012.rds")
+saveRDS(shotDatafDef2012, "shotDatafDef2012.rds")
 ```
