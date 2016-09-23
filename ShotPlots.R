@@ -73,34 +73,35 @@ ShotComparison <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, nbins
   PPSAA <- weighted.mean((Comparison$PPS.x + Comparison$PPS.y), Comparison$ST.x)
   
   OFF <- ggplot(DiffOff) + annotation_custom(court, -250, 250, -52, 418) + geom_point(aes(x = x, y = y, color = PPS, size = ST), stat = "identity", alpha = 0.8) +
-    # guides(alpha = FALSE, size = FALSE) +
     coord_fixed()  +theme(line = element_blank(),
                           axis.title.x = element_blank(),
                           axis.title.y = element_blank(),
                           axis.text.x = element_blank(),
                           axis.text.y = element_blank(),
                           legend.title = element_blank(),
-                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, 7)) + scale_color_gradient2(name="Off PPS") + ylim(c(-51, 400) +  ggtitle(paste(OffTeam, "Offensive\n Shot Chart", sep = " "))
+                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, 7)) + scale_color_gradient2(name="Off PPS") + ylim(c(-51, 400))+ theme(legend.position="none") +  ggtitle(paste(OffTeam, "Offensive\n Shot Chart", sep = " "))
   DEF <- ggplot(DiffDeff)  + annotation_custom(court, -250, 250, -52, 418) + geom_point(aes(x = x, y = y, color = PPS, size = ST), stat = "identity", alpha = 0.8) +
-    # guides(alpha = FALSE, size = FALSE) +
     coord_fixed()  +theme(line = element_blank(),
                           axis.title.x = element_blank(),
                           axis.title.y = element_blank(),
                           axis.text.x = element_blank(),
                           axis.text.y = element_blank(),
                           legend.title = element_blank(),
-                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, 7)) + scale_color_gradient2(name="Off PPS") + ylim(c(-51, 400) +  ggtitle(paste(DefTown, "defensive\n Shot Chart", sep = " ")) 
+                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, 7)) + scale_color_gradient2(name="Off PPS") + ylim(c(-51, 400))+ theme(legend.position="none") + ggtitle(paste(DefTown, "defensive\n Shot Chart", sep = " "))
   
   COMP <- ggplot(Comparison)  + 
     annotation_custom(court, -250, 250, -52, 418) +
-    + geom_point(aes(x = x.x, y = y.x, color = Diff, size = ST.y), stat = "identity", alpha = 0.8)+
+    geom_hex(aes(x = x.x, y = y.x, fill = Diff),
+             stat = "identity", alpha = 0.8) +
+    guides(alpha = FALSE, size = FALSE) +
+    
     coord_fixed()  +theme(line = element_blank(),
                           axis.title.x = element_blank(),
                           axis.title.y = element_blank(),
                           axis.text.x = element_blank(),
                           axis.text.y = element_blank(),
                           legend.title = element_blank(),
-                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))  + scale_fill_gradient2(name="Difference\n PPS")+ ggtitle("Comparison\n Shot Chart")
+                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold")) + ggtitle("Comparison\n Shot Chart") + scale_fill_gradient2(name="Difference\n PPS")
   
   grid.arrange(DEF, OFF, COMP, ncol=3)
   
@@ -114,11 +115,10 @@ test <- Com1$deff
 View(test)
 
 ggplot(test)  + annotation_custom(court, -250, 250, -52, 418) + geom_point(aes(x = x, y = y, color = PPS, size = ST), stat = "identity", alpha = 0.8) +
- # guides(alpha = FALSE, size = FALSE) +
   coord_fixed()  +theme(line = element_blank(),
                         axis.title.x = element_blank(),
                         axis.title.y = element_blank(),
                         axis.text.x = element_blank(),
                         axis.text.y = element_blank(),
                         legend.title = element_blank(),
-                        plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, 7)) + scale_color_gradient2(name="Off PPS") + ylim(c(-51, 400) + ggtitle("Offensive\n Shot Chart") 
+                        plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, 7)) + scale_color_gradient2(name="Off PPS") + ylim(c(-51, 400))+ theme(legend.position="top") + ggtitle("Offensive\n Shot Chart") 
