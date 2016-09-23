@@ -18,7 +18,7 @@ shotDataTotal2016 <- readRDS("shotDataTotal2016.rds")
 shotDatafDef2013 <- readRDS("shotDatafDef2013.rds")
 shotDataTotal2013 <- readRDS("shotDataTotal2013.rds")
 
-ShotComparison <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, nbins = 40) {
+ShotComparisonGraph <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, nbins = 30, maxsize = 7, quant = 0.7) {
   #Filter the offensive data of the Offensive Team
   Off <- filter(SeasondataOff, TEAM_NAME == OffTeam)
   #Filter the Deffensive data of the Defensive team
@@ -72,53 +72,61 @@ ShotComparison <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, nbins
   
   PPSAA <- weighted.mean((Comparison$PPS.x + Comparison$PPS.y), Comparison$ST.x)
   
-  OFF <- ggplot(DiffOff) + annotation_custom(court, -250, 250, -52, 418) + geom_point(aes(x = x, y = y, color = PPS, size = ST), stat = "identity", alpha = 0.8) +
+  #Legend extractor
+  g_legend <- function(a.gplot){
+    tmp <- ggplot_gtable(ggplot_build(a.gplot))
+    leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+    legend <- tmp$grobs[[leg]]
+    return(legend)}
+  
+  OFFLEG <- ggplot(DiffOff) + annotation_custom(court, -250, 250, -52, 418) + geom_point(aes(x = x, y = y, color = PPS, size = ST), stat = "identity") +
     coord_fixed()  +theme(line = element_blank(),
                           axis.title.x = element_blank(),
                           axis.title.y = element_blank(),
                           axis.text.x = element_blank(),
                           axis.text.y = element_blank(),
                           legend.title = element_blank(),
-                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, 7)) + scale_color_gradient2(name="Off PPS") + ylim(c(-51, 400))+ theme(legend.position="none") +  ggtitle(paste(OffTeam, "Offensive\n Shot Chart", sep = " "))
-  DEF <- ggplot(DiffDeff)  + annotation_custom(court, -250, 250, -52, 418) + geom_point(aes(x = x, y = y, color = PPS, size = ST), stat = "identity", alpha = 0.8) +
+                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, maxsize)) + scale_color_gradient2(low = "blue", high = "red") + ylim(c(-51, 400))+ theme(legend.position="bottom") +  ggtitle(paste(OffTeam, "Offensive\n Shot Chart", sep = " "))
+  leg<-g_legend(OFFLEG)
+  
+  DiffOff <- filter(DiffOff, ST > quantile(DiffOff$ST, probs = quant))
+  DiffDeff <- filter(DiffDeff, ST > quantile(DiffDeff$ST, probs = quant))
+  Comparison <- filter(Comparison, ST.x > quantile(Comparison$ST.x, probs = quant))
+  
+  
+  
+  OFF <- ggplot(DiffOff) + annotation_custom(court, -250, 250, -52, 418) + geom_point(aes(x = x, y = y, color = PPS, size = ST), stat = "identity") +
     coord_fixed()  +theme(line = element_blank(),
                           axis.title.x = element_blank(),
                           axis.title.y = element_blank(),
                           axis.text.x = element_blank(),
                           axis.text.y = element_blank(),
                           legend.title = element_blank(),
-                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, 7)) + scale_color_gradient2(name="Off PPS") + ylim(c(-51, 400))+ theme(legend.position="none") + ggtitle(paste(DefTown, "defensive\n Shot Chart", sep = " "))
-  
-  COMP <- ggplot(Comparison)  + 
-    annotation_custom(court, -250, 250, -52, 418) +
-    geom_hex(aes(x = x.x, y = y.x, fill = Diff),
-             stat = "identity", alpha = 0.8) +
-    guides(alpha = FALSE, size = FALSE) +
-    
+                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, maxsize)) + scale_color_gradient2(low = "blue", high = "red") + ylim(c(-51, 400))+ theme(legend.position="none") +  ggtitle(paste(OffTeam, "Offensive\n Shot Chart", sep = " "))
+  DEF <- ggplot(DiffDeff)  + annotation_custom(court, -250, 250, -52, 418) + geom_point(aes(x = x, y = y, color = PPS, size = ST), stat = "identity") +
     coord_fixed()  +theme(line = element_blank(),
                           axis.title.x = element_blank(),
                           axis.title.y = element_blank(),
                           axis.text.x = element_blank(),
                           axis.text.y = element_blank(),
                           legend.title = element_blank(),
-                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold")) + ggtitle("Comparison\n Shot Chart") + scale_fill_gradient2(name="Difference\n PPS")
+                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, maxsize)) + scale_color_gradient2(low = "blue", high = "red") + ylim(c(-51, 400))+ theme(legend.position="none") + ggtitle(paste(DefTown, "defensive\n Shot Chart", sep = " "))
   
-  grid.arrange(DEF, OFF, COMP, ncol=3)
+  COMP <- ggplot(Comparison) + annotation_custom(court, -250, 250, -52, 418) + geom_point(aes(x = x.x, y = y.x, color = Diff, size = ST.x), stat = "identity") +
+    coord_fixed()  +theme(line = element_blank(),
+                          axis.title.x = element_blank(),
+                          axis.title.y = element_blank(),
+                          axis.text.x = element_blank(),
+                          axis.text.y = element_blank(),
+                          legend.title = element_blank(),
+                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, maxsize)) + scale_color_gradient2(low = "blue", high = "red") + ylim(c(-51, 400))+ theme(legend.position="none") + ggtitle("Comparison\n Shot Chart")
+  charts <- arrangeGrob(DEF,OFF, COMP, ncol = 3)
+  p <- grid.arrange(arrangeGrob(arrangeGrob(DEF,OFF, COMP, ncol = 3),leg,ncol=1,heights=c(7/8,1/8)))
   
-  return(list(Off = DiffOff, deff = DiffDeff, Comparison = Comparison, Total = Totalhex, PPSAA = PPSAA))
+  return(list(Off = DiffOff, deff = DiffDeff, Comparison = Comparison, Total = Totalhex, PPSAA = PPSAA, p = p, leg = leg, charts = charts))
 }
 
-Com1 <- ShotComparison(OffTeam = "Milwaukee Bucks", DefTown = "Miami", SeasondataOff = shotDataTotal2013, SeasonDataDef = shotDatafDef2013, nbins = 30)
+Com1 <- ShotComparisonGraph(OffTeam = "San Antonio Spurs", DefTown = "Philadelphia", SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 30, quant = 0.9)
+Com2 <- ShotComparisonGraph(OffTeam = "Philadelphia 76ers", DefTown = "San Antonio", SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 30, quant = 0.9)
 
-test <- Com1$deff
-
-View(test)
-
-ggplot(test)  + annotation_custom(court, -250, 250, -52, 418) + geom_point(aes(x = x, y = y, color = PPS, size = ST), stat = "identity", alpha = 0.8) +
-  coord_fixed()  +theme(line = element_blank(),
-                        axis.title.x = element_blank(),
-                        axis.title.y = element_blank(),
-                        axis.text.x = element_blank(),
-                        axis.text.y = element_blank(),
-                        legend.title = element_blank(),
-                        plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, 7)) + scale_color_gradient2(name="Off PPS") + ylim(c(-51, 400))+ theme(legend.position="top") + ggtitle("Offensive\n Shot Chart") 
+grid.arrange(Com1$charts,Com2$charts,Com1$leg,ncol=1,heights=c(3/7, 3/7 ,1/7))
