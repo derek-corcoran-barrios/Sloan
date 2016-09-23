@@ -126,7 +126,7 @@ ShotComparisonGraph <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, 
   return(list(Off = DiffOff, deff = DiffDeff, Comparison = Comparison, Total = Totalhex, PPSAA = PPSAA, p = p, leg = leg, charts = charts))
 }
 
-Com1 <- ShotComparisonGraph(OffTeam = "San Antonio Spurs", DefTown = "Philadelphia", SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 30, quant = 0.9)
-Com2 <- ShotComparisonGraph(OffTeam = "Philadelphia 76ers", DefTown = "San Antonio", SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 30, quant = 0.9)
+Com1 <- ShotComparisonGraph(OffTeam = "San Antonio Spurs", DefTown = "Oklahoma City", SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 30, quant = 0.7)
+Com2 <- ShotComparisonGraph(OffTeam = "OKlahoma City Thunder", DefTown = "San Antonio", SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 30, quant = 0.7)
 
 grid.arrange(Com1$charts,Com2$charts,Com1$leg,ncol=1,heights=c(3/7, 3/7 ,1/7))
