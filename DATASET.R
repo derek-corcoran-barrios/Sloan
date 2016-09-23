@@ -361,7 +361,6 @@ ggplot(NBAOdds, aes(x = Home.Spread, y = Diff)) + geom_point() + geom_smooth()
 ggplot(NBAOdds, aes(x = defAPPS, y = Diff)) + geom_point() + geom_smooth()
 ggplot(NBAOdds, aes(x = offAPPS, y = Diff)) + geom_point() + geom_smooth()
 
-summary(lm(Diff ~ Home.Spread, data=NBAOdds))
 summary(lm(Diff ~ offAPPS + defAPPS, data=NBAOdds))
 summary(lm(Diff ~ defAPPS, data=NBAOdds))
 summary(lm(Diff ~ offAPPS, data=NBAOdds))
@@ -380,6 +379,22 @@ NBAOdds$BRTfit <- BRT$fit
 
 ggplot(NBAOdds, aes(x = BRTfit, y = Diff)) + geom_point() + geom_smooth()
 
+summary(lm(Diff ~ Home.Spread, data=NBAOdds))
+summary(lm(Diff ~ BRTfit, data=NBAOdds))
 
+
+gbm.plot(BRT, n.plots=2, write.title = FALSE)
+
+find.int <- gbm.interactions(BRT)
+find.int$interactions
+
+predict_comparison <- melt(NBAOdds, id.vars = "Diff", measure.vars = c("Home.Spread", "BRTfit"))
+predict_comparison$variable <- ifelse(predict_comparison$variable == "Home.Spread", "Vegas odds", "PPS odds")
+ggplot(predict_comparison, aes(x = Diff, y = value)) + geom_point(aes(color = variable)) + geom_smooth(method = lm, aes(fill=variable, color = variable)) + xlab("Observed spread") + ylab("Predicted spread")
 #Odds2016$defAPPS[1]<- datos2016[rownames(datos2016) == Odds2016$Home[1],colnames(datos2016) == Odds2016$Away[1]]
 #Odds2016$offAPPS[1] <- datos2016[rownames(datos2016) == Odds2016$Away[1],colnames(datos2016) == Odds2016$Home[1]]
+
+
+observed_data  <- melt(NBAOdds, id.vars = "Diff", measure.vars = c("defAPPS", "offAPPS"))
+
+ggplot(observed_data, aes(x = Diff, y = value)) + geom_point(aes(color = variable)) + geom_smooth(method = lm, aes(fill=variable, color = variable)) + xlab("Average points per shot") + ylab("Observed spread")

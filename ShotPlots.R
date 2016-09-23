@@ -12,9 +12,11 @@ library(raster)
 library(rasterVis)
 library(dplyr)
 
-#function to make the hexbin dataframe
-
-#shot Comparison function
+court <- readRDS("court.rds")
+shotDatafDef2016 <- readRDS("shotDatafDef2016.rds")
+shotDataTotal2016 <- readRDS("shotDataTotal2016.rds")
+shotDatafDef2013 <- readRDS("shotDatafDef2013.rds")
+shotDataTotal2013 <- readRDS("shotDataTotal2013.rds")
 
 ShotComparison <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, nbins = 40) {
   #Filter the offensive data of the Offensive Team
@@ -45,16 +47,16 @@ ShotComparison <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, nbins
   DeffbyCell$PPS.x[is.na(DeffbyCell$PPS.x)] <- 0
   DeffbyCell$PPS.y[is.na(DeffbyCell$PPS.y)] <- 0
   DeffbyCell$ST.y[is.na(DeffbyCell$ST.y)] <- 0
-
+  
   OffByCell$PPS.x[is.na(OffByCell$PPS.x)] <- 0
   OffByCell$PPS.y[is.na(OffByCell$PPS.y)] <- 0
   OffByCell$ST.y[is.na(OffByCell$ST.y)] <- 0
   #  make a "difference" data.frame
   DiffDeff <- data.frame(x = ifelse(is.na(DeffbyCell$x.x), DeffbyCell$x.y, DeffbyCell$x.x),
-                        y = ifelse(is.na(DeffbyCell$y.x), DeffbyCell$y.y, DeffbyCell$y.x),
-                        PPS= DeffbyCell$PPS.y - DeffbyCell$PPS.x,
-                        cid= DeffbyCell$cid, 
-                        ST = DeffbyCell$ST.y)
+                         y = ifelse(is.na(DeffbyCell$y.x), DeffbyCell$y.y, DeffbyCell$y.x),
+                         PPS= DeffbyCell$PPS.y - DeffbyCell$PPS.x,
+                         cid= DeffbyCell$cid, 
+                         ST = DeffbyCell$ST.y)
   
   DiffOff <- data.frame(x = ifelse(is.na(OffByCell$x.x), OffByCell$x.y, OffByCell$x.x),
                         y = ifelse(is.na(OffByCell$y.x), OffByCell$y.y, OffByCell$y.x),
@@ -70,68 +72,53 @@ ShotComparison <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, nbins
   
   PPSAA <- weighted.mean((Comparison$PPS.x + Comparison$PPS.y), Comparison$ST.x)
   
-  OFF <- ggplot(DiffOff)  + 
-    annotation_custom(court, -250, 250, -52, 418) +
-    geom_hex(aes(x = x, y = y, fill = PPS),
-             stat = "identity", alpha = 0.8) +
-    guides(alpha = FALSE, size = FALSE) +
+  OFF <- ggplot(DiffOff) + annotation_custom(court, -250, 250, -52, 418) + geom_point(aes(x = x, y = y, color = PPS, size = ST), stat = "identity", alpha = 0.8) +
+    # guides(alpha = FALSE, size = FALSE) +
     coord_fixed()  +theme(line = element_blank(),
                           axis.title.x = element_blank(),
                           axis.title.y = element_blank(),
                           axis.text.x = element_blank(),
                           axis.text.y = element_blank(),
                           legend.title = element_blank(),
-                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold")) + ggtitle(paste(OffTeam, "Offensive\n Shot Chart", sep = " ")) + scale_fill_gradient2(name="Off PPS")
-  DEF <- ggplot(DiffDeff)  + 
-    annotation_custom(court, -250, 250, -52, 418) +
-    geom_hex(aes(x = x, y = y, fill = PPS),
-             stat = "identity", alpha = 0.8) +
-    guides(alpha = FALSE, size = FALSE) +
-    
+                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, 7)) + scale_color_gradient2(name="Off PPS") + ylim(c(-51, 400) +  ggtitle(paste(OffTeam, "Offensive\n Shot Chart", sep = " "))
+  DEF <- ggplot(DiffDeff)  + annotation_custom(court, -250, 250, -52, 418) + geom_point(aes(x = x, y = y, color = PPS, size = ST), stat = "identity", alpha = 0.8) +
+    # guides(alpha = FALSE, size = FALSE) +
     coord_fixed()  +theme(line = element_blank(),
                           axis.title.x = element_blank(),
                           axis.title.y = element_blank(),
                           axis.text.x = element_blank(),
                           axis.text.y = element_blank(),
                           legend.title = element_blank(),
-                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold")) + ggtitle(paste(DefTown, "defensive\n Shot Chart", sep = " ")) + scale_fill_gradient2(name="Def PPS")
+                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, 7)) + scale_color_gradient2(name="Off PPS") + ylim(c(-51, 400) +  ggtitle(paste(DefTown, "defensive\n Shot Chart", sep = " ")) 
   
   COMP <- ggplot(Comparison)  + 
     annotation_custom(court, -250, 250, -52, 418) +
-    geom_hex(aes(x = x.x, y = y.x, fill = Diff),
-             stat = "identity", alpha = 0.8) +
-    guides(alpha = FALSE, size = FALSE) +
-    
+    + geom_point(aes(x = x.x, y = y.x, color = Diff, size = ST.y), stat = "identity", alpha = 0.8)+
     coord_fixed()  +theme(line = element_blank(),
                           axis.title.x = element_blank(),
                           axis.title.y = element_blank(),
                           axis.text.x = element_blank(),
                           axis.text.y = element_blank(),
                           legend.title = element_blank(),
-                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold")) + ggtitle("Comparison\n Shot Chart") + scale_fill_gradient2(name="Difference\n PPS")
-
+                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))  + scale_fill_gradient2(name="Difference\n PPS")+ ggtitle("Comparison\n Shot Chart")
+  
   grid.arrange(DEF, OFF, COMP, ncol=3)
   
   return(list(Off = DiffOff, deff = DiffDeff, Comparison = Comparison, Total = Totalhex, PPSAA = PPSAA))
 }
 
-str(ShotComparison(OffTeam = "Boston Celtics", DefTown = "San Antonio", SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 40))
+Com1 <- ShotComparison(OffTeam = "Milwaukee Bucks", DefTown = "Miami", SeasondataOff = shotDataTotal2013, SeasonDataDef = shotDatafDef2013, nbins = 30)
 
+test <- Com1$deff
 
-Offensive_teams <- as.character(unique(shotDataTotal2016$TEAM_NAME))
+View(test)
 
-defenseve_names <- names(shotDatafDef2016)
-
-df <- data.frame(matrix(ncol = 30, nrow = 30))
-colnames(df) <- as.character(unique(shotDataTotal2016$TEAM_NAME))
-rownames(df) <- names(shotDatafDef2016)
-
-for (i in 1:3) {
-  for (j in 1:3){
-    df[rownames(df) == defenseve_names[j],colnames(df) == Offensive_teams[i]] <- ShotComparison(OffTeam = Offensive_team, DefTown = defenseve_names[j], SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 30)
-  }
-}
-
-
-
-
+ggplot(test)  + annotation_custom(court, -250, 250, -52, 418) + geom_point(aes(x = x, y = y, color = PPS, size = ST), stat = "identity", alpha = 0.8) +
+ # guides(alpha = FALSE, size = FALSE) +
+  coord_fixed()  +theme(line = element_blank(),
+                        axis.title.x = element_blank(),
+                        axis.title.y = element_blank(),
+                        axis.text.x = element_blank(),
+                        axis.text.y = element_blank(),
+                        legend.title = element_blank(),
+                        plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, 7)) + scale_color_gradient2(name="Off PPS") + ylim(c(-51, 400) + ggtitle("Offensive\n Shot Chart") 
