@@ -2,6 +2,7 @@
 library(ggplot2)
 library(lubridate)
 library(dplyr)
+library(reshape2)
 NBAOdds <- read.csv("~/Sloan/NBAOdds.csv")
 NBAOdds$Date <- mdy(NBAOdds$Date)
 NBAOdds$Diff <- (NBAOdds$Score.1 - NBAOdds$Score)
@@ -373,6 +374,7 @@ write.csv(FinalOdds, "FinalOdds.csv")
 library(dismo)
 library(gbm)
 
+set.seed(123)
 BRT <- gbm.step(NBAOdds, gbm.x = 14:15, gbm.y = 12, family = "gaussian", plot.main = TRUE, plot.folds = TRUE)
 summary(BRT)
 NBAOdds$BRTfit <- BRT$fit
@@ -383,7 +385,8 @@ summary(lm(Diff ~ Home.Spread, data=NBAOdds))
 summary(lm(Diff ~ BRTfit, data=NBAOdds))
 
 
-gbm.plot(BRT, n.plots=2, write.title = FALSE)
+gbm.plot(BRT, n.plots=2, write.title = FALSE, plot.layout=c(1, 2))
+gbm.perspec(BRT, 1, 2, y.range=c(-0.15,0.15), z.range=c(-15,15), z.label = "Predicted Home spread")
 
 find.int <- gbm.interactions(BRT)
 find.int$interactions

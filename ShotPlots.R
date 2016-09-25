@@ -86,7 +86,7 @@ ShotComparisonGraph <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, 
                           axis.text.x = element_blank(),
                           axis.text.y = element_blank(),
                           legend.title = element_blank(),
-                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, maxsize)) + scale_color_gradient2(low = "blue", high = "red") + ylim(c(-51, 400))+ theme(legend.position="bottom") +  ggtitle(paste(OffTeam, "Offensive\n Shot Chart", sep = " "))
+                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, maxsize)) + scale_color_gradient2(low = "blue", high = "red", name = "APPS") + ylim(c(-51, 400))+ theme(legend.position="bottom") +  ggtitle(paste(OffTeam, "Offensive\n Shot Chart", sep = " "))
   leg<-g_legend(OFFLEG)
   
   DiffOff <- filter(DiffOff, ST > quantile(DiffOff$ST, probs = quant))
