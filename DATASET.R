@@ -375,14 +375,20 @@ library(dismo)
 library(gbm)
 
 set.seed(123)
-BRT <- gbm.step(NBAOdds, gbm.x = 14:15, gbm.y = 12, family = "gaussian", plot.main = TRUE, plot.folds = TRUE)
+BRT <- gbm.step(NBAOdds, gbm.x = 14:15, gbm.y = 12, family = "gaussian", plot.main = TRUE, plot.folds = FALSE)
 summary(BRT)
+
+
 NBAOdds$BRTfit <- BRT$fit
+
+NBAOdds2012_2015 <- filter(NBAOdds, Year != 2016)
+NBAOdds2016 <- filter(NBAOdds, Year == 2016)
+
 
 ggplot(NBAOdds, aes(x = BRTfit, y = Diff)) + geom_point() + geom_smooth()
 
-summary(lm(Diff ~ Home.Spread, data=NBAOdds))
-summary(lm(Diff ~ BRTfit, data=NBAOdds))
+summary(lm(Diff ~ Home.Spread, data=NBAOdds2016))
+summary(lm(Diff ~ preds, data=NBAOdds2016))
 
 
 gbm.plot(BRT, n.plots=2, write.title = FALSE, plot.layout=c(1, 2))
@@ -391,7 +397,7 @@ gbm.perspec(BRT, 1, 2, y.range=c(-0.15,0.15), z.range=c(-15,15), z.label = "Pred
 find.int <- gbm.interactions(BRT)
 find.int$interactions
 
-predict_comparison <- melt(NBAOdds, id.vars = "Diff", measure.vars = c("Home.Spread", "BRTfit"))
+predict_comparison <- melt(NBAOdds2016, id.vars = "Diff", measure.vars = c("Home.Spread", "preds"))
 predict_comparison$variable <- ifelse(predict_comparison$variable == "Home.Spread", "Vegas odds", "PPS odds")
 ggplot(predict_comparison, aes(x = Diff, y = value)) + geom_point(aes(color = variable)) + geom_smooth(method = lm, aes(fill=variable, color = variable)) + xlab("Observed spread") + ylab("Predicted spread")
 #Odds2016$defAPPS[1]<- datos2016[rownames(datos2016) == Odds2016$Home[1],colnames(datos2016) == Odds2016$Away[1]]
