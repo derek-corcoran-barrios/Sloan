@@ -114,8 +114,12 @@ ShotComparison <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, nbins
   
   return(list(Off = DiffOff, deff = DiffDeff, Comparison = Comparison, Total = Totalhex, PPSAA = PPSAA))
 }
-
-str(ShotComparison(OffTeam = "Boston Celtics", DefTown = "San Antonio", SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 40))
+court <- readRDS("court.rds")
+shotDatafDef2016 <- readRDS("shotDatafDef2016.rds")
+shotDataTotal2016 <- readRDS("shotDataTotal2016.rds")
+shotDatafDef2013 <- readRDS("shotDatafDef2013.rds")
+shotDataTotal2013 <- readRDS("shotDataTotal2013.rds")
+ShotComparison(OffTeam = "Boston Celtics", DefTown = "San Antonio", SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 40)
 
 
 Offensive_teams <- as.character(unique(shotDataTotal2016$TEAM_NAME))
@@ -128,7 +132,7 @@ rownames(df) <- names(shotDatafDef2016)
 
 for (i in 1:3) {
   for (j in 1:3){
-    df[rownames(df) == defenseve_names[j],colnames(df) == Offensive_teams[i]] <- ShotComparison(OffTeam = Offensive_team, DefTown = defenseve_names[j], SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 30)
+    df[rownames(df) == defenseve_names[j],colnames(df) == Offensive_teams[i]] <- ShotComparison(OffTeam = Offensive_teams, DefTown = defenseve_names[j], SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 30)
   }
 }
 

@@ -1,17 +1,25 @@
 #Data
+
+#Load packages
 library(ggplot2)
 library(lubridate)
 library(dplyr)
 library(reshape2)
+
+##Read Vegas odds and transform the fromats
 NBAOdds <- read.csv("~/Sloan/NBAOdds.csv")
 NBAOdds$Date <- mdy(NBAOdds$Date)
+
+#Observed data The observed data, that is the away score - the home score, that will result in a negative value if the home team won, compared to a possitive value if the home team wins
 NBAOdds$Diff <- (NBAOdds$Score.1 - NBAOdds$Score)
 
 NBAOdds$Diff <- (NBAOdds$Score - NBAOdds$Score.1)
 
+#Year of the result
 NBAOdds$Year <- year(NBAOdds$Date)
 
-
+#Read the spatial average points per shot difference per year, the Column names are the Offensive team and the row is the defensive team, the value in each cell is the value above average that 
+#the offensive team would score against the deffensive team, that is, if the value is positive the offensive team would score above NBA average on that team, and if it's negative the opposite is true
 datos2016 <- read.csv("~/Sloan/datos2016.csv", row.names=1)
 datos2015 <- read.csv("~/Sloan/datos2015.csv", row.names=1)
 datos2014 <- read.csv("~/Sloan/datos2014.csv", row.names=1)
@@ -20,7 +28,8 @@ datos2012 <- read.csv("~/Sloan/datos2012.csv", row.names=1)
 
 
 
-#LA == clippers, Los Angeles == LAKERS
+##Equalize home and away team names
+
 
 colnames(datos2016) <- gsub("Detroit.Pistons", "DET", colnames(datos2016))
 rownames(datos2016) <- gsub("Detroit", "DET", rownames(datos2016))
@@ -328,6 +337,10 @@ rownames(datos2012) <- gsub("Los Angeles", "LAL", rownames(datos2012))
 colnames(datos2012) <- gsub("Minnesota.Timberwolves", "MIN", colnames(datos2012))
 rownames(datos2012) <- gsub("Minnesota", "MIN", rownames(datos2012))
 
+
+#Add two columns Aberage points per shot
+#Def apps is when the away team is defending 
+#Off apps is when the away team is attacking
 NBAOdds$defAPPS <- NA
 NBAOdds$offAPPS <- NA
 
@@ -374,36 +387,67 @@ write.csv(FinalOdds, "FinalOdds.csv")
 library(dismo)
 library(gbm)
 
-set.seed(123)
-BRT <- gbm.step(NBAOdds, gbm.x = 14:15, gbm.y = 12, family = "gaussian", plot.main = TRUE, plot.folds = FALSE)
-summary(BRT)
 
-
-NBAOdds$BRTfit <- BRT$fit
-
+#Divide odds into 2016 vs 2012-2015
 NBAOdds2012_2015 <- filter(NBAOdds, Year != 2016)
 NBAOdds2016 <- filter(NBAOdds, Year == 2016)
 
 
-ggplot(NBAOdds, aes(x = BRTfit, y = Diff)) + geom_point() + geom_smooth()
+#####Forcast
 
-summary(lm(Diff ~ Home.Spread, data=NBAOdds2016))
-summary(lm(Diff ~ preds, data=NBAOdds2016))
-
-
-gbm.plot(BRT, n.plots=2, write.title = FALSE, plot.layout=c(1, 2))
-gbm.perspec(BRT, 1, 2, y.range=c(-0.15,0.15), z.range=c(-15,15), z.label = "Predicted Home spread")
-
-find.int <- gbm.interactions(BRT)
-find.int$interactions
-
-predict_comparison <- melt(NBAOdds2016, id.vars = "Diff", measure.vars = c("Home.Spread", "preds"))
-predict_comparison$variable <- ifelse(predict_comparison$variable == "Home.Spread", "Vegas odds", "PPS odds")
-ggplot(predict_comparison, aes(x = Diff, y = value)) + geom_point(aes(color = variable)) + geom_smooth(method = lm, aes(fill=variable, color = variable)) + xlab("Observed spread") + ylab("Predicted spread")
-#Odds2016$defAPPS[1]<- datos2016[rownames(datos2016) == Odds2016$Home[1],colnames(datos2016) == Odds2016$Away[1]]
-#Odds2016$offAPPS[1] <- datos2016[rownames(datos2016) == Odds2016$Away[1],colnames(datos2016) == Odds2016$Home[1]]
+####Caret version
+library(caret)
+ctrl <- trainControl(method = "repeatedcv", number=10, repeats=3)
 
 
-observed_data  <- melt(NBAOdds, id.vars = "Diff", measure.vars = c("defAPPS", "offAPPS"))
+grid <- expand.grid(interaction.depth = seq(1, 7, by = 2),
+                    n.trees = seq(100, 1000, by = 50),
+                    shrinkage = c(0.01, 0.1),
+                    n.minobsinnode=c(1,5,10))
 
-ggplot(observed_data, aes(x = Diff, y = value)) + geom_point(aes(color = variable)) + geom_smooth(method = lm, aes(fill=variable, color = variable)) + xlab("Average points per shot") + ylab("Observed spread")
+
+# train the GBM model
+set.seed(7)
+modelGbmforcast <- train(x = NBAOdds2012_2015[,14:15],y = NBAOdds2012_2015[,12], method = "gbm",  preProcess = c("center", "scale"), verbose = FALSE, trControl = ctrl, tuneGrid = grid)
+
+gbmcaretforecast <- predict(modelGbmforcast, NBAOdds2016[,14:15])
+####
+
+#Add BRT fit to model
+
+#Add caret fit to model
+NBAOdds2016$GBMfit <- gbmcaretforecast
+
+
+#Plot predictions
+predict_comparison <- melt(NBAOdds2016, id.vars = "Diff", measure.vars = c("Home.Spread", "GBMfit"))
+predict_comparison$variable <- ifelse(predict_comparison$variable == "Home.Spread", "Vegas odds","PPS odds")
+ggplot(predict_comparison, aes(x = Diff, y = value)) + geom_point(aes(color = variable)) + geom_smooth(method = lm, aes(fill=variable, color = variable)) + xlab("Observed spread") + ylab("Predicted spread") + theme(legend.position = "bottom")
+
+
+#get The predicted
+
+postResample(pred = NBAOdds2016$GBMfit, obs = NBAOdds2016$Diff)
+postResample(pred = NBAOdds2016$Home.Spread, obs = NBAOdds2016$Diff)
+
+####Surface plot
+
+
+For.predictions <- expand.grid(defAPPS = seq(from = min(NBAOdds$defAPPS), to = max(NBAOdds$defAPPS), length.out = 100), 
+                    offAPPS =seq(from= min(NBAOdds$offAPPS),to = max(NBAOdds$offAPPS), length.out = 100))
+
+For.predictions$Spread <- predict(modelGbmforcast, For.predictions)
+
+wireframe(Spread ~  offAPPS + defAPPS, data = For.predictions, colorkey = TRUE, drape = TRUE, pretty = TRUE,scales = list(arrows = FALSE), screen = list(z = -220, x = -80))
+
+z = seq(from = -6, to = 6, length.out = 20)
+
+for (i in 1:20){
+  print(wireframe(Spread ~  offAPPS + defAPPS, data = For.predictions, colorkey = TRUE, drape = TRUE, pretty = TRUE,scales = list(arrows = FALSE), screen = list(z = z[i]), main = print(z[i])))
+  
+}
+
+
+
+
+
