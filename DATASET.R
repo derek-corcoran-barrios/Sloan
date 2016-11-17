@@ -440,13 +440,6 @@ For.predictions$Spread <- predict(modelGbmforcast, For.predictions)
 
 wireframe(Spread ~  offAPPS + defAPPS, data = For.predictions, colorkey = TRUE, drape = TRUE, pretty = TRUE,scales = list(arrows = FALSE), screen = list(z = -220, x = -80))
 
-z = seq(from = -6, to = 6, length.out = 20)
-
-for (i in 1:20){
-  print(wireframe(Spread ~  offAPPS + defAPPS, data = For.predictions, colorkey = TRUE, drape = TRUE, pretty = TRUE,scales = list(arrows = FALSE), screen = list(z = z[i]), main = print(z[i])))
-  
-}
-
 
 
 
