@@ -10,7 +10,7 @@ The scraped data is stored as RDS files, where the offensive and deffensive shot
 
 ##Difference.R
 
-File to make the function *ShotComparison*, to compare between 2 teams in a season
+File to make the function *ShotComparison*, to compare between 2 teams in a season, the files called *datos2012.csv* to *datos2016.csv* where made with the loop at the end of the script
 
 
 ##ShotPlots.R

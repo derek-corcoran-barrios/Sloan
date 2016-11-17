@@ -131,4 +131,3 @@ Com2 <- ShotComparisonGraph(OffTeam = "Cleveland Cavaliers", DefTown = "Golden S
 
 grid.arrange(Com1$charts,Com2$charts,Com1$leg,ncol=1,heights=c(3/7, 3/7 ,1/7))
 
-#scale_color_gradient2(low = "blue", high = "red", name = "APPS")

@@ -130,12 +130,9 @@ df <- data.frame(matrix(ncol = 30, nrow = 30))
 colnames(df) <- as.character(unique(shotDataTotal2016$TEAM_NAME))
 rownames(df) <- names(shotDatafDef2016)
 
-for (i in 1:3) {
-  for (j in 1:3){
-    df[rownames(df) == defenseve_names[j],colnames(df) == Offensive_teams[i]] <- ShotComparison(OffTeam = Offensive_teams, DefTown = defenseve_names[j], SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 30)
+for (i in 1:length(Offensive_teams)) {
+  for (j in 1:length(defenseve_names)){
+    df[rownames(df) == defenseve_names[j],colnames(df) == Offensive_teams[i]] <- ShotComparison(OffTeam = Offensive_teams[i], DefTown = defenseve_names[j], SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 30)$PPSAA
   }
 }
-
-
-
 
