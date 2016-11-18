@@ -62,22 +62,22 @@ The final values used for the model were n.trees = 200, interaction.depth = 1, s
 ##Model without pace adjust 
 
 ###Our model
-      RMSE |  Rsquared
------------------------ 
-15.7584135 | 0.1211844 
+|      RMSE |  Rsquared |
+|-----------|:----------| 
+|15.7584135 | 0.1211844 |
 
 ###Vegas
 
-      RMSE |  Rsquared 
-----------------------
-14.0461242 | 0.2934513 
+|      RMSE |  Rsquared |
+|-----------|:----------|
+|14.0461242 | 0.2934513 |
 
 ###Variable importance
 
-    var |  rel.inf
---------------------
-defAPPS |  53.66145
-offAPPS |  46.33855
+|    var |  rel.inf   |
+|--------|:-----------|
+|defAPPS |  53.66145  | 
+|offAPPS |  46.33855  |
 
 
 #Comparison
@@ -91,21 +91,23 @@ The final values used for the model were n.trees = 250, interaction.depth = 1, s
 ###Our model
 
 
-      RMSE |  Rsquared 
------------------------
-15.6367226 | 0.1226283 
+|      RMSE |  Rsquared |
+|-----------|:----------|
+|15.6367226 | 0.1226283 |
 
 ###Vegas
 
-      RMSE |  Rsquared
-------------------------- 
-14.0461242 | 0.2934513 
+|      RMSE |  Rsquared |
+|-----------|:----------| 
+|14.0461242 | 0.2934513 |
 
 
 ###Variable importance
 
-    var |  rel.inf
---------------------
-defAPPS |  47.35940
-offAPPS |  41.66317
-Pace    |  10.97743
+|    var |  rel.inf   |
+|--------|:-----------|
+|defAPPS |  47.35940  |
+|offAPPS |  41.66317  |
+|Pace    |  10.97743  |
+
+
