@@ -50,3 +50,62 @@ We added the following columns:
 The resulting Dataframe was exported as *FinalOdds.csv*
 
 After this a Boosted Regression Trees was fitted in R
+
+
+
+#Comparison
+
+RMSE was used to select the optimal model using  the smallest value.
+The final values used for the model were n.trees = 200, interaction.depth = 1, shrinkage
+ = 0.01 and n.minobsinnode = 10. 
+
+##Model without pace adjust 
+
+###Our model
+      RMSE |  Rsquared
+----------------------- 
+15.7584135 | 0.1211844 
+
+###Vegas
+
+      RMSE |  Rsquared 
+----------------------
+14.0461242 | 0.2934513 
+
+###Variable importance
+
+    var |  rel.inf
+--------------------
+defAPPS |  53.66145
+offAPPS |  46.33855
+
+
+#Comparison
+
+##Model with pace adjust 
+
+RMSE was used to select the optimal model using  the smallest value.
+The final values used for the model were n.trees = 250, interaction.depth = 1, shrinkage
+ = 0.01 and n.minobsinnode = 10. 
+
+###Our model
+
+
+      RMSE |  Rsquared 
+-----------------------
+15.6367226 | 0.1226283 
+
+###Vegas
+
+      RMSE |  Rsquared
+------------------------- 
+14.0461242 | 0.2934513 
+
+
+###Variable importance
+
+    var |  rel.inf
+--------------------
+defAPPS |  47.35940
+offAPPS |  41.66317
+Pace    |  10.97743

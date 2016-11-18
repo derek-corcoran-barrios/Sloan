@@ -50,8 +50,10 @@ pacetable$TEAM <- gsub("Dallas", "DAL", pacetable$TEAM)
 pacetable$TEAM <- gsub("Phoenix", "PHO", pacetable$TEAM)
 pacetable$TEAM <- gsub("Portland", "POR", pacetable$TEAM)
 pacetable$TEAM <- gsub("LAC Clippers", "LAC", pacetable$TEAM)
+pacetable$TEAM <- gsub("LA Clippers", "LAC", pacetable$TEAM)
 pacetable$TEAM <- gsub("Sacramento", "SAC", pacetable$TEAM)
 pacetable$TEAM <- gsub("LAC Lakers", "LAL", pacetable$TEAM)
+pacetable$TEAM <- gsub("LA Lakers", "LAL", pacetable$TEAM)
 pacetable$TEAM <- gsub("Minnesota", "MIN", pacetable$TEAM)
 
 
