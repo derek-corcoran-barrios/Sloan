@@ -532,8 +532,21 @@ For.predictions$Spread <- predict(modelGbmforcast, For.predictions)
 
 wireframe(Spread ~  offAPPS + defAPPS, data = For.predictions, colorkey = TRUE, drape = TRUE, pretty = TRUE,scales = list(arrows = FALSE), screen = list(z = -220, x = -80))
 
-
-
-For.predictions <- expand.grid(defAPPS = seq(from = min(NBAOdds$defAPPS), to = max(NBAOdds$defAPPS), length.out = 100), 
-                               offAPPS =seq(from= min(NBAOdds$offAPPS),to = max(NBAOdds$offAPPS), length.out = 100),
+For.predictions <- expand.grid(defAPPS = seq(from = min(NBAOdds$defAPPS), to = max(NBAOdds$defAPPS), length.out = 50), 
+                               offAPPS =seq(from= min(NBAOdds$offAPPS),to = max(NBAOdds$offAPPS), length.out = 50),
                                Pace = mean(NBAOdds2016$Pace))
+For.predictions$Spread <- predict(modelGbmforcast, For.predictions)
+
+For.predictions2 <- For.predictions
+For.predictions2$Type <- c("Predicted")
+For.predictions3 <- For.predictions2[seq(from =1, to = NROW(For.predictions), by = 100),]
+For.predictions3$Spread <- 0
+For.predictions3$Type <- c("Push")
+For.predictions2 <- rbind(For.predictions2, For.predictions3)
+
+#Test 1
+wireframe(Spread ~  offAPPS + defAPPS, group = Type, data = For.predictions2, colorkey = TRUE, drape = TRUE, pretty = TRUE,scales = list(arrows = FALSE), screen = list(z = -220, x = -80), par.settings = list(regions=list(alpha=0.75)))
+#Test 2
+wireframe(Spread ~  offAPPS + defAPPS, group = Type, data = For.predictions2, colorkey = TRUE, drape = TRUE, pretty = TRUE,scales = list(arrows = FALSE), screen = list(z = -220, x = -60), par.settings = list(regions=list(alpha=0.85)))
+#Test3
+wireframe(Spread ~  offAPPS + defAPPS, group = Type, data = For.predictions2, colorkey = TRUE, drape = TRUE, pretty = TRUE,scales = list(arrows = FALSE), screen = list(z = -220, x = -100))
