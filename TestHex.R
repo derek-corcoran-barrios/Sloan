@@ -107,6 +107,9 @@ ShotComparisonGraph <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, 
   DFDEF <- hex_coord_df(DiffDeff$x, DiffDeff$y, DiffDeff$ST, DiffDeff$ST, size =1)
   DFDEF$PPS <- rep(DiffDeff$PPS, each = 6)
   
+  DFDIF <- hex_coord_df(Comparison$x.x, Comparison$y.x, (0.05*Comparison$ST.x),(0.05*Comparison$ST.x), size =1)
+  DFDIF$Dif <- rep(Comparison$Diff, each = 6)
+  
   #Create Legend
   OFFLEG <- ggplot(DFOFF, aes(x=x, y = y))+ annotation_custom(court, -250, 250, -52, 418) + geom_polygon(aes(group = id, fill = PPS)) + scale_fill_gradient2(low ="blue", high = "red", limits=c(-1.2, 1.2)) +
     coord_fixed()  +theme(line = element_blank(),
@@ -135,14 +138,14 @@ ShotComparisonGraph <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, 
                           legend.title = element_blank(),
                           plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, maxsize)) + ylim(c(-51, 400))+ theme(legend.position="none") + ggtitle(paste(DefTown, "defensive\n Shot Chart", sep = " "))
   
-  COMP <- ggplot(Comparison) + annotation_custom(court, -250, 250, -52, 418) + geom_point(aes(x = x.x, y = y.x, color = Diff, size = ST.x), stat = "identity") +
+  COMP <- ggplot(DFDIF, aes(x=x, y = y))+ annotation_custom(court, -250, 250, -52, 418) + geom_polygon(aes(group = id, fill = Dif)) + scale_fill_gradient2(low ="blue", high = "red", limits=c(-1.2, 1.2)) +
     coord_fixed()  +theme(line = element_blank(),
                           axis.title.x = element_blank(),
                           axis.title.y = element_blank(),
                           axis.text.x = element_blank(),
                           axis.text.y = element_blank(),
                           legend.title = element_blank(),
-                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, maxsize)) + scale_color_gradient2(low = "blue", high = "red", name = "APPS")+ ylim(c(-51, 400))+ theme(legend.position="none") + ggtitle("Comparison\n Shot Chart")
+                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, maxsize)) +  ylim(c(-51, 400))+ theme(legend.position="none") + ggtitle("Comparison\n Shot Chart")
   charts <- arrangeGrob(DEF,OFF, COMP, ncol = 3)
   p <- grid.arrange(arrangeGrob(arrangeGrob(DEF,OFF, COMP, ncol = 3),leg,ncol=1,heights=c(7/8,1/8)))
   
