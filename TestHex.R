@@ -13,6 +13,9 @@ library(rasterVis)
 library(dplyr)
 
 court <- readRDS("court.rds")
+court2 <- readRDS("court2.rds")
+court3 <- readRDS("court3.rds")
+
 shotDatafDef2016 <- readRDS("shotDatafDef2016.rds")
 shotDataTotal2016 <- readRDS("shotDataTotal2016.rds")
 shotDatafDef2013 <- readRDS("shotDatafDef2013.rds")
@@ -204,3 +207,5 @@ ggplot(DFDIF, aes(x=x, y = y))+ annotation_custom(court, -250, 250, -52, 418) + 
                                                                                                                                                                                                                      axis.text.y = element_blank(),
                                                                                                                                                                                                                      legend.title = element_blank(),
                                                                                                                                                                                                                      plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, maxsize)) +scale_color_gradient2(low = "blue", high = "red", name = "APPS") + ylim(c(-40, 270))+ theme(legend.position="bottom") + ylim(c(-26, 265))
+
+
