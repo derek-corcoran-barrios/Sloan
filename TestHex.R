@@ -212,7 +212,7 @@ ggplot(DFDIF, aes(x=x, y = y))+ annotation_custom(court, -250, 250, -52, 418) + 
 ##################################################################################################
 ##############################################################################
 ######################################Change Durant to the Warriors:
-ShotComparisonGraph2 <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, nbins = 30, maxsize = 7, quant = 0.7, focus = "Zero") {
+ShotComparisonGraph2 <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, nbins = 30, maxsize = 7, quant = 0.7, focus = "all") {
   #Filter the offensive data of the Offensive Team
   Off <- filter(SeasondataOff, TEAM_NAME == OffTeam)
   #Filter the Deffensive data of the Defensive team
@@ -288,7 +288,7 @@ ShotComparisonGraph2 <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef,
   }
   
   #Filter by quantile and focus
-  if (focus == "Zero") {
+  if (focus == "all") {
   DiffOff <- filter(DiffOff, ST > quantile(DiffOff$ST, probs = quant))
   DiffDeff <- filter(DiffDeff, ST > quantile(DiffDeff$ST, probs = quant))
   Comparison <- filter(Comparison, ST.x > quantile(Comparison$ST.x, probs = quant))
@@ -362,9 +362,14 @@ ShotComparisonGraph2 <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef,
 shotDataTotal2016b <- shotDataTotal2016
 
 shotDataTotal2016b$TEAM_NAME <-ifelse(shotDataTotal2016b$PLAYER_NAME == "Kevin Durant", "Golden State Warriors", shotDataTotal2016b$TEAM_NAME)
+shotDataTotal2016b$TEAM_NAME <-ifelse(shotDataTotal2016b$PLAYER_NAME == "Zaza Pachulia", "Golden State Warriors", shotDataTotal2016b$TEAM_NAME)
+shotDataTotal2016b$TEAM_NAME <-ifelse(shotDataTotal2016b$PLAYER_NAME == "Harrison Barnes", "Dallas Mavericks", shotDataTotal2016b$TEAM_NAME)
+shotDataTotal2016b$TEAM_NAME <-ifelse(shotDataTotal2016b$PLAYER_NAME == "Andrew Bogut", "Dallas Mavericks", shotDataTotal2016b$TEAM_NAME)
+
+
 ##Only positives
-Com1 <- ShotComparisonGraph2(OffTeam = "Golden State Warriors", DefTown = "Oklahoma City", SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 30, quant = 0.7, focus = "plus")
-Com2 <- ShotComparisonGraph2(OffTeam = "Golden State Warriors", DefTown = "Oklahoma City", SeasondataOff = shotDataTotal2016b, SeasonDataDef = shotDatafDef2016, nbins = 30, quant = 0.7, focus = "plus")
+Com1 <- ShotComparisonGraph2(OffTeam = "Golden State Warriors", DefTown = "Cleveland", SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 30, quant = 0.7, focus = "plus")
+Com2 <- ShotComparisonGraph2(OffTeam = "Golden State Warriors", DefTown = "Cleveland", SeasondataOff = shotDataTotal2016b, SeasonDataDef = shotDatafDef2016, nbins = 30, quant = 0.7, focus = "plus")
 
 grid.arrange(Com1$charts,Com2$charts,Com1$leg,ncol=1,heights=c(3/7, 3/7 ,1/7))
 
