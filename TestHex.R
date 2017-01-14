@@ -16,8 +16,8 @@ court <- readRDS("court.rds")
 court2 <- readRDS("court2.rds")
 court3 <- readRDS("court3.rds")
 
-shotDatafDef2016 <- readRDS("shotDatafDef2016.rds")
-shotDataTotal2016 <- readRDS("shotDataTotal2016.rds")
+shotDatafDef2016 <- readRDS("shotDatafDef2017.rds")
+shotDataTotal2016 <- readRDS("shotDataTotal2017.rds")
 shotDatafDef2013 <- readRDS("shotDatafDef2013.rds")
 shotDataTotal2013 <- readRDS("shotDataTotal2013.rds")
 
@@ -155,8 +155,8 @@ ShotComparisonGraph <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, 
   return(list(Off = DiffOff, deff = DiffDeff, Comparison = Comparison, Total = Totalhex, PPSAA = PPSAA, p = p, leg = leg, charts = charts))
 }
 
-Com1 <- ShotComparisonGraph(OffTeam = "Golden State Warriors", DefTown = "Portland", SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 30, quant = 0.7)
-Com2 <- ShotComparisonGraph(OffTeam = "Cleveland Cavaliers", DefTown = "Golden State", SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 30, quant = 0.7)
+Com1 <- ShotComparisonGraph(OffTeam = "Golden State Warriors", DefTown = "Portland", SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.7)
+Com2 <- ShotComparisonGraph(OffTeam = "Cleveland Cavaliers", DefTown = "Golden State", SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.7)
 
 grid.arrange(Com1$charts,Com2$charts,Com1$leg,ncol=1,heights=c(3/7, 3/7 ,1/7))
 
@@ -359,17 +359,14 @@ ShotComparisonGraph2 <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef,
   return(list(Off = DiffOff, deff = DiffDeff, Comparison = Comparison, Total = Totalhex, PPSAA = PPSAA, p = p, leg = leg, charts = charts))
 }
 
-shotDataTotal2016b <- shotDataTotal2016
+shotDataTotal2017b <- shotDataTotal2017
 
-shotDataTotal2016b$TEAM_NAME <-ifelse(shotDataTotal2016b$PLAYER_NAME == "Kevin Durant", "Golden State Warriors", shotDataTotal2016b$TEAM_NAME)
-shotDataTotal2016b$TEAM_NAME <-ifelse(shotDataTotal2016b$PLAYER_NAME == "Zaza Pachulia", "Golden State Warriors", shotDataTotal2016b$TEAM_NAME)
-shotDataTotal2016b$TEAM_NAME <-ifelse(shotDataTotal2016b$PLAYER_NAME == "Harrison Barnes", "Dallas Mavericks", shotDataTotal2016b$TEAM_NAME)
-shotDataTotal2016b$TEAM_NAME <-ifelse(shotDataTotal2016b$PLAYER_NAME == "Andrew Bogut", "Dallas Mavericks", shotDataTotal2016b$TEAM_NAME)
-
+shotDataTotal2017b$TEAM_NAME <-ifelse(shotDataTotal2017b$PLAYER_NAME == "Kyle Korver", "Cleveland Cavaliers", shotDataTotal2017b$TEAM_NAME)
+shotDataTotal2017b$TEAM_NAME <-ifelse(shotDataTotal2017b$PLAYER_NAME == "Mike Dunleavy", "Atlanta Hawks", shotDataTotal2017b$TEAM_NAME)
 
 ##Only positives
-Com1 <- ShotComparisonGraph2(OffTeam = "Golden State Warriors", DefTown = "Cleveland", SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 30, quant = 0.7, focus = "plus")
-Com2 <- ShotComparisonGraph2(OffTeam = "Golden State Warriors", DefTown = "Cleveland", SeasondataOff = shotDataTotal2016b, SeasonDataDef = shotDatafDef2016, nbins = 30, quant = 0.7, focus = "plus")
+Com1 <- ShotComparisonGraph2(OffTeam = "Cleveland Cavaliers", DefTown = "Golden State", SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.7, focus = "plus")
+Com2 <- ShotComparisonGraph2(OffTeam = "Cleveland Cavaliers", DefTown = "Golden State", SeasondataOff = shotDataTotal2017b, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.7, focus = "plus")
 
 grid.arrange(Com1$charts,Com2$charts,Com1$leg,ncol=1,heights=c(3/7, 3/7 ,1/7))
 
