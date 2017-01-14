@@ -89,3 +89,6 @@ for (i in 1:length(teamID)){
 names(shotDatafDef) <- teamName
 
 shotDatafDef2017 <- shotDatafDef
+
+saveRDS(shotDatafDef2017, 'shotDatafDef2017.rds')
+
