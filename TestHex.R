@@ -16,8 +16,8 @@ court <- readRDS("court.rds")
 court2 <- readRDS("court2.rds")
 court3 <- readRDS("court3.rds")
 
-shotDatafDef2016 <- readRDS("shotDatafDef2017.rds")
-shotDataTotal2016 <- readRDS("shotDataTotal2017.rds")
+shotDatafDef2017 <- readRDS("shotDatafDef2017.rds")
+shotDataTotal2017 <- readRDS("shotDataTotal2017.rds")
 shotDatafDef2013 <- readRDS("shotDatafDef2013.rds")
 shotDataTotal2013 <- readRDS("shotDataTotal2013.rds")
 
@@ -361,18 +361,30 @@ ShotComparisonGraph2 <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef,
 
 shotDataTotal2017b <- shotDataTotal2017
 
+####Trade Korver to cleveland
+
 shotDataTotal2017b$TEAM_NAME <-ifelse(shotDataTotal2017b$PLAYER_NAME == "Kyle Korver", "Cleveland Cavaliers", shotDataTotal2017b$TEAM_NAME)
 shotDataTotal2017b$TEAM_NAME <-ifelse(shotDataTotal2017b$PLAYER_NAME == "Mike Dunleavy", "Atlanta Hawks", shotDataTotal2017b$TEAM_NAME)
 
 ##Only positives
-Com1 <- ShotComparisonGraph2(OffTeam = "Cleveland Cavaliers", DefTown = "Golden State", SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.7, focus = "plus")
-Com2 <- ShotComparisonGraph2(OffTeam = "Cleveland Cavaliers", DefTown = "Golden State", SeasondataOff = shotDataTotal2017b, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.7, focus = "plus")
+Com1 <- ShotComparisonGraph2(OffTeam = "Cleveland Cavaliers", DefTown = "Golden State", SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.8, focus = "all")
+Com2 <- ShotComparisonGraph2(OffTeam = "Cleveland Cavaliers", DefTown = "Golden State", SeasondataOff = shotDataTotal2017b, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.8, focus = "all")
 
 grid.arrange(Com1$charts,Com2$charts,Com1$leg,ncol=1,heights=c(3/7, 3/7 ,1/7))
 
-##Only Negatives
 
-Com1 <- ShotComparisonGraph2(OffTeam = "Golden State Warriors", DefTown = "Oklahoma City", SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 30, quant = 0.7, focus = "minus")
-Com2 <- ShotComparisonGraph2(OffTeam = "Golden State Warriors", DefTown = "Oklahoma City", SeasondataOff = shotDataTotal2016b, SeasonDataDef = shotDatafDef2016, nbins = 30, quant = 0.7, focus = "minus")
+####Trade Milsap to Toronto Millsap to Toronto for Patrick Patterson, Terrence Ross, and Jakob Poeltl:
+
+shotDataTotal2017b <- shotDataTotal2017
+
+shotDataTotal2017b$TEAM_NAME <-ifelse(shotDataTotal2017b$PLAYER_NAME == "Paul Millsap", "Toronto Raptors", shotDataTotal2017b$TEAM_NAME)
+shotDataTotal2017b$TEAM_NAME <-ifelse(shotDataTotal2017b$PLAYER_NAME == "Patrick Patterson", "Atlanta Hawks", shotDataTotal2017b$TEAM_NAME)
+shotDataTotal2017b$TEAM_NAME <-ifelse(shotDataTotal2017b$PLAYER_NAME == "Terrence Ross", "Atlanta Hawks", shotDataTotal2017b$TEAM_NAME)
+shotDataTotal2017b$TEAM_NAME <-ifelse(shotDataTotal2017b$PLAYER_NAME == "Jakob Poeltl", "Atlanta Hawks", shotDataTotal2017b$TEAM_NAME)
+
+##Only positives
+Com1 <- ShotComparisonGraph2(OffTeam = "Toronto Raptors", DefTown = "Cleveland", SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.8, focus = "all")
+Com2 <- ShotComparisonGraph2(OffTeam = "Toronto Raptors", DefTown = "Cleveland", SeasondataOff = shotDataTotal2017b, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.8, focus = "all")
 
 grid.arrange(Com1$charts,Com2$charts,Com1$leg,ncol=1,heights=c(3/7, 3/7 ,1/7))
+
