@@ -45,6 +45,39 @@ shotchartTotal2017$SHOT_DISTANCE <- as.numeric(as.character(shotchartTotal2017$S
 
 shotDataTotal2017 <- shotchartTotal2017
 
+shotDataTotal2017$TEAM_NAME <- gsub("Detroit Pistons", "Det", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Atlanta Hawks", "Atl", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Chicago Bulls", "Chi", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Boston Celtics", "Bos", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Cleveland Cavaliers", "Cle", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("New Orleans Pelicans", "NO", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Golden State Warriors", "GSW", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Orlando Magic", "ORL", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Washington Wizards", "Was", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Philadelphia 76ers", "Phi", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Brooklyn Nets", "Bkn", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Utah Jazz", "Uta", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Miami Heat", "Mia", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Charlotte Hornets", "Cha", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Toronto Raptors", "Tor", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Indiana Pacers", "Ind", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Houston Rockets", "Hou", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Denver Nuggets", "Den", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Memphis Grizzlies", "Mem", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("New York Knicks", "NY", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Milwaukee Bucks", "Mil", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Oklahoma City Thunder", "Okc", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("San Antonio Spurs", "Sas", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Dallas Mavericks", "Dal", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Phoenix Suns", "Pho", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Portland Trail Blazers", "Por", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("LA Clippers", "Lac", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Sacramento Kings", "Sac", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Los Angeles Lakers", "Lal", shotDataTotal2017$TEAM_NAME)
+shotDataTotal2017$TEAM_NAME <- gsub("Minnesota Timberwolves", "Min", shotDataTotal2017$TEAM_NAME)
+
+     
+
 saveRDS(shotDataTotal2017, 'shotDataTotal2017.rds')
 
 shotDatafDef2017 <- shotDatafDef
