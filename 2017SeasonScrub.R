@@ -84,16 +84,6 @@ shotDatafDef2017 <- shotDatafDef
 
 ####
 
-#Parameter names
-shotchartTotal2017 <- data.frame(matrix(ncol = 24, nrow = 1))
-
-colnames(shotchartTotal2017)<- shotDataTotal$resultSets[[1]][[2]]
-
-#fist shot of the season
-for(i in 1:length(shotDataTotal$resultSets[[1]][[3]])){
-shotchartTotal2017[i,] <- unlist(shotDataTotal$resultSets[[1]][[3]][[i]])
-}
-
 
 
 #####Defensive end
@@ -218,71 +208,15 @@ rownames(df) <- names(shotDatafDef2017)
 
 for (i in 1:length(Offensive_teams)) {
   for (j in 1:length(defenseve_names)){
-    df[rownames(df) == defenseve_names[j],colnames(df) == Offensive_teams[i]] <- ShotComparison(OffTeam = Offensive_teams[i], DefTown = defenseve_names[j], SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2016, nbins = 30)$PPSAA
+    df[rownames(df) == defenseve_names[j],colnames(df) == Offensive_teams[i]] <- ShotComparison(OffTeam = Offensive_teams[i], DefTown = defenseve_names[j], SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017, nbins = 30)$PPSAA
   }
 }
 
-colnames(df) <- gsub("Detroit.Pistons", "DET", colnames(df))
-rownames(df) <- gsub("Detroit", "DET", rownames(df))
-colnames(df) <- gsub("Atlanta.Hawks", "ATL", colnames(df))
-rownames(df) <- gsub("Atlanta", "ATL", rownames(df))
-colnames(df) <- gsub("Chicago.Bulls", "CHI", colnames(df))
-rownames(df) <- gsub("Chicago", "CHI", rownames(df))
-colnames(df) <- gsub("Boston.Celtics", "BOS", colnames(df))
-rownames(df) <- gsub("Boston", "BOS", rownames(df))
-colnames(df) <- gsub("Cleveland.Cavaliers", "CLE", colnames(df))
-rownames(df) <- gsub("Cleveland", "CLE", rownames(df))
-colnames(df) <- gsub("New.Orleans.Pelicans", "NOH", colnames(df))
-rownames(df) <- gsub("New Orleans", "NOH", rownames(df))
-colnames(df) <- gsub("Golden.State.Warriors", "GS", colnames(df))
-rownames(df) <- gsub("Golden State", "GS", rownames(df))
-colnames(df) <- gsub("Orlando.Magic", "ORL", colnames(df))
-rownames(df) <- gsub("Orlando", "ORL", rownames(df))
-colnames(df) <- gsub("Washington.Wizards", "WAS", colnames(df))
-rownames(df) <- gsub("Washington", "WAS", rownames(df))
-colnames(df) <- gsub("Philadelphia.76ers", "PHI", colnames(df))
-rownames(df) <- gsub("Philadelphia", "PHI", rownames(df))
-colnames(df) <- gsub("Brooklyn.Nets", "BKN", colnames(df))
-rownames(df) <- gsub("Brooklyn", "BKN", rownames(df))
-colnames(df) <- gsub("Utah.Jazz", "UTA", colnames(df))
-rownames(df) <- gsub("Utah.Jazz", "UTA", rownames(df))
-colnames(df) <- gsub("Miami.Heat", "MIA", colnames(df))
-rownames(df) <- gsub("Miami", "MIA", rownames(df))
-colnames(df) <- gsub("Charlotte.Hornets", "CHR", colnames(df))
-rownames(df) <- gsub("Charlotte", "CHR", rownames(df))
-colnames(df) <- gsub("Toronto.Raptors", "TOR", colnames(df))
-rownames(df) <- gsub("Toronto", "TOR", rownames(df))
-colnames(df) <- gsub("Indiana.Pacers", "IND", colnames(df))
-rownames(df) <- gsub("Indiana", "IND", rownames(df))
-colnames(df) <- gsub("Houston.Rockets", "HOU", colnames(df))
-rownames(df) <- gsub("Houston", "HOU", rownames(df))
-colnames(df) <- gsub("Denver.Nuggets", "DEN", colnames(df))
-rownames(df) <- gsub("Denver", "DEN", rownames(df))
-colnames(df) <- gsub("Memphis.Grizzlies", "MEM", colnames(df))
-rownames(df) <- gsub("Memphis", "MEM", rownames(df))
-colnames(df) <- gsub("New.York.Knicks", "NY", colnames(df))
-rownames(df) <- gsub("New York", "NY", rownames(df))
-colnames(df) <- gsub("Milwaukee.Bucks", "MIL", colnames(df))
-rownames(df) <- gsub("Milwaukee", "MIL", rownames(df))
-colnames(df) <- gsub("Oklahoma.City.Thunder", "OKC", colnames(df))
-rownames(df) <- gsub("Oklahoma City", "OKC", rownames(df))
-colnames(df) <- gsub("San.Antonio.Spurs", "SAN", colnames(df))
-rownames(df) <- gsub("San Antonio", "SAN", rownames(df))
-colnames(df) <- gsub("Dallas.Mavericks", "DAL", colnames(df))
-rownames(df) <- gsub("Dallas", "DAL", rownames(df))
-colnames(df) <- gsub("Phoenix.Suns", "PHO", colnames(df))
-rownames(df) <- gsub("Phoenix", "PHO", rownames(df))
-colnames(df) <- gsub("Portland.Trail.Blazers", "POR", colnames(df))
-rownames(df) <- gsub("Portland", "POR", rownames(df))
-colnames(df) <- gsub("Los.Angeles.Clippers", "LAC", colnames(df))
-rownames(df) <- gsub("LA", "LAC", rownames(df))
-colnames(df) <- gsub("Sacramento.Kings", "SAC", colnames(df))
-rownames(df) <- gsub("Sacramento", "SAC", rownames(df))
-colnames(df) <- gsub("Los.Angeles.Lakers", "LAL", colnames(df))
-rownames(df) <- gsub("Los Angeles", "LAL", rownames(df))
-colnames(df) <- gsub("Minnesota.Timberwolves", "MIN", colnames(df))
-rownames(df) <- gsub("Minnesota", "MIN", rownames(df))
 
 datos2017 <- df
 
 write.csv(datos2017, "datos2017.csv")
+
+###Best defense against Golden State
+
+# View(df[order(df$GSW),])

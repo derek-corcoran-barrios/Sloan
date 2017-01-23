@@ -155,8 +155,8 @@ ShotComparisonGraph <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, 
   return(list(Off = DiffOff, deff = DiffDeff, Comparison = Comparison, Total = Totalhex, PPSAA = PPSAA, p = p, leg = leg, charts = charts))
 }
 
-Com1 <- ShotComparisonGraph(OffTeam = "Golden State Warriors", DefTown = "Portland", SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.7)
-Com2 <- ShotComparisonGraph(OffTeam = "Cleveland Cavaliers", DefTown = "Golden State", SeasondataOff = shotDataTotal2016, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.7)
+Com1 <- ShotComparisonGraph(OffTeam = "GSW", DefTown = "Mia", SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.7)
+Com2 <- ShotComparisonGraph(OffTeam = "Mia", DefTown = "GSW", SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.7)
 
 grid.arrange(Com1$charts,Com2$charts,Com1$leg,ncol=1,heights=c(3/7, 3/7 ,1/7))
 
@@ -383,8 +383,7 @@ shotDataTotal2017b$TEAM_NAME <-ifelse(shotDataTotal2017b$PLAYER_NAME == "Terrenc
 shotDataTotal2017b$TEAM_NAME <-ifelse(shotDataTotal2017b$PLAYER_NAME == "Jakob Poeltl", "Atlanta Hawks", shotDataTotal2017b$TEAM_NAME)
 
 ##Only positives
-Com1 <- ShotComparisonGraph2(OffTeam = "Toronto Raptors", DefTown = "Cleveland", SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.8, focus = "all")
-Com2 <- ShotComparisonGraph2(OffTeam = "Toronto Raptors", DefTown = "Cleveland", SeasondataOff = shotDataTotal2017b, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.8, focus = "all")
-
+Com1 <- ShotComparisonGraph2(OffTeam = "GSW", DefTown = "Mia", SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.75, focus = "all")
+Com2 <- ShotComparisonGraph2(OffTeam = "Mia", DefTown = "GSW", SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.75, focus = "all")
 grid.arrange(Com1$charts,Com2$charts,Com1$leg,ncol=1,heights=c(3/7, 3/7 ,1/7))
 
