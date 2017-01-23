@@ -367,8 +367,8 @@ shotDataTotal2017b$TEAM_NAME <-ifelse(shotDataTotal2017b$PLAYER_NAME == "Kyle Ko
 shotDataTotal2017b$TEAM_NAME <-ifelse(shotDataTotal2017b$PLAYER_NAME == "Mike Dunleavy", "Atlanta Hawks", shotDataTotal2017b$TEAM_NAME)
 
 ##Only positives
-Com1 <- ShotComparisonGraph2(OffTeam = "Cleveland Cavaliers", DefTown = "Golden State", SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.8, focus = "all")
-Com2 <- ShotComparisonGraph2(OffTeam = "Cleveland Cavaliers", DefTown = "Golden State", SeasondataOff = shotDataTotal2017b, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.8, focus = "all")
+Com1 <- ShotComparisonGraph2(OffTeam = "Cle", DefTown = "GSW", SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.8, focus = "all")
+Com2 <- ShotComparisonGraph2(OffTeam = "Cle", DefTown = "Golden State", SeasondataOff = shotDataTotal2017b, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.8, focus = "all")
 
 grid.arrange(Com1$charts,Com2$charts,Com1$leg,ncol=1,heights=c(3/7, 3/7 ,1/7))
 

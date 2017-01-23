@@ -123,6 +123,8 @@ names(shotDatafDef) <- teamName
 
 shotDatafDef2017 <- shotDatafDef
 
+names(shotDatafDef2017) <- c("Atl", "Bos", "Cle", "NO", "Chi", "Dal", "Den", "GSW", "Hou", "Lac", "Lal", "Mia", "Mil", "Min", "Bkn", "NY", "ORL", "Ind", "Phi", "Pho", "Por", "Sac", "Sas", "Okc", "Tor", "Uta", "Mem", "Was", "Det", "Cha")
+
 saveRDS(shotDatafDef2017, 'shotDatafDef2017.rds')
 
 
