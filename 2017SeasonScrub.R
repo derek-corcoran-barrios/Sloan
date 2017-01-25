@@ -220,3 +220,38 @@ write.csv(datos2017, "datos2017.csv")
 ###Best defense against Golden State
 
 # View(df[order(df$GSW),])
+####################ScheduleScraper
+
+library(XML)
+library(lubridate)
+
+Months <- c("october", "november", "december", "january", "february", "march", "april")
+
+URLs <- paste("http://www.basketball-reference.com/leagues/NBA_2017_games-", Months,".html", sep = "")
+
+
+schedule <- list()
+# import from JSON
+
+for(i in 1:length(Months)){
+  schedule[[i]] <- readHTMLTable(URLs[[i]])
+  schedule[[i]] <- schedule[[i]]$schedule
+}
+
+schedule <- do.call("rbind", schedule)
+
+schedule$Date <- mdy(as.character(schedule$Date))
+schedule[,4] <- as.numeric(as.character(schedule[,4]))
+schedule[,6] <- as.numeric(as.character(schedule[,6]))
+
+future_games <- schedule[schedule$Date >= Sys.Date(),]
+
+
+
+#####Standing scraper
+
+Standings <- "http://www.basketball-reference.com/leagues/NBA_2017.html"
+
+Standings <- readHTMLTable(Standings)
+
+Standings <- list(Western = Standings$confs_standings_W, Eastern = Standings$confs_standings_E)
