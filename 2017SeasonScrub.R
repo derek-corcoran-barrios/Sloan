@@ -139,7 +139,7 @@ library(dplyr)
 
 #shot Comparison function
 
-ShotComparison <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, nbins = 40) {
+ComparisonPPS <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, nbins = 40) {
   #Filter the offensive data of the Offensive Team
   Off <- filter(SeasondataOff, TEAM_NAME == OffTeam)
   #Filter the Deffensive data of the Defensive team
@@ -208,7 +208,7 @@ rownames(df) <- names(shotDatafDef2017)
 
 for (i in 1:length(Offensive_teams)) {
   for (j in 1:length(defenseve_names)){
-    df[rownames(df) == defenseve_names[j],colnames(df) == Offensive_teams[i]] <- ShotComparison(OffTeam = Offensive_teams[i], DefTown = defenseve_names[j], SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017, nbins = 30)$PPSAA
+    df[rownames(df) == defenseve_names[j],colnames(df) == Offensive_teams[i]] <- ComparisonPPS(OffTeam = Offensive_teams[i], DefTown = defenseve_names[j], SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017, nbins = 30)$PPSAA
   }
 }
 
@@ -244,10 +244,78 @@ schedule$Date <- mdy(as.character(schedule$Date))
 schedule[,4] <- as.numeric(as.character(schedule[,4]))
 schedule[,6] <- as.numeric(as.character(schedule[,6]))
 
+schedule[,3] <- gsub("Detroit Pistons", "Det", schedule[,3])
+schedule[,3] <- gsub("Atlanta Hawks", "Atl", schedule[,3])
+schedule[,3] <- gsub("Chicago Bulls", "Chi", schedule[,3])
+schedule[,3] <- gsub("Boston Celtics", "Bos", schedule[,3])
+schedule[,3] <- gsub("Cleveland Cavaliers", "Cle", schedule[,3])
+schedule[,3] <- gsub("New Orleans Pelicans", "NO", schedule[,3])
+schedule[,3] <- gsub("Golden State Warriors", "GSW", schedule[,3])
+schedule[,3] <- gsub("Orlando Magic", "ORL", schedule[,3])
+schedule[,3] <- gsub("Washington Wizards", "Was", schedule[,3])
+schedule[,3] <- gsub("Philadelphia 76ers", "Phi", schedule[,3])
+schedule[,3] <- gsub("Brooklyn Nets", "Bkn", schedule[,3])
+schedule[,3] <- gsub("Utah Jazz", "Uta", schedule[,3])
+schedule[,3] <- gsub("Miami Heat", "Mia", schedule[,3])
+schedule[,3] <- gsub("Charlotte Hornets", "Cha", schedule[,3])
+schedule[,3] <- gsub("Toronto Raptors", "Tor", schedule[,3])
+schedule[,3] <- gsub("Indiana Pacers", "Ind", schedule[,3])
+schedule[,3] <- gsub("Houston Rockets", "Hou", schedule[,3])
+schedule[,3] <- gsub("Denver Nuggets", "Den", schedule[,3])
+schedule[,3] <- gsub("Memphis Grizzlies", "Mem", schedule[,3])
+schedule[,3] <- gsub("New York Knicks", "NY", schedule[,3])
+schedule[,3] <- gsub("Milwaukee Bucks", "Mil", schedule[,3])
+schedule[,3] <- gsub("Oklahoma City Thunder", "Okc", schedule[,3])
+schedule[,3] <- gsub("San Antonio Spurs", "Sas", schedule[,3])
+schedule[,3] <- gsub("Dallas Mavericks", "Dal", schedule[,3])
+schedule[,3] <- gsub("Phoenix Suns", "Pho", schedule[,3])
+schedule[,3] <- gsub("Portland Trail Blazers", "Por", schedule[,3])
+schedule[,3] <- gsub("Los Angeles Clippers", "Lac", schedule[,3])
+schedule[,3] <- gsub("Sacramento Kings", "Sac", schedule[,3])
+schedule[,3] <- gsub("Los Angeles Lakers", "Lal", schedule[,3])
+schedule[,3] <- gsub("Minnesota Timberwolves", "Min", schedule[,3])
+
+schedule[,5] <- gsub("Detroit Pistons", "Det", schedule[,5])
+schedule[,5] <- gsub("Atlanta Hawks", "Atl", schedule[,5])
+schedule[,5] <- gsub("Chicago Bulls", "Chi", schedule[,5])
+schedule[,5] <- gsub("Boston Celtics", "Bos", schedule[,5])
+schedule[,5] <- gsub("Cleveland Cavaliers", "Cle", schedule[,5])
+schedule[,5] <- gsub("New Orleans Pelicans", "NO", schedule[,5])
+schedule[,5] <- gsub("Golden State Warriors", "GSW", schedule[,5])
+schedule[,5] <- gsub("Orlando Magic", "ORL", schedule[,5])
+schedule[,5] <- gsub("Washington Wizards", "Was", schedule[,5])
+schedule[,5] <- gsub("Philadelphia 76ers", "Phi", schedule[,5])
+schedule[,5] <- gsub("Brooklyn Nets", "Bkn", schedule[,5])
+schedule[,5] <- gsub("Utah Jazz", "Uta", schedule[,5])
+schedule[,5] <- gsub("Miami Heat", "Mia", schedule[,5])
+schedule[,5] <- gsub("Charlotte Hornets", "Cha", schedule[,5])
+schedule[,5] <- gsub("Toronto Raptors", "Tor", schedule[,5])
+schedule[,5] <- gsub("Indiana Pacers", "Ind", schedule[,5])
+schedule[,5] <- gsub("Houston Rockets", "Hou", schedule[,5])
+schedule[,5] <- gsub("Denver Nuggets", "Den", schedule[,5])
+schedule[,5] <- gsub("Memphis Grizzlies", "Mem", schedule[,5])
+schedule[,5] <- gsub("New York Knicks", "NY", schedule[,5])
+schedule[,5] <- gsub("Milwaukee Bucks", "Mil", schedule[,5])
+schedule[,5] <- gsub("Oklahoma City Thunder", "Okc", schedule[,5])
+schedule[,5] <- gsub("San Antonio Spurs", "Sas", schedule[,5])
+schedule[,5] <- gsub("Dallas Mavericks", "Dal", schedule[,5])
+schedule[,5] <- gsub("Phoenix Suns", "Pho", schedule[,5])
+schedule[,5] <- gsub("Portland Trail Blazers", "Por", schedule[,5])
+schedule[,5] <- gsub("Los Angeles Clippers", "Lac", schedule[,5])
+schedule[,5] <- gsub("Sacramento Kings", "Sac", schedule[,5])
+schedule[,5] <- gsub("Los Angeles Lakers", "Lal", schedule[,5])
+schedule[,5] <- gsub("Minnesota Timberwolves", "Min", schedule[,5])
+
+  
+
 future_games <- schedule[schedule$Date >= Sys.Date(),]
+future_games$defensiveAPPS <- NA
+future_games$offensiveAPPS <- NA
+future_games$spread <- NA
 
-
-
+for(i in 1:NROW(future_games)) {
+  future_games$offensiveAPPS[i] <- ComparisonPPS(OffTeam = future_games$`Home/Neutral`[i], DefTown = future_games$`Visitor/Neutral`[i], SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017)
+}
 #####Standing scraper
 
 Standings <- "http://www.basketball-reference.com/leagues/NBA_2017.html"
