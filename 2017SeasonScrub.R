@@ -316,6 +316,10 @@ future_games$spread <- NA
 for(i in 1:NROW(future_games)) {
   future_games$offensiveAPPS[i] <- ComparisonPPS(OffTeam = future_games$`Home/Neutral`[i], DefTown = future_games$`Visitor/Neutral`[i], SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017)
 }
+
+for(i in 1:NROW(future_games)) {
+  future_games$defensiveAPPS[i] <- ComparisonPPS(OffTeam = future_games$`Visitor/Neutral`[i], DefTown = future_games$`Home/Neutral`[i], SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017)
+}
 #####Standing scraper
 
 Standings <- "http://www.basketball-reference.com/leagues/NBA_2017.html"
