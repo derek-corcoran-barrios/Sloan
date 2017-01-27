@@ -327,7 +327,32 @@ BRT <- readRDS("BRT2017_17_Jan.rds")
 
 future_games$spread <- predict(BRT, data.frame(defAPPS = unlist(future_games$defAPPS), offAPPS = unlist(future_games$offAPPS)), type="raw")
 
+saveRDS(future_games, "future_games.rds")
+
+future_games <- future_games[,c(1,3,5,12)]
+
+
+future_games$Home <- ifelse(future_games$spread < 0, "W", "L")
+
+future_games$Visit <- ifelse(future_games$spread > 0, "W", "L")
+
 write.csv(future_games, "future_games.csv")
+
+
+Home <- cbind(future_games$`Home/Neutral`, future_games$Home)
+
+colnames(Home) <- c("Team", "Result")
+
+Visit <- cbind(future_games$`Visitor/Neutral`, future_games$Visit)
+
+colnames(Visit) <- c("Team", "Result")
+
+AddedStand <- data.frame(rbind(Home, Visit))
+
+AddedStand<-table(AddedStand)
+
+
+
 #####Standing scraper
 
 Standings <- "http://www.basketball-reference.com/leagues/NBA_2017.html"
@@ -335,3 +360,4 @@ Standings <- "http://www.basketball-reference.com/leagues/NBA_2017.html"
 Standings <- readHTMLTable(Standings)
 
 Standings <- list(Western = Standings$confs_standings_W, Eastern = Standings$confs_standings_E)
+
