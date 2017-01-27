@@ -433,6 +433,8 @@ ProjStand[,3] <- as.numeric(as.character(ProjStand[,3]))
 ProjStand$W <- ProjStand$`Current-W`+ProjStand$W
 ProjStand$L <- ProjStand$`Current-L`+ProjStand$L
 
+ProjStand <- arrange(ProjStand, Conference,desc(W))
+
 write.csv(ProjStand, "ProjStand.csv")
 saveRDS(ProjStand, "ProjStand.rds")
 
