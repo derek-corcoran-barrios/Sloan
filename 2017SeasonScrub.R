@@ -309,17 +309,23 @@ schedule[,5] <- gsub("Minnesota Timberwolves", "Min", schedule[,5])
   
 
 future_games <- schedule[schedule$Date >= Sys.Date(),]
-future_games$defensiveAPPS <- NA
-future_games$offensiveAPPS <- NA
+future_games$defAPPS <- NA
+future_games$offAPPS <- NA
 future_games$spread <- NA
 
 for(i in 1:NROW(future_games)) {
-  future_games$offensiveAPPS[i] <- ComparisonPPS(OffTeam = future_games$`Home/Neutral`[i], DefTown = future_games$`Visitor/Neutral`[i], SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017)
+  future_games$defAPPS[i] <- ComparisonPPS(OffTeam = future_games$`Home/Neutral`[i], DefTown = future_games$`Visitor/Neutral`[i], SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017)
 }
 
 for(i in 1:NROW(future_games)) {
-  future_games$defensiveAPPS[i] <- ComparisonPPS(OffTeam = future_games$`Visitor/Neutral`[i], DefTown = future_games$`Home/Neutral`[i], SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017)
+  future_games$offAPPS[i] <- ComparisonPPS(OffTeam = future_games$`Visitor/Neutral`[i], DefTown = future_games$`Home/Neutral`[i], SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017)
 }
+
+library(caret) 
+
+BRT <- readRDS("BRT2017_17_Jan.rds")
+
+future_games$spread <- predict(BRT, data.frame(defAPPS = unlist(future_games$defAPPS), offAPPS = unlist(future_games$offAPPS)), type="raw")
 #####Standing scraper
 
 Standings <- "http://www.basketball-reference.com/leagues/NBA_2017.html"
