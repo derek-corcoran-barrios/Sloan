@@ -376,3 +376,18 @@ Standings <- readHTMLTable(Standings)
 
 Standings <- list(Western = Standings$confs_standings_W, Eastern = Standings$confs_standings_E)
 
+Standings[[1]]$Conference <- c("West")
+
+Standings[[2]]$Conference <- c("East")
+
+colnames(Standings[[1]]) <- c("Team", "Current-W", "Current-L", "pct", "GB", "PS/G", "PA/G", "SRS", "Conference")
+
+colnames(Standings[[2]]) <- c("Team", "Current-W", "Current-L", "pct", "GB", "PS/G", "PA/G", "SRS", "Conference")
+
+
+Standings <- rbind(Standings[[1]], Standings[[2]])
+
+Standings <- Standings[,c(1,2,3,9)]
+
+Standings$Team <- sub("^(.{3}).*", "\\1", teams)
+
