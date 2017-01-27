@@ -353,7 +353,7 @@ AddedStand_W <- dplyr::filter(AddedStand, Result == "W")
 
 AddedStand_W <- group_by(AddedStand_W, Team)
 
-AddedStand_W <- summarize(AddedStand_W, W = n())
+AddedStand_W <- dplyr::summarize(AddedStand_W, W = n())
 
 #Loses
 
@@ -361,7 +361,7 @@ AddedStand_L <- dplyr::filter(AddedStand, Result == "L")
 
 AddedStand_L <- group_by(AddedStand_L, Team)
 
-AddedStand_L <- summarize(AddedStand_L, L = n())
+AddedStand_L <- dplyr::summarize(AddedStand_L, L = n())
 
 AddedStand <- merge.data.frame(AddedStand_W, AddedStand_L, all = TRUE)
 
@@ -389,5 +389,50 @@ Standings <- rbind(Standings[[1]], Standings[[2]])
 
 Standings <- Standings[,c(1,2,3,9)]
 
-Standings$Team <- sub("^(.{3}).*", "\\1", teams)
+Standings$Team <- gsub("76ers", "Phi", Standings$Team)
+
+
+Standings$Team <- gsub("(?<=\\b[A-Z])[^A-Z]+", "", Standings$Team, perl = TRUE)
+
+Standings$Team <- gsub("DP", "Det", Standings$Team)
+Standings$Team<- gsub("AH", "Atl", Standings$Team)
+Standings$Team <- gsub("CB", "Chi", Standings$Team)
+Standings$Team<- gsub("BC", "Bos", Standings$Team)
+Standings$Team<- gsub("CC", "Cle", Standings$Team)
+Standings$Team<- gsub("NOP", "NO", Standings$Team)
+Standings$Team<- gsub("OM", "ORL", Standings$Team)
+Standings$Team<- gsub("WW", "Was", Standings$Team)
+Standings$Team<- gsub("BN", "Bkn", Standings$Team)
+Standings$Team<- gsub("UJ", "Uta", Standings$Team)
+Standings$Team<- gsub("MH", "Mia", Standings$Team)
+Standings$Team<- gsub("CH", "Cha", Standings$Team)
+Standings$Team<- gsub("TR", "Tor", Standings$Team)
+Standings$Team<- gsub("IP", "Ind", Standings$Team)
+Standings$Team<- gsub("HR", "Hou", Standings$Team)
+Standings$Team<- gsub("DN", "Den", Standings$Team)
+Standings$Team<- gsub("MG", "Mem", Standings$Team)
+Standings$Team<- gsub("NYK", "NY", Standings$Team)
+Standings$Team<- gsub("MB", "Mil", Standings$Team)
+Standings$Team<- gsub("OCT", "Okc", Standings$Team)
+Standings$Team<- gsub("SAS", "Sas", Standings$Team)
+Standings$Team<- gsub("DM", "Dal", Standings$Team)
+Standings$Team<- gsub("PS", "Pho", Standings$Team)
+Standings$Team<- gsub("PTB", "Por", Standings$Team)
+Standings$Team<- gsub("LAC", "Lac", Standings$Team)
+Standings$Team<- gsub("SK", "Sac", Standings$Team)
+Standings$Team<- gsub("LAL", "Lal", Standings$Team)
+Standings$Team<- gsub("MT", "Min", Standings$Team)
+Standings$Team<- gsub("PP", "Phi", Standings$Team)
+
+ProjStand <- merge.data.frame(Standings, AddedStand, all = TRUE)
+
+ProjStand[,2] <- as.numeric(as.character(ProjStand[,2]))
+ProjStand[,3] <- as.numeric(as.character(ProjStand[,3]))
+
+
+ProjStand$W <- ProjStand$`Current-W`+ProjStand$W
+ProjStand$L <- ProjStand$`Current-L`+ProjStand$L
+
+write.csv(ProjStand, "ProjStand.csv")
+saveRDS(ProjStand, "ProjStand.rds")
 
