@@ -327,7 +327,6 @@ BRT <- readRDS("BRT2017_17_Jan.rds")
 
 future_games$spread <- predict(BRT, data.frame(defAPPS = unlist(future_games$defAPPS), offAPPS = unlist(future_games$offAPPS)), type="raw")
 
-saveRDS(future_games, "future_games.rds")
 
 future_games <- future_games[,c(1,3,5,12)]
 
@@ -337,6 +336,7 @@ future_games$Home <- ifelse(future_games$spread < 0, "W", "L")
 future_games$Visit <- ifelse(future_games$spread > 0, "W", "L")
 
 write.csv(future_games, "future_games.csv")
+saveRDS(future_games, "future_games.rds")
 
 
 Home <- cbind(future_games$`Home/Neutral`, future_games$Home)
@@ -348,10 +348,25 @@ Visit <- cbind(future_games$`Visitor/Neutral`, future_games$Visit)
 colnames(Visit) <- c("Team", "Result")
 
 AddedStand <- data.frame(rbind(Home, Visit))
+#Wins
+AddedStand_W <- dplyr::filter(AddedStand, Result == "W")
 
-AddedStand<-table(AddedStand)
+AddedStand_W <- group_by(AddedStand_W, Team)
 
+AddedStand_W <- summarize(AddedStand_W, W = n())
 
+#Loses
+
+AddedStand_L <- dplyr::filter(AddedStand, Result == "L")
+
+AddedStand_L <- group_by(AddedStand_L, Team)
+
+AddedStand_L <- summarize(AddedStand_L, L = n())
+
+AddedStand <- merge.data.frame(AddedStand_W, AddedStand_L, all = TRUE)
+
+write.csv(AddedStand, "AddedStand.csv")
+saveRDS(future_games, "future_games.rds")
 
 #####Standing scraper
 
