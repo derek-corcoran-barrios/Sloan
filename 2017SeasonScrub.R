@@ -326,6 +326,8 @@ library(caret)
 BRT <- readRDS("BRT2017_17_Jan.rds")
 
 future_games$spread <- predict(BRT, data.frame(defAPPS = unlist(future_games$defAPPS), offAPPS = unlist(future_games$offAPPS)), type="raw")
+
+write.csv(future_games, "future_games.csv")
 #####Standing scraper
 
 Standings <- "http://www.basketball-reference.com/leagues/NBA_2017.html"
