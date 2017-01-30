@@ -1,16 +1,20 @@
-library(rjson)
-library(grid)
-library(gridExtra)
-library(png)
-library(RCurl)
-library(ggplot2)
-library(jpeg)
-library(hexbin)
-library(sp)
-library(knitr)
-library(raster)
-library(rasterVis)
-library(dplyr)
+if (!require("pacman")) install.packages("pacman")
+
+pacman::p_load(rjson, grid, gridExtra, png, RCurl, ggplot2, jpeg, hexbin, sp, knitr, raster, rasterVis, dplyr)
+
+#library(rjson)
+#library(grid)
+#library(gridExtra)
+#library(png)
+#library(RCurl)
+#library(ggplot2)
+#library(jpeg)
+#library(hexbin)
+#library(sp)
+#library(knitr)
+#library(raster)
+#library(rasterVis)
+#library(dplyr)
 
 by_team <- read.csv("~/Sloan/by_team.csv")
 by_team <- by_team[-1,-1]
@@ -121,20 +125,6 @@ saveRDS(shotDatafDef2017, 'shotDatafDef2017.rds')
 ######################################################Make 2017 ppaa gird
 #####################################
 
-library(rjson)
-library(grid)
-library(gridExtra)
-library(png)
-library(RCurl)
-library(ggplot2)
-library(jpeg)
-library(hexbin)
-library(sp)
-library(knitr)
-library(raster)
-library(rasterVis)
-library(dplyr)
-
 #function to make the hexbin dataframe
 
 #shot Comparison function
@@ -221,9 +211,8 @@ write.csv(datos2017, "datos2017.csv")
 
 # View(df[order(df$GSW),])
 ####################ScheduleScraper
+pacman::p_load(XML, lubridate)
 
-library(XML)
-library(lubridate)
 
 Months <- c("october", "november", "december", "january", "february", "march", "april")
 
@@ -321,7 +310,7 @@ for(i in 1:NROW(future_games)) {
   future_games$offAPPS[i] <- ComparisonPPS(OffTeam = future_games$`Visitor/Neutral`[i], DefTown = future_games$`Home/Neutral`[i], SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017)
 }
 
-library(caret) 
+pacman::p_load(caret)
 
 BRT <- readRDS("BRT2017_17_Jan.rds")
 
@@ -435,6 +424,15 @@ ProjStand$L <- ProjStand$`Current-L`+ProjStand$L
 
 ProjStand <- arrange(ProjStand, Conference,desc(W))
 
+
+colnames(ProjStand) <- c("Team", "Current-W", "Current-L", "Conference", "Projected-W", "Projected-L")
+
 write.csv(ProjStand, "ProjStand.csv")
 saveRDS(ProjStand, "ProjStand.rds")
 
+ProjStandW <- dplyr::filter(ProjStand, Conference == "West")
+
+ProjStandE <- dplyr::filter(ProjStand, Conference == "East")
+
+write.csv(ProjStandE, "ProjStandE.csv")
+write.csv(ProjStandW, "ProjStandW.csv")
