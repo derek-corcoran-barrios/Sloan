@@ -1,7 +1,5 @@
 ---
 title: "NBA Projections 2017 season"
-author: "SpatialBall"
-date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 ---
 
@@ -9,7 +7,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-#NBA Projections 2017 season
 
 These are the projected standings predicted by our spatial-based algorithm as of `r format(Sys.time(), '%d %B, %Y')`
 
