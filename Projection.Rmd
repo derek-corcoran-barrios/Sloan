@@ -45,14 +45,10 @@ shotURLtotal <- paste("http://stats.nba.com/stats/shotchartdetail?CFID=33&CFPARA
 shotDataTotal <- fromJSON(file = shotURLtotal, method="C")
 
 # unlist shot data, save into a data frame
-shotchartTotal2017 <- data.frame(matrix(ncol = 24, nrow = 1))
+shotchartTotal2017 <- data.frame(matrix(unlist(shotDataTotal$resultSets[[1]][[3]]), ncol = 24, byrow = TRUE))
 
 colnames(shotchartTotal2017)<- shotDataTotal$resultSets[[1]][[2]]
 
-#fist shot of the season
-for(i in 1:length(shotDataTotal$resultSets[[1]][[3]])){
-  shotchartTotal2017[i,] <- unlist(shotDataTotal$resultSets[[1]][[3]][[i]])
-}
 
 # covert x and y coordinates into numeric
 shotchartTotal2017$LOC_X <- as.numeric(as.character(shotchartTotal2017$LOC_X))
