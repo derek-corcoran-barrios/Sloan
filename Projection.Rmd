@@ -104,14 +104,19 @@ for (i in 1:length(teamID)){
   shotData[[i]] <- fromJSON(file = defensiveURL[[i]], method="C")
   
   # unlist shot data, save into a data frame
-  shotDatafDef[[i]] <- data.frame(matrix(ncol = 24, nrow = 1))
-  colnames(shotDatafDef[[i]]) <-  shotData[[i]]$resultSets[[1]][[2]]
+  ##########
+#  shotDatafDef[[i]] <- data.frame(matrix(ncol = 24, nrow = 1))
+  #colnames(shotDatafDef[[i]]) <-  shotData[[i]]$resultSets[[1]][[2]]
   
-  for(j in 1:length(shotData[[i]]$resultSets[[1]][[3]])){
-    shotDatafDef[[i]][j,] <- unlist(shotData[[i]]$resultSets[[1]][[3]][[j]])
-  }
-  
-  # covert x and y coordinates into numeric
+#  for(j in 1:length(shotData[[i]]$resultSets[[1]][[3]])){
+#    shotDatafDef[[i]][j,] <- unlist(shotData[[i]]$resultSets[[1]][[3]][[j]])
+#  }
+####################  
+shotDatafDef[[i]] <- data.frame(matrix(unlist(shotData[[i]]$resultSets[[1]][[3]]), ncol = 24, byrow = TRUE))
+
+colnames(shotDatafDef[[i]]) <-  shotData[[i]]$resultSets[[1]][[2]]
+#####################  
+    # covert x and y coordinates into numeric
   shotDatafDef[[i]]$LOC_X <- as.numeric(as.character(shotDatafDef[[i]]$LOC_X))
   shotDatafDef[[i]]$LOC_Y <- as.numeric(as.character(shotDatafDef[[i]]$LOC_Y))
   shotDatafDef[[i]]$SHOT_DISTANCE <- as.numeric(as.character(shotDatafDef[[i]]$SHOT_DISTANCE))
@@ -311,18 +316,14 @@ pacman::p_load(caret)
 
 BRT <- readRDS("BRT2017_17_Jan.rds")
 
-future_games$spread <- predict(BRT, data.frame(defAPPS = unlist(future_games$defAPPS), offAPPS = unlist(future_games$offAPPS)), type="raw")
+future_games$spread <- round(predict(BRT, data.frame(defAPPS = unlist(future_games$defAPPS), offAPPS = unlist(future_games$offAPPS)), type="raw"), digits = 2)
 
-
-future_games <- future_games[,c(1,3,5,12)]
+future_games <- future_games[,c(1,3,5,10:12)]
 
 
 future_games$Home <- ifelse(future_games$spread < 0, "W", "L")
 
 future_games$Visit <- ifelse(future_games$spread > 0, "W", "L")
-
-write.csv(future_games, "future_games.csv")
-saveRDS(future_games, "future_games.rds")
 
 
 Home <- cbind(future_games$`Home/Neutral`, future_games$Home)
@@ -453,5 +454,8 @@ knitr::kable(ProjStandW)
 In the table below we present the predicted spread for every NBA game played on `r format(Sys.time(), '%d %B, %Y')`
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-knitr::kable(dplyr::filter(future_games, Date == Sys.Date()))
+knitr::kable(dplyr::filter(future_games[,c(1,2,3,6,8,7)], Date == Sys.Date()), digits = 3)
+
+#write.csv(dplyr::filter(future_games, Date == Sys.Date()),  paste("Future_games", Sys.Date(),".csv", sep = ""))
+#saveRDS(dplyr::filter(future_games, Date == Sys.Date()),  paste("Future_games", Sys.Date(),".rds", sep = ""))
 ```
