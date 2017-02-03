@@ -13,7 +13,7 @@ These are the projected standings predicted by our spatial-based algorithm as of
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 if (!require("pacman")) install.packages("pacman")
 
-pacman::p_load(rjson, grid, gridExtra, png, RCurl, ggplot2, jpeg, hexbin, sp, knitr, raster, rasterVis, dplyr)
+pacman::p_load(rjson, grid, gridExtra, png, RCurl, ggplot2, jpeg, hexbin, sp, knitr, raster, rasterVis, dplyr, DT)
 
 #library(rjson)
 #library(grid)
@@ -439,7 +439,9 @@ write.csv(ProjStandW, "ProjStandW.csv")
 ## Eastern Conference Standings
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
+options(DT.options = list(pageLength = 20, language = list(search = 'Filter:')))
 knitr::kable(ProjStandE)
+#DT::datatable(ProjStandE)
 ```
 
 
@@ -447,6 +449,9 @@ knitr::kable(ProjStandE)
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 knitr::kable(ProjStandW)
+#DT::datatable(ProjStandW)
+
+
 ```
 
 ## Game predictions
@@ -455,6 +460,7 @@ In the table below we present the predicted spread for every NBA game played on 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 knitr::kable(dplyr::filter(future_games[,c(1,2,3,6,8,7)], Date == Sys.Date()), digits = 3)
+#DT::datatable(dplyr::filter(future_games[,c(1,2,3,6,8,7)], Date == Sys.Date()))
 #write.csv(x = dplyr::filter(future_games, Date == Sys.Date()), file =   paste("Future_games", Sys.Date(),".csv", sep = ""))
 #saveRDS(dplyr::filter(future_games, Date == Sys.Date()),  paste("Future_games", Sys.Date(),".rds", sep = ""))
 ```
