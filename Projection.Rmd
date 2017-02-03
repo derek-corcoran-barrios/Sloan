@@ -436,20 +436,20 @@ write.csv(ProjStandE, "ProjStandE.csv")
 write.csv(ProjStandW, "ProjStandW.csv")
 ```
 
-###Eastern Conference Standings
+## Eastern Conference Standings
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 knitr::kable(ProjStandE)
 ```
 
 
-###Western Conference Standings
+## Western Conference Standings
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 knitr::kable(ProjStandW)
 ```
 
-###Game predictions
+## Game predictions
 
 In the table below we present the predicted spread for every NBA game played on `r format(Sys.time(), '%d %B, %Y')`
 
