@@ -1,6 +1,8 @@
 if (!require('RWordPress')) {
   devtools::install_github(c("duncantl/XMLRPC", "duncantl/RWordPress"))
 }
+
+
 library(RWordPress)
 options(WordpressLogin = c(spatialball = '135792468++'),
         WordpressURL = 'https://spatialball.wordpress.com/xmlrpc.php')

@@ -8,12 +8,12 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-These are the projected standings predicted by our spatial-based algorithm as of `r format(Sys.time(), '%d %B, %Y')`
+These are the new projected standings predicted by our spatial-based algorithm as of `r format(Sys.time(), '%d %B, %Y')`
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 if (!require("pacman")) install.packages("pacman")
 
-pacman::p_load(rjson, grid, gridExtra, png, RCurl, ggplot2, jpeg, hexbin, sp, knitr, raster, rasterVis, dplyr)
+pacman::p_load(rjson, grid, gridExtra, png, RCurl, ggplot2, jpeg, hexbin, sp, knitr, raster, rasterVis, dplyr, DT)
 
 #library(rjson)
 #library(grid)
@@ -53,7 +53,7 @@ colnames(shotchartTotal2017)<- shotDataTotal$resultSets[[1]][[2]]
 # covert x and y coordinates into numeric
 shotchartTotal2017$LOC_X <- as.numeric(as.character(shotchartTotal2017$LOC_X))
 shotchartTotal2017$LOC_Y <- as.numeric(as.character(shotchartTotal2017$LOC_Y))
-
+shotchartTotal2017$SHOT_DISTANCE <- as.numeric(as.character(shotchartTotal2017$SHOT_DISTANCE))
 
 
 shotDataTotal2017 <- shotchartTotal2017
