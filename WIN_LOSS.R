@@ -204,4 +204,6 @@ for (i in 1:100){
   }
   Seasons[[i]] <- future_games
   Seasons[[i]]$Home <- unlist(Results)
+  Seasons[[i]]$Visit <- ifelse(Seasons[[i]]$Home == "W", "L", "W")
+  
 }

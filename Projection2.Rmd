@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 These are the new projected standings predicted by our spatial-based algorithm as of `r format(Sys.time(), '%d %B, %Y')`
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, cache=FALSE}
 if (!require("pacman")) install.packages("pacman")
 
 pacman::p_load(rjson, grid, gridExtra, png, RCurl, ggplot2, jpeg, hexbin, sp, knitr, raster, rasterVis, dplyr, DT)
@@ -94,7 +94,7 @@ saveRDS(shotDataTotal2017, 'shotDataTotal2017.rds')
 ```
 
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, cache=FALSE}
 shotDatafDef2017 <- shotDatafDef
 
 for (i in 1:length(teamID)){
@@ -132,7 +132,7 @@ saveRDS(shotDatafDef2017, 'shotDatafDef2017.rds')
 
 ```
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, cache=FALSE}
 ComparisonPPS <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, nbins = 40) {
   #Filter the offensive data of the Offensive Team
   Off <- filter(SeasondataOff, TEAM_NAME == OffTeam)
@@ -212,7 +212,7 @@ datos2017 <- df
 write.csv(datos2017, "datos2017.csv")
 ```
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, cache=FALSE}
 pacman::p_load(XML, lubridate)
 
 
@@ -296,13 +296,15 @@ schedule[,5] <- gsub("Los Angeles Clippers", "Lac", schedule[,5])
 schedule[,5] <- gsub("Sacramento Kings", "Sac", schedule[,5])
 schedule[,5] <- gsub("Los Angeles Lakers", "Lal", schedule[,5])
 schedule[,5] <- gsub("Minnesota Timberwolves", "Min", schedule[,5])
+```
 
-  
+```{r, echo=FALSE, message=FALSE, warning=FALSE, cache=FALSE}
 
 future_games <- schedule[schedule$Date >= Sys.Date(),]
 future_games$defAPPS <- NA
 future_games$offAPPS <- NA
-future_games$spread <- NA
+future_games$spread <-NA
+
 
 for(i in 1:NROW(future_games)) {
   future_games$defAPPS[i] <- ComparisonPPS(OffTeam = future_games$`Home/Neutral`[i], DefTown = future_games$`Visitor/Neutral`[i], SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017)
@@ -311,49 +313,90 @@ for(i in 1:NROW(future_games)) {
 for(i in 1:NROW(future_games)) {
   future_games$offAPPS[i] <- ComparisonPPS(OffTeam = future_games$`Visitor/Neutral`[i], DefTown = future_games$`Home/Neutral`[i], SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017)
 }
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, cache=FALSE}
 
 pacman::p_load(caret)
 
 BRT <- readRDS("BRT2017_17_Jan.rds")
+BRT2 <- readRDS("WL_function.rds")
 
 future_games$spread <- round(predict(BRT, data.frame(defAPPS = unlist(future_games$defAPPS), offAPPS = unlist(future_games$offAPPS)), type="raw"), digits = 2)
 
 future_games <- future_games[,c(1,3,5,10:12)]
 
 
-future_games$Home <- ifelse(future_games$spread < 0, "W", "L")
+ForecastWL <- predict(BRT2, data.frame(defAPPS = unlist(future_games[,4]), offAPPS = unlist(future_games[,5])), type = "prob")
+colnames(ForecastWL)<- c("Prob_W", "Prob_L")
 
-future_games$Visit <- ifelse(future_games$spread > 0, "W", "L")
+future_games<- cbind(future_games, ForecastWL)
+
+head(ForecastWL)
+
+set.seed(2016)
+
+Seasons <- list()
+for (i in 1:1000){
+  Results <- list()
+  for(j in 1:nrow(future_games)){
+    Results[[j]] <- sample(c("W", "L"), size = 1, replace = TRUE, prob = future_games[j,c(7,8)])
+  }
+  Seasons[[i]] <- future_games
+  Seasons[[i]]$Home <- unlist(Results)
+  Seasons[[i]]$Visit <- ifelse(Seasons[[i]]$Home == "W", "W", "L")
+}
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, cache=FALSE}
 
 
-Home <- cbind(future_games$`Home/Neutral`, future_games$Home)
+Home <- list()
+Visit <- list()
+AddedStand <- list()
+AddedStand_L <- list()
+AddedStand_W <- list()
+for (i in 1:length(Seasons)){
 
-colnames(Home) <- c("Team", "Result")
+  Home[[i]] <- cbind(Seasons[[i]]$`Home/Neutral`, Seasons[[i]]$Home)
 
-Visit <- cbind(future_games$`Visitor/Neutral`, future_games$Visit)
+  colnames(Home[[i]]) <- c("Team", "Result")
 
-colnames(Visit) <- c("Team", "Result")
+  Visit[[i]] <- cbind(Seasons[[i]]$`Visitor/Neutral`, Seasons[[i]]$Visit)
 
-AddedStand <- data.frame(rbind(Home, Visit))
+  colnames(Visit[[i]]) <- c("Team", "Result")
+
+  AddedStand[[i]] <- data.frame(rbind(Home[[i]], Visit[[i]]))
 #Wins
-AddedStand_W <- dplyr::filter(AddedStand, Result == "W")
+  AddedStand_W[[i]] <- dplyr::filter(AddedStand[[i]], Result == "W")
 
-AddedStand_W <- group_by(AddedStand_W, Team)
+  AddedStand_W[[i]] <- group_by(AddedStand_W[[i]], Team)
 
-AddedStand_W <- dplyr::summarize(AddedStand_W, W = n())
+  AddedStand_W[[i]] <- dplyr::summarize(AddedStand_W[[i]], W = n())
 
 #Loses
 
-AddedStand_L <- dplyr::filter(AddedStand, Result == "L")
+  AddedStand_L[[i]] <- dplyr::filter(AddedStand[[i]], Result == "L")
 
-AddedStand_L <- group_by(AddedStand_L, Team)
+  AddedStand_L[[i]] <- group_by(AddedStand_L[[i]], Team)
 
-AddedStand_L <- dplyr::summarize(AddedStand_L, L = n())
+  AddedStand_L[[i]] <- dplyr::summarize(AddedStand_L[[i]], L = n())
 
-AddedStand <- merge.data.frame(AddedStand_W, AddedStand_L, all = TRUE)
+  AddedStand[[i]] <- merge.data.frame(AddedStand_W[[i]], AddedStand_L[[i]], all = TRUE)
 
-write.csv(AddedStand, "AddedStand.csv")
-saveRDS(future_games, "future_games.rds")
+}
+
+AddedStand <- do.call("rbind", AddedStand)
+
+hist(dplyr::filter(AddedStand, Team == "GSW")$W)
+
+AddedStand<- dplyr::group_by(AddedStand, Team)
+
+AddedStand <- dplyr::summarise(AddedStand, W = mean(W), L = mean(L))
+
+kable(AddedStand)
+#saveRDS(future_games, "future_games.rds")
 
 #####Standing scraper
 
@@ -411,36 +454,36 @@ Standings$Team<- gsub("LAL", "Lal", Standings$Team)
 Standings$Team<- gsub("MT", "Min", Standings$Team)
 Standings$Team<- gsub("PP", "Phi", Standings$Team)
 
-ProjStand <- merge.data.frame(Standings, AddedStand, all = TRUE)
+#ProjStand <- merge.data.frame(Standings, AddedStand, all = TRUE)
 
-ProjStand[,2] <- as.numeric(as.character(ProjStand[,2]))
-ProjStand[,3] <- as.numeric(as.character(ProjStand[,3]))
-
-
-ProjStand$W <- ProjStand$`Current-W`+ProjStand$W
-ProjStand$L <- ProjStand$`Current-L`+ProjStand$L
-
-ProjStand <- arrange(ProjStand, Conference,desc(W))
+#ProjStand[,2] <- as.numeric(as.character(ProjStand[,2]))
+#ProjStand[,3] <- as.numeric(as.character(ProjStand[,3]))
 
 
-colnames(ProjStand) <- c("Team", "Current-W", "Current-L", "Conference", "Projected-W", "Projected-L")
+#ProjStand$W <- ProjStand$`Current-W`+ProjStand$W
+#ProjStand$L <- ProjStand$`Current-L`+ProjStand$L
 
-write.csv(ProjStand, "ProjStand.csv")
-saveRDS(ProjStand, "ProjStand.rds")
+#ProjStand <- arrange(ProjStand, Conference,desc(W))
 
-ProjStandW <- dplyr::filter(ProjStand, Conference == "West")
 
-ProjStandE <- dplyr::filter(ProjStand, Conference == "East")
+#colnames(ProjStand) <- c("Team", "Current-W", "Current-L", "Conference", "Projected-W", "Projected-L")
 
-write.csv(ProjStandE, "ProjStandE.csv")
-write.csv(ProjStandW, "ProjStandW.csv")
+#write.csv(ProjStand, "ProjStand.csv")
+#saveRDS(ProjStand, "ProjStand.rds")
+
+#ProjStandW <- dplyr::filter(ProjStand, Conference == "West")
+
+#ProjStandE <- dplyr::filter(ProjStand, Conference == "East")
+
+#write.csv(ProjStandE, "ProjStandE.csv")
+#write.csv(ProjStandW, "ProjStandW.csv")
 ```
 
 ## Eastern Conference Standings
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-options(DT.options = list(pageLength = 20, language = list(search = 'Filter:')))
-knitr::kable(ProjStandE)
+#options(DT.options = list(pageLength = 20, language = list(search = 'Filter:')))
+#knitr::kable(ProjStandE)
 #DT::datatable(ProjStandE)
 ```
 
@@ -448,7 +491,7 @@ knitr::kable(ProjStandE)
 ## Western Conference Standings
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-knitr::kable(ProjStandW)
+#knitr::kable(ProjStandW)
 #DT::datatable(ProjStandW)
 
 
@@ -459,7 +502,7 @@ knitr::kable(ProjStandW)
 In the table below we present the predicted spread for every NBA game played on `r format(Sys.time(), '%d %B, %Y')`
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-knitr::kable(dplyr::filter(future_games[,c(1,2,3,6,8,7)], Date == Sys.Date()), digits = 3)
+#knitr::kable(dplyr::filter(future_games[,c(1,2,3,6,8,7)], Date == Sys.Date()), digits = 3)
 #DT::datatable(dplyr::filter(future_games[,c(1,2,3,6,8,7)], Date == Sys.Date()))
 #write.csv(x = dplyr::filter(future_games, Date == Sys.Date()), file =   paste("Future_games", Sys.Date(),".csv", sep = ""))
 #saveRDS(dplyr::filter(future_games, Date == Sys.Date()),  paste("Future_games", Sys.Date(),".rds", sep = ""))
