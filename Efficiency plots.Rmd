@@ -1,0 +1,95 @@
+---
+title: "Most common and efficient shots per team"
+author: "Derek Corcoran"
+date: "February 8, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Most common shots in the game
+```{r libraries, echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(DT)
+library(dplyr)
+library(knitr)
+shotDataTotal2017 <- readRDS("shotDataTotal2017.rds")
+```
+
+
+The nba stats webpage classifies shots as one of the following types *`r unique(shotDataTotal2017$ACTION_TYPE)`*
+
+## Cleaning of the data
+
+This clearly has to be filtered further joined, for example the Layup Shot 2 should be the same category as Driving Layup Shot I think. we can discuss this further.
+
+For now, I found the 6 most tipicall shots made in the NBA, measure by proportion of shots taken overall (Prop). And also calculated the points per shot for each kind of shot(PPS).
+
+
+```{r structure, echo=FALSE, message=FALSE, warning=FALSE}
+shotDataTotal2017$EVENT_TYPE <- as.numeric(as.character(ifelse(shotDataTotal2017$EVENT_TYPE == "Made Shot", 1, 0)))
+
+shotDataTotal2017$SHOT_TYPE <- as.numeric(as.character(ifelse(shotDataTotal2017$SHOT_TYPE == "2PT Field Goal", 2, 3)))
+
+DF <- group_by(shotDataTotal2017, ACTION_TYPE, SHOT_TYPE)
+DF <- summarize(DF, Prop = n()/nrow(shotDataTotal2017), prct = sum(EVENT_TYPE)/n())
+DF$PPS <- DF$prct*DF$SHOT_TYPE
+DF <- dplyr::arrange(DF, desc(Prop))
+DF <-head(DF)
+DF$ACTION_TYPE <- paste(DF$ACTION_TYPE, DF$SHOT_TYPE)
+DF <- DF[,-c(2,4)]
+kable(DF, digits = 2)
+
+```
+
+
+## Sortable table by team
+
+Then I made that information for each team, as you can see, the team that is more monotematic is the Houston Rockets (no surprise there) where more than 40% of their shots are three pointers, you can use the arrows to sort by any of the given categories.Let me know if you think of something with this.
+
+
+
+```{r 2, echo=FALSE, message=FALSE, warning=FALSE}
+
+DF2 <- list()
+TEAM <- unique(shotDataTotal2017$TEAM_NAME)
+
+for(i in 1:length(TEAM)){
+  DF2[[i]]<- dplyr::filter(shotDataTotal2017, TEAM_NAME == TEAM[i])
+  shot<- NROW(DF2[[i]])
+  DF2[[i]] <- group_by(DF2[[i]], ACTION_TYPE, SHOT_TYPE)
+  DF2[[i]] <- summarize(DF2[[i]], Prop = n()/shot, prct = sum(EVENT_TYPE)/n())
+  DF2[[i]]$PPS <- DF2[[i]]$prct*DF2[[i]]$SHOT_TYPE
+  DF2[[i]] <- dplyr::arrange(DF2[[i]], desc(Prop))
+  DF2[[i]]$ACTION_TYPE <- paste(DF2[[i]]$ACTION_TYPE, DF2[[i]]$SHOT_TYPE)
+  DF2[[i]]$TEAM <- TEAM[i]
+  DF2[[i]] <- filter(DF2[[i]], ACTION_TYPE == "Jump Shot 3" | ACTION_TYPE == "Jump Shot 2" | ACTION_TYPE == "Layup Shot 2" | ACTION_TYPE == "Driving Layup Shot 2" | ACTION_TYPE == "Pullup Jump shot 2" | ACTION_TYPE == "Floating Jump shot 2")
+  DF2[[i]] <- DF2[[i]][,-c(2,4)]
+
+}
+
+DF2 <- do.call("rbind", DF2)
+DF$TEAM <- c("league")
+
+DF2 <- rbind(DF2, DF)
+DF2[,2:3] <- round(DF2[,2:3], digits = 3)
+DF2 <- dplyr::arrange(DF2, desc(Prop))
+
+
+options(DT.options = list(pageLength = 30, language = list(search = 'Filter:')))
+DT::datatable(DF2)
+
+```
+
+## Are teams choosing their most efficient shots?
+
+One question worth asking is if teams shoot more the shots that they are more efficient at (more pps).
+
+```{r regr, echo=FALSE, message=FALSE, warning=FALSE}
+summary(lm(PPS ~ Prop, data = DF2))
+
+ggplot(DF2, aes(x = Prop, y = PPS)) + geom_point(aes(color = ACTION_TYPE)) + geom_smooth(method = "lm") + theme(legend.position="bottom")
+
+```
