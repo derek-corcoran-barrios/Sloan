@@ -100,9 +100,13 @@ for (i in 1:length(Offensive_teams)) {
 shotDataTotal2017b <- shotDataTotal2017
 
 
-shotDataTotal2017b$TEAM_NAME <-ifelse(shotDataTotal2017b$PLAYER_NAME == "Stephen Curry", "Injured", shotDataTotal2017b$TEAM_NAME)
-shotDataTotal2017b$TEAM_NAME <-ifelse(shotDataTotal2017b$PLAYER_NAME == "Zaza Pachulia", "Injured", shotDataTotal2017b$TEAM_NAME)
+shotDataTotal2017b$TEAM_NAME <-ifelse(shotDataTotal2017b$PLAYER_NAME == "DeMarcus Cousins", "NO", shotDataTotal2017b$TEAM_NAME)
+shotDataTotal2017b$TEAM_NAME <-ifelse(shotDataTotal2017b$PLAYER_NAME == "Omri Casspi", "NO", shotDataTotal2017b$TEAM_NAME)
 
+shotDataTotal2017b$TEAM_NAME <-ifelse(shotDataTotal2017b$PLAYER_NAME == "Buddy Hield", "Sac", shotDataTotal2017b$TEAM_NAME)
+shotDataTotal2017b$TEAM_NAME <-ifelse(shotDataTotal2017b$PLAYER_NAME == "Tyreke Evans", "Sac", shotDataTotal2017b$TEAM_NAME)
+shotDataTotal2017b$TEAM_NAME <-ifelse(shotDataTotal2017b$PLAYER_NAME == "Langston Galloway", "Sac", shotDataTotal2017b$TEAM_NAME)
+ 
 
 dfTRADE <- data.frame(matrix(ncol = 30, nrow = 30))
 colnames(dfTRADE) <- as.character(unique(shotDataTotal2017$TEAM_NAME))
@@ -117,7 +121,7 @@ for (i in 1:length(Offensive_teams)) {
 
 ###############Projected Season
 
-future_games <- schedule[schedule$Date == Sys.Date(),]
+future_games <- schedule[schedule$Date >= Sys.Date(),]
 future_games$defAPPS <- NA
 future_games$offAPPS <- NA
 future_games$spread <- NA
@@ -395,12 +399,11 @@ ShotComparisonGraph2 <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef,
 }
 
 
-Com1 <- ShotComparisonGraph2(OffTeam = "GSW", DefTown = "Cha", SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.8, focus = "plus")
-Com3 <- ShotComparisonGraph2(OffTeam = "GSW", DefTown = "Cha", SeasondataOff = shotDataTotal2017b, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.8, focus = "plus")
+Com1 <- ShotComparisonGraph2(OffTeam = "NO", DefTown = "Sac", SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.85, focus = "plus")
+Com3 <- ShotComparisonGraph2(OffTeam = "NO", DefTown = "Sac", SeasondataOff = shotDataTotal2017b, SeasonDataDef = shotDatafDef2017, nbins = 30, quant = 0.85, focus = "plus")
 
 
-grid.arrange(Com1$charts,Com3$charts,Com1$leg,ncol=1,heights=c(3/7, 3/7 ,1/7))
+grid.arrange(Com1$charts,Com3$charts,ncol=1)
 
 library(caret)
-predict(BRT, data.frame(defAPPS =Com2$PPSAA, offAPPS = Com3$PPSAA), type="raw")
 predict(BRT, data.frame(defAPPS =Com3$PPSAA, offAPPS = Com2$PPSAA), type="raw")
