@@ -29,7 +29,9 @@ schedule <- do.call("rbind", schedule)
 schedule$Date <- mdy(as.character(schedule$Date))
 schedule[,4] <- as.numeric(as.character(schedule[,4]))
 schedule[,6] <- as.numeric(as.character(schedule[,6]))
-schedule$Year <- year(schedule$Date)
+seasons <- data.frame(Season = c(2016), Start_date_reg = dmy(c("27-10-2015")), End_date_reg = dmy(c("13-04-2016")), Start_date_playoff = dmy(c("16-04-2016")), End_date_playoff = dmy(c("19-06-2016")))
+################here
+schedule$Year <- ifelse(schedule$Date)
 schedule<- schedule[!is.na(schedule$Date),]
 
 
@@ -95,8 +97,8 @@ schedule[,5] <- gsub("Los Angeles Clippers", "Lac", schedule[,5])
 schedule[,5] <- gsub("Sacramento Kings", "Sac", schedule[,5])
 schedule[,5] <- gsub("Los Angeles Lakers", "Lal", schedule[,5])
 schedule[,5] <- gsub("Minnesota Timberwolves", "Min", schedule[,5])
-
-
+###seasons dates
+seasons <- data.frame(Season = c(2016), Start_date_reg = dmy(c("27-10-2015")), End_date_reg = dmy(c("13-04-2016")), Start_date_playoff = dmy(c("16-04-2016")), End_date_playoff = dmy(c("19-06-2016")))
 
 past_games <- schedule[schedule$Date < Sys.Date(),]
 past_games$defAPPS <- NA
@@ -175,10 +177,15 @@ ComparisonPPS <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, nbins 
 
 
 #######
-for(i in 1:NROW(future_games)) {
-  future_games$defAPPS[i] <- ComparisonPPS(OffTeam = future_games$`Home/Neutral`[i], DefTown = future_games$`Visitor/Neutral`[i], SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017)
+
+if (past_games$Year == 2016) {
+  for(i in 1:NROW(past_games)) {
+    past_games$defAPPS[i] <- ComparisonPPS(OffTeam = past_games$Home[i], DefTown = past_games$Visitor, SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017)
+  }
 }
 
+
+
 for(i in 1:NROW(future_games)) {
-  future_games$offAPPS[i] <- ComparisonPPS(OffTeam = future_games$`Visitor/Neutral`[i], DefTown = future_games$`Home/Neutral`[i], SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017)
+  past_games$offAPPS[i] <- ComparisonPPS(OffTeam = future_games$`Visitor/Neutral`[i], DefTown = future_games$`Home/Neutral`[i], SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017)
 }
