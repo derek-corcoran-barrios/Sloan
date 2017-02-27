@@ -31,8 +31,11 @@ schedule[,4] <- as.numeric(as.character(schedule[,4]))
 schedule[,6] <- as.numeric(as.character(schedule[,6]))
 seasons <- data.frame(Season = c(2016), Start_date_reg = dmy(c("27-10-2015")), End_date_reg = dmy(c("13-04-2016")), Start_date_playoff = dmy(c("16-04-2016")), End_date_playoff = dmy(c("19-06-2016")))
 ################here
-schedule$Year <- ifelse(schedule$Date)
-schedule<- schedule[!is.na(schedule$Date),]
+seasons <- data.frame(Season = c(2016), Start_date_reg = dmy(c("27-10-2015")), End_date_reg = dmy(c("13-04-2016")), Start_date_playoff = dmy(c("16-04-2016")), End_date_playoff = dmy(c("19-06-2016")))
+
+schedule$Year <- ifelse(schedule$Date >= seasons$Start_date_reg & schedule$Date <= seasons$End_date_playoff, 2016, NA)
+schedule$type <- ifelse(schedule$Date >= seasons$Start_date_reg & schedule$Date <= seasons$End_date_reg, "Regular", NA)
+schedule$type <- ifelse(schedule$Date >= seasons$Start_date_playoff & schedule$Date <= seasons$End_date_playoff , "Playoff", NA)
 
 
 
@@ -98,7 +101,7 @@ schedule[,5] <- gsub("Sacramento Kings", "Sac", schedule[,5])
 schedule[,5] <- gsub("Los Angeles Lakers", "Lal", schedule[,5])
 schedule[,5] <- gsub("Minnesota Timberwolves", "Min", schedule[,5])
 ###seasons dates
-seasons <- data.frame(Season = c(2016), Start_date_reg = dmy(c("27-10-2015")), End_date_reg = dmy(c("13-04-2016")), Start_date_playoff = dmy(c("16-04-2016")), End_date_playoff = dmy(c("19-06-2016")))
+
 
 past_games <- schedule[schedule$Date < Sys.Date(),]
 past_games$defAPPS <- NA
@@ -113,7 +116,18 @@ past_games$HomeRes <- past_games$Visit_PTS - past_games$Home_PTS
 
 #######load data and functions, not needed in the real one
 shotDataTotal2017<- readRDS("shotDataTotal2017.rds")
+
+shotDataTotal2017$GAME_DATE <- lubridate::ymd(shotDataTotal2017$GAME_DATE)
+saveRDS(shotDataTotal2017, "shotDataTotal2017.rds")
+
 shotDatafDef2017 <- readRDS("shotDatafDef2017.rds")
+
+for (i in 1:length(names(shotDatafDef2017))) {
+  shotDatafDef2017[[i]]$GAME_DATE <- lubridate::ymd(shotDatafDef2017[[i]]$GAME_DATE)
+}
+
+saveRDS(shotDatafDef2017, "shotDatafDef2017.rds")
+
 
 pacman::p_load(rjson, grid, gridExtra, png, RCurl, ggplot2, jpeg, hexbin, sp, knitr, raster, rasterVis, dplyr)
 
