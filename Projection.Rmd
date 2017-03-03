@@ -29,8 +29,7 @@ pacman::p_load(rjson, grid, gridExtra, png, RCurl, ggplot2, jpeg, hexbin, sp, kn
 #library(rasterVis)
 #library(dplyr)
 
-by_team <- read.csv("~/Sloan/by_team.csv")
-by_team <- by_team[-1,-1]
+by_team <- readRDS("by_team.rds")
 
 teamID <- by_team$team_id
 teamName <- by_team$team_city
