@@ -424,6 +424,10 @@ ProjStand <- arrange(ProjStand, Conference,desc(W))
 
 colnames(ProjStand) <- c("Team", "Current-W", "Current-L", "Conference", "Projected-W", "Projected-L")
 
+ProjStand$`Projected-L`<- ifelse(is.na(ProjStand$`Projected-L`), ProjStand$`Current-L`, ProjStand$`Projected-L`)
+
+ProjStand$`Projected-W`<- ifelse(is.na(ProjStand$`Projected-W`), ProjStand$`Current-W`, ProjStand$`Projected-W`)
+
 write.csv(ProjStand, "ProjStand.csv")
 saveRDS(ProjStand, "ProjStand.rds")
 
