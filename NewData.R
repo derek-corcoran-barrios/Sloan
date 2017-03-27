@@ -29,14 +29,20 @@ schedule <- do.call("rbind", schedule)
 schedule$Date <- mdy(as.character(schedule$Date))
 schedule[,4] <- as.numeric(as.character(schedule[,4]))
 schedule[,6] <- as.numeric(as.character(schedule[,6]))
-seasons <- data.frame(Season = c(2016), Start_date_reg = dmy(c("27-10-2015")), End_date_reg = dmy(c("13-04-2016")), Start_date_playoff = dmy(c("16-04-2016")), End_date_playoff = dmy(c("19-06-2016")))
-################here
-seasons <- data.frame(Season = c(2016), Start_date_reg = dmy(c("27-10-2015")), End_date_reg = dmy(c("13-04-2016")), Start_date_playoff = dmy(c("16-04-2016")), End_date_playoff = dmy(c("19-06-2016")))
 
-schedule$Year <- ifelse(schedule$Date >= seasons$Start_date_reg & schedule$Date <= seasons$End_date_playoff, 2016, NA)
-schedule$type <- ifelse(schedule$Date >= seasons$Start_date_reg & schedule$Date <= seasons$End_date_reg, "Regular", NA)
-schedule$type <- ifelse(schedule$Date >= seasons$Start_date_playoff & schedule$Date <= seasons$End_date_playoff , "Playoff", NA)
+###Set dates by season
+season2013 <- data.frame(Season = c(2013), Start_date_reg = dmy(c("30-10-2012")), End_date_reg = dmy(c("17-04-2013")), Start_date_playoff = dmy(c("20-04-2013")), End_date_playoff = dmy(c("20-06-2013")))
+season2014 <- data.frame(Season = c(2014), Start_date_reg = dmy(c("29-10-2013")), End_date_reg = dmy(c("16-04-2014")), Start_date_playoff = dmy(c("19-04-2014")), End_date_playoff = dmy(c("15-06-2014")))
+season2015 <- data.frame(Season = c(2015), Start_date_reg = dmy(c("28-10-2014")), End_date_reg = dmy(c("15-04-2015")), Start_date_playoff = dmy(c("18-04-2015")), End_date_playoff = dmy(c("16-06-2015")))
+season2016 <- data.frame(Season = c(2016), Start_date_reg = dmy(c("27-10-2015")), End_date_reg = dmy(c("13-04-2016")), Start_date_playoff = dmy(c("16-04-2016")), End_date_playoff = dmy(c("19-06-2016")))
+season2017 <- data.frame(Season = c(2017), Start_date_reg = dmy(c("25-10-2016")), End_date_reg = dmy(c("12-04-2017")), Start_date_playoff = dmy(c("15-04-2017")), End_date_playoff = dmy(c("18-06-2017")))
 
+seasons <- list(season2013, season2014, season2015, season2016, season2017)
+####Asign seasons
+
+for(i in 1:length(seasons)){
+  schedule$Season <- ifelse (schedule$Date >= seasons[[i]]$Start_date_reg & schedule$Date <= seasons[[i]]$End_date_playoff, seasons[[i]]$Season, schedule$Season)
+}
 
 
 schedule[,3] <- gsub("Detroit Pistons", "Det", schedule[,3])
@@ -110,10 +116,10 @@ past_games$HomeRes <- NA
 
 past_games <- past_games[,c(1,3,4,5,6,10,11,12,13)]
 
-colnames(past_games) <- c("Date", "Visitor", "Visit_PTS", "Home", "Home_PTS", "Year", "defAPPS", "offAPPS", "HomeRes")
+colnames(past_games) <- c("Date", "Visitor", "Visit_PTS", "Home", "Home_PTS", "Season", "defAPPS", "offAPPS", "HomeRes")
 
 past_games$HomeRes <- past_games$Visit_PTS - past_games$Home_PTS
-
+past_games <- past_games[!is.na(past_games$Date),]
 #######load data and functions, not needed in the real one
 shotDataTotal2017<- readRDS("shotDataTotal2017.rds")
 
@@ -183,18 +189,24 @@ ComparisonPPS <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, nbins 
   Comparison$Diff <- c(Comparison$PPS.x + Comparison$PPS.y)
   
   
-  PPSAA <- weighted.mean((Comparison$PPS.x + Comparison$PPS.y), Comparison$ST.x)
+  PPSAA <- weighted.mean((Comparison$PPS.x + Comparison$PPS.y), Comparison$ST.x, na.rm = TRUE)
   
   
   return(list(PPSAA = PPSAA))
 }
 
-
+DF <- data.frame(day = rep(NA, times = NROW(past_games)), defAPPS = rep(NA, times = NROW(past_games)))
 #######
-
-if (past_games$Year == 2016) {
-  for(i in 1:NROW(past_games)) {
-    past_games$defAPPS[i] <- ComparisonPPS(OffTeam = past_games$Home[i], DefTown = past_games$Visitor, SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017)
+for(i in 1:NROW(past_games)) {
+if (past_games$Season[i] == 2017) {
+    shotDatafDef2017Temp <- shotDatafDef2017
+    shotDatafDef2017Temp[[past_games$Home[i]]] <- dplyr::filter(shotDatafDef2017[[past_games$Home[i]]], GAME_DATE < past_games$Date[i])
+    past_games$defAPPS[i] <- ComparisonPPS(OffTeam = past_games$Home[i], DefTown = past_games$Visitor[i], SeasondataOff = dplyr::filter(shotDataTotal2017, GAME_DATE < past_games$Date[i]), SeasonDataDef = shotDatafDef2017Temp)
+    DF$day[i] <- i
+    #shotDatafDef2017Temp[["Cle"]] <- dplyr::filter(shotDatafDef2017Temp[["Cle"]], GAME_DATE < past_games$Date[i])
+    #DF$defAPPS[i] <- ComparisonPPS(OffTeam = "GSW", DefTown = "Cle", SeasondataOff = dplyr::filter(shotDataTotal2017, GAME_DATE < past_games$Date[i]), SeasonDataDef = shotDatafDef2017Temp)
+}else{
+    past_games$defAPPS[i] <- NA
   }
 }
 
