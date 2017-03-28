@@ -108,6 +108,8 @@ schedule[,5] <- gsub("Los Angeles Clippers", "Lac", schedule[,5])
 schedule[,5] <- gsub("Sacramento Kings", "Sac", schedule[,5])
 schedule[,5] <- gsub("Los Angeles Lakers", "Lal", schedule[,5])
 schedule[,5] <- gsub("Minnesota Timberwolves", "Min", schedule[,5])
+schedule[,5] <- gsub("Charlotte Bobcats", "Cha", schedule[,5])
+
 ###seasons dates
 
 
@@ -124,28 +126,29 @@ past_games$HomeRes <- past_games$Visit_PTS - past_games$Home_PTS
 past_games <- past_games[!is.na(past_games$Date),]
 #######load data and functions, not needed in the real one
 shotDataTotal2017<- readRDS("shotDataTotal2017.rds")
-shotDataTotal2017$GAME_DATE <- lubridate::ymd(shotDataTotal2017$GAME_DATE)
-saveRDS(shotDataTotal2017, "shotDataTotal2017.rds")
 shotDatafDef2017 <- readRDS("shotDatafDef2017.rds")
-
-for (i in 1:length(names(shotDatafDef2017))) {
-  shotDatafDef2017[[i]]$GAME_DATE <- lubridate::ymd(shotDatafDef2017[[i]]$GAME_DATE)
-}
-
-saveRDS(shotDatafDef2017, "shotDatafDef2017.rds")
 
 #####2016
 shotDataTotal2016<- readRDS("shotDataTotal2016.rds")
-shotDataTotal2016$GAME_DATE <- lubridate::ymd(shotDataTotal2016$GAME_DATE)
-saveRDS(shotDataTotal2016, "shotDataTotal2016.rds")
 shotDatafDef2016 <- readRDS("shotDatafDef2016.rds")
 
-for (i in 1:length(names(shotDatafDef2016))) {
-  shotDatafDef2016[[i]]$GAME_DATE <- lubridate::ymd(shotDatafDef2016[[i]]$GAME_DATE)
+
+#####2015
+
+shotDataTotal2015<- readRDS("shotDataTotal2015.rds")
+shotDatafDef2015 <- readRDS("shotDatafDef2015.rds")
+
+####2014
+
+shotDataTotal2014<- readRDS("shotDataTotal2014.rds")
+shotDataTotal2014$GAME_DATE <- lubridate::ymd(shotDataTotal2014$GAME_DATE)
+saveRDS(shotDataTotal2014, "shotDataTotal2014.rds")
+shotDatafDef2014 <- readRDS("shotDatafDef2014.rds")
+
+for (i in 1:length(names(shotDatafDef2014))) {
+  shotDatafDef2014[[i]]$GAME_DATE <- lubridate::ymd(shotDatafDef2014[[i]]$GAME_DATE)
 }
-
-saveRDS(shotDatafDef2016, "shotDatafDef2016.rds")
-
+saveRDS(shotDatafDef2014, "shotDatafDef2014.rds")
 
 pacman::p_load(rjson, grid, gridExtra, png, RCurl, ggplot2, jpeg, hexbin, sp, knitr, raster, rasterVis, dplyr)
 
@@ -217,6 +220,10 @@ if (past_games$Season[i] == 2017) {
   shotDatafDef2016Temp <- shotDatafDef2016
   shotDatafDef2016Temp[[past_games$Home[i]]] <- dplyr::filter(shotDatafDef2016[[past_games$Home[i]]], GAME_DATE < past_games$Date[i])
   past_games$defAPPS[i] <- ComparisonPPS(OffTeam = past_games$Home[i], DefTown = past_games$Visitor[i], SeasondataOff = dplyr::filter(shotDataTotal2016, GAME_DATE < past_games$Date[i]), SeasonDataDef = shotDatafDef2016Temp)
+}else if (past_games$Season[i] == 2015){
+  shotDatafDef2015Temp <- shotDatafDef2015
+  shotDatafDef2015Temp[[past_games$Home[i]]] <- dplyr::filter(shotDatafDef2015[[past_games$Home[i]]], GAME_DATE < past_games$Date[i])
+  past_games$defAPPS[i] <- ComparisonPPS(OffTeam = past_games$Home[i], DefTown = past_games$Visitor[i], SeasondataOff = dplyr::filter(shotDataTotal2015, GAME_DATE < past_games$Date[i]), SeasonDataDef = shotDatafDef2015Temp)
 }else{
     past_games$defAPPS[i] <- NA
   }
@@ -233,21 +240,49 @@ for(i in 10:length(dates2017)) {
     DF2017$day[i] <- i
     print(i)
     shotDatafDef2017Temp[["Cle"]] <- dplyr::filter(shotDatafDef2017Temp[["Cle"]], GAME_DATE < dates2017[i])
-    DF2017[i,2] <- ComparisonPPS(OffTeam = "GSW", DefTown = "Cle", SeasondataOff = dplyr::filter(shotDataTotal2017, GAME_DATE < dates2017[i]), SeasonDataDef = shotDatafDef2017Temp)
+    DF2017[i,3] <- ComparisonPPS(OffTeam = "GSW", DefTown = "Cle", SeasondataOff = dplyr::filter(shotDataTotal2017, GAME_DATE < dates2017[i]), SeasonDataDef = shotDatafDef2017Temp)
   }
    
-dates2016 <- unique(past_games$Date)[unique(past_games$Date) >= dmy("27-10-2015") & unique(past_games$Date) <= dmy("27-10-2015")]
 
-Start_date_reg = dmy(c("27-10-2015")), End_date_reg = dmy(c("13-04-2016"))
-DF2016 <- data.frame(Season = rep(2016, times =length(dates2017)), day = rep(NA, times =length(dates2017)), defAPPS = rep(NA, times = length(dates2017)))
+dates2016 <- unique(past_games$Date)[unique(past_games$Date) >= dmy("27-10-2015") & unique(past_games$Date) <= dmy("13-04-2016")]
+DF2016 <- data.frame(Season = rep(2016, times =length(dates2016)), day = rep(NA, times =length(dates2016)), defAPPS = rep(NA, times = length(dates2016)))
 
-for(i in 10:length(dates2017)) {
-  shotDatafDef2017Temp <- shotDatafDef2017
-  DF2017$day[i] <- i
+for(i in 10:length(dates2016)) {
+  shotDatafDef2016Temp <- shotDatafDef2016
+  DF2016$day[i] <- i
   print(i)
-  shotDatafDef2017Temp[["Cle"]] <- dplyr::filter(shotDatafDef2017Temp[["Cle"]], GAME_DATE < dates2017[i])
-  DF2017[i,2] <- ComparisonPPS(OffTeam = "GSW", DefTown = "Cle", SeasondataOff = dplyr::filter(shotDataTotal2017, GAME_DATE < dates2017[i]), SeasonDataDef = shotDatafDef2017Temp)
+  shotDatafDef2016Temp[["Cle"]] <- dplyr::filter(shotDatafDef2016Temp[["Cle"]], GAME_DATE < dates2016[i])
+  DF2016[i,3] <- ComparisonPPS(OffTeam = "GSW", DefTown = "Cle", SeasondataOff = dplyr::filter(shotDataTotal2016, GAME_DATE < dates2016[i]), SeasonDataDef = shotDatafDef2016Temp)
 }
 
-ggplot(DF, aes(x = day, y = defAPPS))+ geom_line()+ geom_point()
+dates2015 <- unique(past_games$Date)[unique(past_games$Date) >= dmy("28-10-2014") & unique(past_games$Date) <= dmy("15-04-2015")]
+DF2015 <- data.frame(Season = rep(2015, times =length(dates2015)), day = rep(NA, times =length(dates2015)), defAPPS = rep(NA, times = length(dates2015)))
 
+for(i in 10:length(dates2015)) {
+  shotDatafDef2015Temp <- shotDatafDef2015
+  DF2015$day[i] <- i
+  print(i)
+  shotDatafDef2015Temp[["Cle"]] <- dplyr::filter(shotDatafDef2015Temp[["Cle"]], GAME_DATE < dates2015[i])
+  DF2015[i,3] <- ComparisonPPS(OffTeam = "GSW", DefTown = "Cle", SeasondataOff = dplyr::filter(shotDataTotal2015, GAME_DATE < dates2015[i]), SeasonDataDef = shotDatafDef2015Temp)
+}
+
+dates2014 <- unique(past_games$Date)[unique(past_games$Date) >= dmy("28-10-2014") & unique(past_games$Date) <= dmy("15-04-2015")]
+DF2014 <- data.frame(Season = rep(2014, times =length(dates2014)), day = rep(NA, times =length(dates2014)), defAPPS = rep(NA, times = length(dates2014)))
+
+for(i in 10:length(dates2014)) {
+  shotDatafDef2014Temp <- shotDatafDef2014
+  DF2014$day[i] <- i
+  print(i)
+  shotDatafDef2014Temp[["Cle"]] <- dplyr::filter(shotDatafDef2014Temp[["Cle"]], GAME_DATE < dates2014[i])
+  DF2014[i,3] <- ComparisonPPS(OffTeam = "GSW", DefTown = "Cle", SeasondataOff = dplyr::filter(shotDataTotal2014, GAME_DATE < dates2014[i]), SeasonDataDef = shotDatafDef2014Temp)
+}
+
+DFDates <- rbind(DF2015, DF2016, DF2017)
+DFDates$Season <- as.factor(DFDates$Season)
+
+ggplot(DFDates, aes(x = day, y = defAPPS))+ geom_point(aes(color = Season)) + geom_line(aes(color = Season))
+
+ggplot(DF2014, aes(x = day, y = defAPPS))+ geom_point() + geom_line()
+
+season2013 <- data.frame(Season = c(2013), Start_date_reg = dmy(c("30-10-2012")), End_date_reg = dmy(c("17-04-2013")), Start_date_playoff = dmy(c("20-04-2013")), End_date_playoff = dmy(c("20-06-2013")))
+season2014 <- data.frame(Season = c(2014), Start_date_reg = dmy(c("29-10-2013")), End_date_reg = dmy(c("16-04-2014")), Start_date_playoff = dmy(c("19-04-2014")), End_date_playoff = dmy(c("15-06-2014")))
