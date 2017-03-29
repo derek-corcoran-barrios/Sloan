@@ -78,6 +78,8 @@ schedule[,3] <- gsub("Sacramento Kings", "Sac", schedule[,3])
 schedule[,3] <- gsub("Los Angeles Lakers", "Lal", schedule[,3])
 schedule[,3] <- gsub("Minnesota Timberwolves", "Min", schedule[,3])
 schedule[,3] <- gsub("Charlotte Bobcats", "Cha", schedule[,3])
+schedule[,3]<- gsub("New Orleans Hornets", "NO", schedule[,3])
+
 
 
 schedule[,5] <- gsub("Detroit Pistons", "Det", schedule[,5])
@@ -111,6 +113,8 @@ schedule[,5] <- gsub("Sacramento Kings", "Sac", schedule[,5])
 schedule[,5] <- gsub("Los Angeles Lakers", "Lal", schedule[,5])
 schedule[,5] <- gsub("Minnesota Timberwolves", "Min", schedule[,5])
 schedule[,5] <- gsub("Charlotte Bobcats", "Cha", schedule[,5])
+schedule[,5]<- gsub("New Orleans Hornets", "NO", schedule[,5])
+
 
 ###seasons dates
 
@@ -143,14 +147,18 @@ shotDatafDef2015 <- readRDS("shotDatafDef2015.rds")
 ####2014
 
 shotDataTotal2014<- readRDS("shotDataTotal2014.rds")
-shotDataTotal2014$GAME_DATE <- lubridate::ymd(shotDataTotal2014$GAME_DATE)
-saveRDS(shotDataTotal2014, "shotDataTotal2014.rds")
 shotDatafDef2014 <- readRDS("shotDatafDef2014.rds")
 
-for (i in 1:length(names(shotDatafDef2014))) {
-  shotDatafDef2014[[i]]$GAME_DATE <- lubridate::ymd(shotDatafDef2014[[i]]$GAME_DATE)
+
+#####2013
+
+shotDataTotal2013<- readRDS("shotDataTotal2013.rds")
+shotDatafDef2013 <- readRDS("shotDatafDef2013.rds")
+
+for (i in 1:length(names(shotDatafDef2013))) {
+  shotDatafDef2013[[i]]$GAME_DATE <- lubridate::ymd(shotDatafDef2013[[i]]$GAME_DATE)
 }
-saveRDS(shotDatafDef2014, "shotDatafDef2014.rds")
+saveRDS(shotDatafDef2013, "shotDatafDef2013.rds")
 
 pacman::p_load(rjson, grid, gridExtra, png, RCurl, ggplot2, jpeg, hexbin, sp, knitr, raster, rasterVis, dplyr)
 
@@ -212,7 +220,7 @@ ComparisonPPS <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, nbins 
   return(list(PPSAA = PPSAA))
 }
 
-#######
+#######defAPPS
 for(i in 1:NROW(past_games)) {
 if (past_games$Season[i] == 2017) {
     shotDatafDef2017Temp <- shotDatafDef2017
@@ -230,10 +238,43 @@ if (past_games$Season[i] == 2017) {
   shotDatafDef2014Temp <- shotDatafDef2014
   shotDatafDef2014Temp[[past_games$Home[i]]] <- dplyr::filter(shotDatafDef2014[[past_games$Home[i]]], GAME_DATE < past_games$Date[i])
   past_games$defAPPS[i] <- ComparisonPPS(OffTeam = past_games$Home[i], DefTown = past_games$Visitor[i], SeasondataOff = dplyr::filter(shotDataTotal2014, GAME_DATE < past_games$Date[i]), SeasonDataDef = shotDatafDef2014Temp)
+}else if (past_games$Season[i] == 2013 & i >20){
+  shotDatafDef2013Temp <- shotDatafDef2013
+  shotDatafDef2013Temp[[past_games$Home[i]]] <- dplyr::filter(shotDatafDef2013[[past_games$Home[i]]], GAME_DATE < past_games$Date[i])
+  past_games$defAPPS[i] <- ComparisonPPS(OffTeam = past_games$Home[i], DefTown = past_games$Visitor[i], SeasondataOff = dplyr::filter(shotDataTotal2013, GAME_DATE < past_games$Date[i]), SeasonDataDef = shotDatafDef2013Temp)
 }else{
     past_games$defAPPS[i] <- NA
   }
 }
+
+##offAPPS
+
+for(i in 1:NROW(past_games)) {
+  if (past_games$Season[i] == 2017) {
+    shotDatafDef2017Temp <- shotDatafDef2017
+    shotDatafDef2017Temp[[past_games$Visitor[i]]] <- dplyr::filter(shotDatafDef2017[[past_games$Visitor[i]]], GAME_DATE < past_games$Date[i])
+    past_games$offAPPS[i] <- ComparisonPPS(OffTeam = past_games$Visitor[i], DefTown = past_games$Home[i], SeasondataOff = dplyr::filter(shotDataTotal2017, GAME_DATE < past_games$Date[i]), SeasonDataDef = shotDatafDef2017Temp)
+  }else if (past_games$Season[i] == 2016){
+    shotDatafDef2016Temp <- shotDatafDef2016
+    shotDatafDef2016Temp[[past_games$Visitor[i]]] <- dplyr::filter(shotDatafDef2016[[past_games$Visitor[i]]], GAME_DATE < past_games$Date[i])
+    past_games$offAPPS[i] <- ComparisonPPS(OffTeam = past_games$Visitor[i], DefTown = past_games$Home[i], SeasondataOff = dplyr::filter(shotDataTotal2016, GAME_DATE < past_games$Date[i]), SeasonDataDef = shotDatafDef2016Temp)
+  }else if (past_games$Season[i] == 2015){
+    shotDatafDef2015Temp <- shotDatafDef2015
+    shotDatafDef2015Temp[[past_games$Visitor[i]]] <- dplyr::filter(shotDatafDef2015[[past_games$Visitor[i]]], GAME_DATE < past_games$Date[i])
+    past_games$offAPPS[i] <- ComparisonPPS(OffTeam = past_games$Visitor[i], DefTown = past_games$Home[i], SeasondataOff = dplyr::filter(shotDataTotal2015, GAME_DATE < past_games$Date[i]), SeasonDataDef = shotDatafDef2015Temp)
+  }else if (past_games$Season[i] == 2014 & i >10){
+    shotDatafDef2014Temp <- shotDatafDef2014
+    shotDatafDef2014Temp[[past_games$Visitor[i]]] <- dplyr::filter(shotDatafDef2014[[past_games$Visitor[i]]], GAME_DATE < past_games$Date[i])
+    past_games$offAPPS[i] <- ComparisonPPS(OffTeam = past_games$Visitor[i], DefTown = past_games$Home[i], SeasondataOff = dplyr::filter(shotDataTotal2014, GAME_DATE < past_games$Date[i]), SeasonDataDef = shotDatafDef2014Temp)
+  }else if (past_games$Season[i] == 2013 & i >20){
+    shotDatafDef2013Temp <- shotDatafDef2013
+    shotDatafDef2013Temp[[past_games$Visitor[i]]] <- dplyr::filter(shotDatafDef2013[[past_games$Visitor[i]]], GAME_DATE < past_games$Date[i])
+    past_games$offAPPS[i] <- ComparisonPPS(OffTeam = past_games$Visitor[i], DefTown = past_games$Home[i], SeasondataOff = dplyr::filter(shotDataTotal2013, GAME_DATE < past_games$Date[i]), SeasonDataDef = shotDatafDef2013Temp)
+  }else{
+    past_games$offAPPS[i] <- NA
+  }
+}
+
 
 ##Variability
 
@@ -261,6 +302,10 @@ for(i in 10:length(dates2016)) {
   DF2016[i,3] <- ComparisonPPS(OffTeam = "GSW", DefTown = "Cle", SeasondataOff = dplyr::filter(shotDataTotal2016, GAME_DATE < dates2016[i]), SeasonDataDef = shotDatafDef2016Temp)
 }
 
+past_games$defAPPS <- unlist(past_games$defAPPS)
+
+past_games$offAPPS <- unlist(past_games$offAPPS)
+
 dates2015 <- unique(past_games$Date)[unique(past_games$Date) >= dmy("28-10-2014") & unique(past_games$Date) <= dmy("15-04-2015")]
 DF2015 <- data.frame(Season = rep(2015, times =length(dates2015)), day = rep(NA, times =length(dates2015)), defAPPS = rep(NA, times = length(dates2015)))
 
@@ -283,12 +328,20 @@ for(i in 10:length(dates2014)) {
   DF2014[i,3] <- ComparisonPPS(OffTeam = "GSW", DefTown = "Cle", SeasondataOff = dplyr::filter(shotDataTotal2014, GAME_DATE < dates2014[i]), SeasonDataDef = shotDatafDef2014Temp)
 }
 
-DFDates <- rbind(DF2014 ,DF2015, DF2016, DF2017)
+dates2013 <- unique(past_games$Date)[unique(past_games$Date) >= dmy("20-10-2012") & unique(past_games$Date) <= dmy("17-04-2013")]
+DF2013 <- data.frame(Season = rep(2013, times =length(dates2013)), day = rep(NA, times =length(dates2013)), defAPPS = rep(NA, times = length(dates2013)))
+
+for(i in 10:length(dates2013)) {
+  shotDatafDef2013Temp <- shotDatafDef2013
+  DF2013$day[i] <- i
+  print(i)
+  shotDatafDef2013Temp[["Cle"]] <- dplyr::filter(shotDatafDef2013Temp[["Cle"]], GAME_DATE < dates2013[i])
+  DF2013[i,3] <- ComparisonPPS(OffTeam = "GSW", DefTown = "Cle", SeasondataOff = dplyr::filter(shotDataTotal2013, GAME_DATE < dates2013[i]), SeasonDataDef = shotDatafDef2013Temp)
+}
+
+DFDates <- rbind(DF2013, DF2014 ,DF2015, DF2016, DF2017)
 DFDates$Season <- as.factor(DFDates$Season)
 
 ggplot(DFDates, aes(x = day, y = defAPPS))+ geom_point(aes(color = Season)) + geom_line(aes(color = Season))
 
-ggplot(DF2014, aes(x = day, y = defAPPS))+ geom_point() + geom_line()
-
-season2013 <- data.frame(Season = c(2013), Start_date_reg = dmy(c("30-10-2012")), End_date_reg = dmy(c("17-04-2013")), Start_date_playoff = dmy(c("20-04-2013")), End_date_playoff = dmy(c("20-06-2013")))
-season2014 <- data.frame(Season = c(2014), Start_date_reg = dmy(c("29-10-2013")), End_date_reg = dmy(c("16-04-2014")), Start_date_playoff = dmy(c("19-04-2014")), End_date_playoff = dmy(c("15-06-2014")))
+saveRDS(DFDates, "DFDates.rds")
