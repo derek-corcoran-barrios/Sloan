@@ -5,11 +5,14 @@ date: "March 31, 2017"
 output: pdf_document
 ---
 
-This is a comparison between the new and old 
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(message = FALSE)
 knitr::opts_chunk$set(warning=FALSE)
+knitr::knit_hooks$set(inline = function(x) {
+  prettyNum(x, big.mark=",")
+})
 ```
 
 ```{r}
@@ -19,19 +22,21 @@ pacman::p_load(tidyverse, caret)
 
 ```{r, cache=TRUE}
 FinalOdds <- readRDS("FinalOdds.rds")
+BRT2017_31_Mar <- readRDS("BRT2017_31_Mar.rds")
 
 past_gamesFiltPlayoff <- readRDS("past_gamesFiltPlayoff.rds")
+past_games <- readRDS("past_games.rds")
 
 DFDates <- readRDS("DFDates.rds")
 
 shotDataTotal2017<- readRDS("shotDataTotal2017.rds")
-shotDataTotal2017$GAME_DATE <- ymd(shotDataTotal2017$GAME_DATE)
+shotDataTotal2017$GAME_DATE <- lubridate::ymd(shotDataTotal2017$GAME_DATE)
 saveRDS(shotDataTotal2017, "shotDataTotal2017.rds")
 
 shotDatafDef2017 <- readRDS("shotDatafDef2017.rds")
 
 for (i in 1:length(shotDatafDef2017)){
-  shotDatafDef2017[[i]]$GAME_DATE <- ymd(shotDatafDef2017[[i]]$GAME_DATE)
+  shotDatafDef2017[[i]]$GAME_DATE <- lubridate::ymd(shotDatafDef2017[[i]]$GAME_DATE)
 }
 
 #####2016
@@ -58,34 +63,60 @@ shotDatafDef2013 <- readRDS("shotDatafDef2013.rds")
 for (i in 1:length(names(shotDatafDef2013))) {
   shotDatafDef2013[[i]]$GAME_DATE <- lubridate::ymd(shotDatafDef2013[[i]]$GAME_DATE)
 }
+
+shotDataTotal2012<- readRDS("shotDataTotal2012.rds")
 ```
 
+This is a comparison between the new and old model build throught our offensive and deffensive APPS to predict the spread in NBA games. Most of the time that I worked on this I was developing a new dataset, which used the Regular Season resutls to train our models, because even when we were using all of the `r NROW(rbind(shotDataTotal2016,shotDataTotal2015, shotDataTotal2014, shotDataTotal2013)) + NROW(shotDataTotal2012)` taken through the seasosn 2012 through 2016, we were not using every game to train the model.
 
-```{r, results='asis', warning=FALSE}
-stargazer::stargazer(past_gamesFiltPlayoff)
-```
+Our old algorithm only used results of playoffs in order to train the dataset, that is we calculated our defAPPS and offAPPS for every matchup in the post season given all the shots in that season. That gave us a total of `r NROW(FinalOdds)` to work with. Further more, we had to divide our dataset in a training and testing set, which gave us `r NROW(dplyr::filter(FinalOdds, Season != 2016))` games as a training set and `r NROW(dplyr::filter(FinalOdds, Season == 2016))` as a test set.
 
-You can also embed plots, for example:
+#The New Dataset
 
-```{r}
+With that in mind I was set to develop a new dataset that made it possible to further train our model and use more available data. For that the first thing I did was to collect all the results of the NBA's regular season from 2013 till March 30th of 2017 (The script is ready to go so we can do this anytime we want to to increase it).
+
+Then we had to calculate the offAPPS and defAPPS for every one of the `r NROW(past_games)`regular season games available, but only with the shots taken before that date. Nevertheless it is expected that at the beggining of the season, if we calculate the offAPPS or defAPPS between two teams, the result will be highly unstable though to the low number of shots taken, and that that should become more and more stable throughout the season. 
+
+
+```{r, fig.cap= "defAPPS for every day of the season from 2013 to 2017 between the Cavs and the Warriors, the solid line represents the fitted asymptotic model, and the dashed line, the day of the season when the defAPPS get stable."}
 Model1 <-nls(defAPPS ~ SSasympOff(day, A, lrc, c0), data = DFDates)
 DFDates$pred <- predict(Model1)
-ceiling(summary(Model1)$coefficients[3])
 for_filtering <- DFDates[DFDates$day ==ceiling(summary(Model1)$coefficients[3]),]
 
 DFDates$Season <- as.factor(DFDates$Season)
 
-ggplot(DFDates, aes(x = day, y = defAPPS))+ geom_point(aes(color = Season)) + geom_line(aes(y = pred)) + geom_vline(xintercept = ceiling(summary(Model1)$coefficients[3]))
+ggplot(DFDates, aes(x = day, y = defAPPS))+ geom_point(aes(color = Season)) + geom_line(aes(y = pred)) + geom_vline(xintercept = ceiling(summary(Model1)$coefficients[3]), lty = 2)
 
 ```
 
-#Plots
+In order to take that into account calculated the defAPPS of the Cavs vs the Warriors for everyday of the season for every season form 2013 to 2017 (Fig 1). I fitted an asymptotic model, the model states that on the day `r round(summary(Model1)$coefficients[3], 2)` is when the data sabilizes, so we calculated the `r paste(ceiling(summary(Model1)$coefficients[3]),c("th"), sep = "")` for each season and only use the data after that date.
 
-* 3d plot
-* some shotchart plot
-* 
+```{r}
+knitr::kable(for_filtering[,c(1,4)], caption = "The first day for each season taken into account for further modelling", row.names = FALSE)
+```
 
-#Tables
+We joined the constructed dataset with the Playoffs dataset that we had previously, which gave us `r NROW(past_gamesFiltPlayoff)` games to work with, which were divided into `r NROW(dplyr::filter(past_gamesFiltPlayoff, Season != 2017 & Type == "regular_season" | Season != 2016 & Type == "Playoffs"))`games as a training set and `r NROW(dplyr::filter(past_gamesFiltPlayoff, Season == 2017 & Type == "regular_season" | Season == 2016 & Type == "Playoffs"))` as a test set. Furthermore adding the 2017 shots to the Dataset, also increased the number of available shots for the model to `r NROW(rbind(shotDataTotal2017,shotDataTotal2016,shotDataTotal2015, shotDataTotal2014, shotDataTotal2013)) + NROW(shotDataTotal2012)`.
 
-* comparison new and old training set
-* 
+#New model
+
+With that dataset, I used the same algorithm as before to train the model and create a new one. The response of that model is shown in figure 2. I will play around with this model over the weekend and extract some performances values, but other than that we should be set.
+
+```{r, fig.cap="Predicted response of the predicted spread to defAPPS and offAPPS"}
+For.predictions <- expand.grid(defAPPS = seq(from = min(past_gamesFiltPlayoff$defAPPS), to = max(past_gamesFiltPlayoff$defAPPS), length.out = 100), 
+                               offAPPS =seq(from= min(past_gamesFiltPlayoff$offAPPS),to = max(past_gamesFiltPlayoff$offAPPS), length.out = 100))
+
+For.predictions$Spread <- predict(BRT2017_31_Mar, For.predictions)
+
+For.predictions2 <- For.predictions
+For.predictions2$Type <- c("Predicted")
+For.predictions3 <- For.predictions2[seq(from =1, to = NROW(For.predictions), by = 100),]
+For.predictions3$Spread <- 0
+For.predictions3$Type <- c("Push")
+For.predictions2 <- rbind(For.predictions2, For.predictions3)
+
+#Test 1
+wireframe(Spread ~  offAPPS + defAPPS, group = Type, data = For.predictions2, colorkey = TRUE, drape = TRUE, pretty = TRUE,scales = list(arrows = FALSE), screen = list(z = -220, x = -80), par.settings = list(regions=list(alpha=0.75)))
+#Test 2
+
+```
+
