@@ -132,7 +132,15 @@ past_games$HomeRes <- past_games$Visit_PTS - past_games$Home_PTS
 past_games <- past_games[!is.na(past_games$Date),]
 #######load data and functions, not needed in the real one
 shotDataTotal2017<- readRDS("shotDataTotal2017.rds")
+shotDataTotal2017$GAME_DATE <- ymd(shotDataTotal2017$GAME_DATE)
+saveRDS(shotDataTotal2017, "shotDataTotal2017.rds")
+
 shotDatafDef2017 <- readRDS("shotDatafDef2017.rds")
+
+for (i in 1:length(shotDatafDef2017)){
+  shotDatafDef2017[[i]]$GAME_DATE <- ymd(shotDatafDef2017[[i]]$GAME_DATE)
+}
+saveRDS(shotDatafDef2017, "shotDatafDef2017.rds")
 
 #####2016
 shotDataTotal2016<- readRDS("shotDataTotal2016.rds")
@@ -275,12 +283,16 @@ for(i in 1:NROW(past_games)) {
   }
 }
 
+past_games$defAPPS <- unlist(past_games$defAPPS)
 
+past_games$offAPPS <- unlist(past_games$offAPPS)
+
+saveRDS(past_games, "past_games.rds")
 ##Variability
 
 dates2017 <- unique(past_games$Date)[unique(past_games$Date) >= dmy("25-10-2016")]
 
-DF2017 <- data.frame(Season = rep(2017, times =length(dates2017)), day = rep(NA, times =length(dates2017)), defAPPS = rep(NA, times = length(dates2017)))
+DF2017 <- data.frame(Season = rep(2017, times =length(dates2017)), day = rep(NA, times =length(dates2017)), defAPPS = rep(NA, times = length(dates2017)), dates = dates2017)
 
 for(i in 10:length(dates2017)) {
     shotDatafDef2017Temp <- shotDatafDef2017
@@ -289,10 +301,15 @@ for(i in 10:length(dates2017)) {
     shotDatafDef2017Temp[["Cle"]] <- dplyr::filter(shotDatafDef2017Temp[["Cle"]], GAME_DATE < dates2017[i])
     DF2017[i,3] <- ComparisonPPS(OffTeam = "GSW", DefTown = "Cle", SeasondataOff = dplyr::filter(shotDataTotal2017, GAME_DATE < dates2017[i]), SeasonDataDef = shotDatafDef2017Temp)
   }
-   
 
+DF2017 <- DF2017[complete.cases(DF2017),]
+
+
+#Params <- data.frame(season = 2017, As)
+#ceiling(summary(Model1)$coefficients[3])
+   
 dates2016 <- unique(past_games$Date)[unique(past_games$Date) >= dmy("27-10-2015") & unique(past_games$Date) <= dmy("13-04-2016")]
-DF2016 <- data.frame(Season = rep(2016, times =length(dates2016)), day = rep(NA, times =length(dates2016)), defAPPS = rep(NA, times = length(dates2016)))
+DF2016 <- data.frame(Season = rep(2016, times =length(dates2016)), day = rep(NA, times =length(dates2016)), defAPPS = rep(NA, times = length(dates2016)), dates = dates2016)
 
 for(i in 10:length(dates2016)) {
   shotDatafDef2016Temp <- shotDatafDef2016
@@ -302,12 +319,12 @@ for(i in 10:length(dates2016)) {
   DF2016[i,3] <- ComparisonPPS(OffTeam = "GSW", DefTown = "Cle", SeasondataOff = dplyr::filter(shotDataTotal2016, GAME_DATE < dates2016[i]), SeasonDataDef = shotDatafDef2016Temp)
 }
 
-past_games$defAPPS <- unlist(past_games$defAPPS)
+DF2016 <- DF2016[complete.cases(DF2016),]
 
-past_games$offAPPS <- unlist(past_games$offAPPS)
+
 
 dates2015 <- unique(past_games$Date)[unique(past_games$Date) >= dmy("28-10-2014") & unique(past_games$Date) <= dmy("15-04-2015")]
-DF2015 <- data.frame(Season = rep(2015, times =length(dates2015)), day = rep(NA, times =length(dates2015)), defAPPS = rep(NA, times = length(dates2015)))
+DF2015 <- data.frame(Season = rep(2015, times =length(dates2015)), day = rep(NA, times =length(dates2015)), defAPPS = rep(NA, times = length(dates2015)), dates = dates2015)
 
 for(i in 10:length(dates2015)) {
   shotDatafDef2015Temp <- shotDatafDef2015
@@ -317,8 +334,11 @@ for(i in 10:length(dates2015)) {
   DF2015[i,3] <- ComparisonPPS(OffTeam = "GSW", DefTown = "Cle", SeasondataOff = dplyr::filter(shotDataTotal2015, GAME_DATE < dates2015[i]), SeasonDataDef = shotDatafDef2015Temp)
 }
 
+DF2015 <- DF2015[complete.cases(DF2015),]
+
+
 dates2014 <- unique(past_games$Date)[unique(past_games$Date) >= dmy("29-10-2013") & unique(past_games$Date) <= dmy("16-04-2014")]
-DF2014 <- data.frame(Season = rep(2014, times =length(dates2014)), day = rep(NA, times =length(dates2014)), defAPPS = rep(NA, times = length(dates2014)))
+DF2014 <- data.frame(Season = rep(2014, times =length(dates2014)), day = rep(NA, times =length(dates2014)), defAPPS = rep(NA, times = length(dates2014)), dates = dates2014)
 
 for(i in 10:length(dates2014)) {
   shotDatafDef2014Temp <- shotDatafDef2014
@@ -328,8 +348,11 @@ for(i in 10:length(dates2014)) {
   DF2014[i,3] <- ComparisonPPS(OffTeam = "GSW", DefTown = "Cle", SeasondataOff = dplyr::filter(shotDataTotal2014, GAME_DATE < dates2014[i]), SeasonDataDef = shotDatafDef2014Temp)
 }
 
+DF2014 <- DF2014[complete.cases(DF2014),]
+
+
 dates2013 <- unique(past_games$Date)[unique(past_games$Date) >= dmy("20-10-2012") & unique(past_games$Date) <= dmy("17-04-2013")]
-DF2013 <- data.frame(Season = rep(2013, times =length(dates2013)), day = rep(NA, times =length(dates2013)), defAPPS = rep(NA, times = length(dates2013)))
+DF2013 <- data.frame(Season = rep(2013, times =length(dates2013)), day = rep(NA, times =length(dates2013)), defAPPS = rep(NA, times = length(dates2013)), dates = dates2013)
 
 for(i in 10:length(dates2013)) {
   shotDatafDef2013Temp <- shotDatafDef2013
@@ -339,9 +362,19 @@ for(i in 10:length(dates2013)) {
   DF2013[i,3] <- ComparisonPPS(OffTeam = "GSW", DefTown = "Cle", SeasondataOff = dplyr::filter(shotDataTotal2013, GAME_DATE < dates2013[i]), SeasonDataDef = shotDatafDef2013Temp)
 }
 
+DF2013 <- DF2013[complete.cases(DF2013),]
+
+
 DFDates <- rbind(DF2013, DF2014 ,DF2015, DF2016, DF2017)
+Model1 <-nls(defAPPS ~ SSasympOff(day, A, lrc, c0), data = DFDates)
+DFDates$pred <- predict(Model1)
+ceiling(summary(Model1)$coefficients[3])
+DFDates[DFDates$day ==ceiling(summary(Model1)$coefficients[3]),]
+
 DFDates$Season <- as.factor(DFDates$Season)
 
-ggplot(DFDates, aes(x = day, y = defAPPS))+ geom_point(aes(color = Season)) + geom_line(aes(color = Season))
+ggplot(DFDates, aes(x = day, y = defAPPS))+ geom_point(aes(color = Season)) + geom_line(aes(y = pred)) + geom_vline(xintercept = ceiling(summary(Model1)$coefficients[3]))
 
 saveRDS(DFDates, "DFDates.rds")
+
+
