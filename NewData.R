@@ -369,7 +369,7 @@ DFDates <- rbind(DF2013, DF2014 ,DF2015, DF2016, DF2017)
 Model1 <-nls(defAPPS ~ SSasympOff(day, A, lrc, c0), data = DFDates)
 DFDates$pred <- predict(Model1)
 ceiling(summary(Model1)$coefficients[3])
-DFDates[DFDates$day ==ceiling(summary(Model1)$coefficients[3]),]
+for_filtering <- DFDates[DFDates$day ==ceiling(summary(Model1)$coefficients[3]),]
 
 DFDates$Season <- as.factor(DFDates$Season)
 
@@ -377,4 +377,85 @@ ggplot(DFDates, aes(x = day, y = defAPPS))+ geom_point(aes(color = Season)) + ge
 
 saveRDS(DFDates, "DFDates.rds")
 
+past_gamesFilt <- dplyr::filter(past_games, Date >= for_filtering$dates[1] & Season == 2013 
+                                          | Date >= for_filtering$dates[2] & Season == 2014 
+                                          | Date >= for_filtering$dates[3] & Season == 2015
+                                          | Date >= for_filtering$dates[4] & Season == 2016
+                                          | Date >= for_filtering$dates[5] & Season == 2017)
+
+
+past_gamesFilt <- past_gamesFilt[complete.cases(past_gamesFilt),]
+
+ggplot(past_gamesFilt, aes(x = HomeRes, y = defAPPS)) + geom_smooth()
+past_gamesFilt$Type <- "regular_season"
+
+saveRDS(for_filtering, "for_filtering.rds")
+saveRDS(past_gamesFilt, "past_gamesFilt.rds")
+
+FinalOdds <- readRDS("FinalOdds.rds")
+
+past_gamesFiltPlayoff <- rbind.fill(past_gamesFilt, FinalOdds)
+past_gamesFiltPlayoff <- dplyr::arrange(past_gamesFiltPlayoff, Date)
+saveRDS(past_gamesFiltPlayoff, "past_gamesFiltPlayoff.rds")
+
+##Train model
+
+#Divide in train and test set
+
+past_gamesFiltPlayoff <- readRDS("past_gamesFiltPlayoff.rds")
+
+#Train set playoffs 2012 through 2015 and regular season 2013 through 2016
+trainNBA <- dplyr::filter(past_gamesFiltPlayoff, Season != 2017 & Type == "regular_season" | Season != 2016 & Type == "Playoffs")
+testNBA <- dplyr::filter(past_gamesFiltPlayoff, Season == 2017 & Type == "regular_season" | Season == 2016 & Type == "Playoffs")
+
+
+#####Forcast
+
+####Caret version
+library(caret)
+ctrl <- trainControl(method = "repeatedcv", number=10, repeats=3)
+
+
+grid <- expand.grid(interaction.depth = seq(1, 7, by = 2),
+                    n.trees = seq(100, 1000, by = 50),
+                    shrinkage = c(0.01, 0.1),
+                    n.minobsinnode=c(1,5,10))
+
+
+# train the GBM model
+set.seed(7)
+BRT2017_31_Mar <- train(x = trainNBA[,c(7,8)],y = trainNBA[,9], method = "gbm",  preProcess = c("center", "scale"), verbose = FALSE, trControl = ctrl, tuneGrid = grid)
+saveRDS(BRT2017_31_Mar, "BRT2017_31_Mar.rds")
+
+testNBA$PredictedBRT <- predict(BRT2017_31_Mar, testNBA[,7:8])
+
+
+postResample(pred = testNBA$PredictedBRT, obs = testNBA$HomeRes)
+postResample(pred = testNBA$VegasPred, obs = testNBA$HomeRes)
+
+
+ggplot(testNBA, aes(x = HomeRes, y = PredictedBRT)) + geom_smooth() + geom_point() 
+
+#####3d plot
+
+For.predictions <- expand.grid(defAPPS = seq(from = min(past_gamesFiltPlayoff$defAPPS), to = max(past_gamesFiltPlayoff$defAPPS), length.out = 100), 
+                               offAPPS =seq(from= min(past_gamesFiltPlayoff$offAPPS),to = max(past_gamesFiltPlayoff$offAPPS), length.out = 100))
+
+For.predictions$Spread <- predict(BRT2017_31_Mar, For.predictions)
+
+For.predictions2 <- For.predictions
+For.predictions2$Type <- c("Predicted")
+For.predictions3 <- For.predictions2[seq(from =1, to = NROW(For.predictions), by = 100),]
+For.predictions3$Spread <- 0
+For.predictions3$Type <- c("Push")
+For.predictions2 <- rbind(For.predictions2, For.predictions3)
+
+#Test 1
+wireframe(Spread ~  offAPPS + defAPPS, group = Type, data = For.predictions2, colorkey = TRUE, drape = TRUE, pretty = TRUE,scales = list(arrows = FALSE), screen = list(z = -220, x = -80), par.settings = list(regions=list(alpha=0.75)))
+#Test 2
+wireframe(Spread ~  offAPPS + defAPPS, group = Type, data = For.predictions2, colorkey = TRUE, drape = TRUE, pretty = TRUE,scales = list(arrows = FALSE), screen = list(z = -220, x = -60), par.settings = list(regions=list(alpha=0.85)))
+#Test3
+wireframe(Spread ~  offAPPS + defAPPS, group = Type, data = For.predictions2, colorkey = TRUE, drape = TRUE, pretty = TRUE,scales = list(arrows = FALSE), screen = list(z = -220, x = -100))
+
+wireframe(Spread ~  offAPPS + defAPPS, data = For.predictions, colorkey = TRUE, drape = TRUE, pretty = TRUE,scales = list(arrows = FALSE), screen = list(z = -220, x = -80))
 
