@@ -288,6 +288,8 @@ past_games$defAPPS <- unlist(past_games$defAPPS)
 past_games$offAPPS <- unlist(past_games$offAPPS)
 
 saveRDS(past_games, "past_games.rds")
+
+past_games <- readRDS("past_games.rds")
 ##Variability
 
 dates2017 <- unique(past_games$Date)[unique(past_games$Date) >= dmy("25-10-2016")]
