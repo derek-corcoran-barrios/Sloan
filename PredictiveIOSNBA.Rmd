@@ -153,7 +153,7 @@ ShotSeasonGraph(shotDataTotal2017, quant = 0.75, type = "PPS")
 
 ## N
 
-```{r}
+```{r,dpi=100}
 OffShotSeasonGraphTeam <- function(SeasondataOff, team, nbins = 30, maxsize = 7, quant = 0.7, type = "PPS") {
   
   dataOff <- dplyr::filter(SeasondataOff, TEAM_NAME == team)
@@ -224,11 +224,7 @@ OffShotSeasonGraphTeam <- function(SeasondataOff, team, nbins = 30, maxsize = 7,
   return(GRAPH)
 }
 
-a <- OffShotSeasonGraphTeam(shotDataTotal2017, team = "GSW",quant = 0.7)
-
 b <- OffShotSeasonGraphTeam(shotDataTotal2017, team = "Hou",quant = 0.7)
-
-c <- OffShotSeasonGraphTeam(shotDataTotal2017, team = "Phi",quant = 0.7)
 
 d <- OffShotSeasonGraphTeam(shotDataTotal2017, team = "ORL",quant = 0.7)
 
@@ -304,3 +300,10 @@ wireframe(Spread ~  offAPPS + defAPPS, group = Type, data = For.predictions2, co
 #Test 2
 
 ```
+
+
+# gif
+
+* coso
+
+![](http://stats.nba.com/photos/spurs_movement5_part2.gif)
