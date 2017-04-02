@@ -179,3 +179,78 @@ library(gridExtra)
 
 grid.arrange(b,d, ncol = 2)
 
+
+######################################################################################
+
+
+ShotSeasonGraph <- function(SeasondataOff, nbins = 30, maxsize = 7, quant = 0.7, type = "PPS", MAX_Y = 270) {
+  SeasondataOff <- dplyr::filter(SeasondataOff, LOC_Y < MAX_Y)
+  #Get the maximum and minumum values for x and y
+  xbnds <- range(SeasondataOff$LOC_X)
+  ybnds <- range(SeasondataOff$LOC_Y)
+  #Make hexbin dataframes out of the teams
+  
+  if (type == "PPS"){
+    makeHexData <- function(df) {
+      h <- hexbin(df$LOC_X, df$LOC_Y, nbins, xbnds = xbnds, ybnds = ybnds, IDs = TRUE)
+      data.frame(hcell2xy(h),
+                 PPS = tapply(as.numeric(as.character(df$SHOT_MADE_FLAG))*ifelse(tolower(df$SHOT_TYPE) == "3pt field goal", 3, 2), h@cID, FUN = function(z) sum(z)/length(z)),
+                 ST = tapply(df$SHOT_MADE_FLAG, h@cID, FUN = function(z) length(z)),
+                 cid = h@cell)
+    }
+  }
+  
+  if (type == "PCT"){
+    makeHexData <- function(df) {
+      h <- hexbin(df$LOC_X, df$LOC_Y, nbins, xbnds = xbnds, ybnds = ybnds, IDs = TRUE)
+      data.frame(hcell2xy(h),
+                 PPS = tapply(as.numeric(as.character(df$SHOT_MADE_FLAG)), h@cID, FUN = function(z) sum(z)/length(z)),
+                 ST = tapply(df$SHOT_MADE_FLAG, h@cID, FUN = function(z) length(z)),
+                 cid = h@cell)
+    }
+  }
+  
+  
+  ##Total NBA data
+  Totalhex <- makeHexData(SeasondataOff)
+  
+  
+  #Function to transform hexbins into polygons
+  hex_coord_df <- function(x, y, width, height, size = 1) {
+    # like hex_coord but returns a dataframe of vertices grouped by an id variable
+    dx <- log(size * width / 6)
+    dy <- log(size * height / 2 / sqrt(3))
+    
+    hex_y <- rbind(y - 2 * dy, y - dy, y + dy, y + 2 * dy, y + dy, y - dy)
+    hex_x <- rbind(x, x + dx, x + dx, x, x - dx, x - dx)
+    id    <- rep(1:length(x), each=6)
+    
+    data.frame(cbind(x=as.vector(hex_x), y=as.vector(hex_y), id))
+  }
+  
+  #Transform Hexbins into polygons
+  Totalhex <- filter(Totalhex, ST > quantile(Totalhex$ST, probs = quant))
+  
+  Total <- hex_coord_df(Totalhex$x, Totalhex$y, (0.13*Totalhex$ST), (0.01*Totalhex$ST), size =1)
+  Total$PPS <- rep(Totalhex$PPS, each = 6)
+  
+  #Make Graph
+  GRAPH <- ggplot(Total, aes(x=x, y = y))+ annotation_custom(court, -250, 250, -52, 418) + geom_polygon(aes(group = id, fill = PPS)) + scale_fill_gradient2(midpoint = median(Total$PPS), low = "blue", high = "red") +
+    coord_fixed()  +theme(line = element_blank(),
+                          axis.title.x = element_blank(),
+                          axis.title.y = element_blank(),
+                          axis.text.x = element_blank(),
+                          axis.text.y = element_blank(),
+                          legend.title = element_blank(),
+                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, maxsize)) + ylim(c(-40, 270))+ theme(legend.position="bottom")
+  if(type == "PPS"){
+    GRAPH <- GRAPH +  ggtitle("Points per Shot")
+  }  else {GRAPH <- GRAPH +  ggtitle("Shooting percentage")}
+  
+  
+  return(GRAPH)
+}
+
+
+ShotSeasonGraph(shotDataTotal2017, quant = 0.4, MAX_Y = 270)
+library(gridExtra)
