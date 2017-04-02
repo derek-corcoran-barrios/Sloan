@@ -71,3 +71,4 @@ hexmap2 <- function(xcor,ycor,colval, label, title){
   text(xcor+ 0.5,ycor + 0.5,labels=label, cex=0.7)
   text(3.7, 4.5, "3point")
 }
+
