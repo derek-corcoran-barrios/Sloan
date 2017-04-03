@@ -254,3 +254,50 @@ ShotSeasonGraph <- function(SeasondataOff, nbins = 30, maxsize = 7, quant = 0.7,
 
 ShotSeasonGraph(shotDataTotal2017, quant = 0.4, MAX_Y = 270)
 library(gridExtra)
+
+
+
+##################################
+##################################
+
+ShotSeasonGraph <- function(SeasondataOff) {
+  SeasondataOff$SHOT_MADE_FLAG <- ifelse(SeasondataOff$SHOT_MADE_FLAG == "1", "Made", "Missed")
+  SeasondataOff$SHOT_MADE_FLAG <- as.factor(SeasondataOff$SHOT_MADE_FLAG)
+  #Make Graph
+  GRAPH <- ggplot(SeasondataOff, aes(x=LOC_X, y = LOC_Y))+ annotation_custom(court, -250, 250, -52, 418) + geom_point(aes(color = SHOT_MADE_FLAG), alpha = 0.2) +
+    coord_fixed()  +theme(line = element_blank(),
+                          axis.title.x = element_blank(),
+                          axis.title.y = element_blank(),
+                          axis.text.x = element_blank(),
+                          axis.text.y = element_blank(),
+                          legend.title = element_blank(),
+                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, maxsize)) + ylim(c(-40, 270))+ theme(legend.position="bottom")
+  return(GRAPH)
+}
+
+ShotSeasonGraph(shotDataTotal2017)
+
+
+ShotSeasonGraphTeam <- function(SeasondataOff, offteam) {
+  SeasondataOff <- dplyr::filter(SeasondataOff, TEAM_NAME == offteam)
+  SeasondataOff$SHOT_MADE_FLAG <- ifelse(SeasondataOff$SHOT_MADE_FLAG == "1", "Made", "Missed")
+  SeasondataOff$SHOT_MADE_FLAG <- as.factor(SeasondataOff$SHOT_MADE_FLAG)
+  #Make Graph
+  GRAPH <- ggplot(SeasondataOff, aes(x=LOC_X, y = LOC_Y))+ annotation_custom(court, -250, 250, -52, 418) + geom_point(aes(color = SHOT_MADE_FLAG), alpha = 0.2) +
+    coord_fixed()  +theme(line = element_blank(),
+                          axis.title.x = element_blank(),
+                          axis.title.y = element_blank(),
+                          axis.text.x = element_blank(),
+                          axis.text.y = element_blank(),
+                          legend.title = element_blank(),
+                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, maxsize)) + ylim(c(-40, 270))+ theme(legend.position="bottom") +  ggtitle(offteam)
+  return(GRAPH)
+}
+
+
+Hou <- ShotSeasonGraphTeam(shotDataTotal2017, "Hou")
+Orl <- ShotSeasonGraphTeam(shotDataTotal2017, "ORL")
+
+library(gridExtra)
+
+grid.arrange(Hou,Orl, ncol = 2)

@@ -142,12 +142,34 @@ y generar datos como este:
 knitr::kable(head(shotDataTotal2016[,c(5,13,17,18,19,21,23,24)], 15), format = "html")
 ```
 
+Todos los tiros del 2017
+======================================================
+
+```{r,fig.width=10, fig.height=10, fig.align='center', cache = TRUE}
+ShotSeasonGraph <- function(SeasondataOff) {
+  SeasondataOff$SHOT_MADE_FLAG <- ifelse(SeasondataOff$SHOT_MADE_FLAG == "1", "Made", "Missed")
+  SeasondataOff$SHOT_MADE_FLAG <- as.factor(SeasondataOff$SHOT_MADE_FLAG)
+  #Make Graph
+  GRAPH <- ggplot(SeasondataOff, aes(x=LOC_X, y = LOC_Y))+ annotation_custom(court, -250, 250, -52, 418) + geom_point(aes(color = SHOT_MADE_FLAG), alpha = 0.2) +
+    coord_fixed()  +theme(line = element_blank(),
+                          axis.title.x = element_blank(),
+                          axis.title.y = element_blank(),
+                          axis.text.x = element_blank(),
+                          axis.text.y = element_blank(),
+                          legend.title = element_blank(),
+                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, maxsize)) + ylim(c(-40, 270))+ theme(legend.position="bottom")
+  return(GRAPH)
+}
+
+ShotSeasonGraph(shotDataTotal2017)
+```
+
 ========================================================
 
 
-```{r,fig.width=10, fig.height=10, fig.align='center',dpi=150}
-ShotSeasonGraph <- function(SeasondataOff, nbins = 30, maxsize = 7, quant = 0.7, type = "PPS") {
- 
+```{r,fig.width=10, fig.height=10, fig.align='center'}
+ShotSeasonGraph <- function(SeasondataOff, nbins = 30, maxsize = 7, quant = 0.7, type = "PPS", MAX_Y = 270) {
+  SeasondataOff <- dplyr::filter(SeasondataOff, LOC_Y < MAX_Y)
   #Get the maximum and minumum values for x and y
   xbnds <- range(SeasondataOff$LOC_X)
   ybnds <- range(SeasondataOff$LOC_Y)
@@ -167,7 +189,7 @@ ShotSeasonGraph <- function(SeasondataOff, nbins = 30, maxsize = 7, quant = 0.7,
     makeHexData <- function(df) {
       h <- hexbin(df$LOC_X, df$LOC_Y, nbins, xbnds = xbnds, ybnds = ybnds, IDs = TRUE)
       data.frame(hcell2xy(h),
-                 PPS = tapply(as.numeric(as.character(df$SHOT_MADE_FLAG)), h@cID, FUN = function(z) (sum(z)/length(z))*100),
+                 PPS = tapply(as.numeric(as.character(df$SHOT_MADE_FLAG)), h@cID, FUN = function(z) sum(z)/length(z)),
                  ST = tapply(df$SHOT_MADE_FLAG, h@cID, FUN = function(z) length(z)),
                  cid = h@cell)
     }
@@ -207,113 +229,62 @@ ShotSeasonGraph <- function(SeasondataOff, nbins = 30, maxsize = 7, quant = 0.7,
                           legend.title = element_blank(),
                           plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, maxsize)) + ylim(c(-40, 270))+ theme(legend.position="bottom")
 if(type == "PPS"){
-  GRAPH <- GRAPH +  ggtitle("Points per Shot") + theme(plot.margin=unit(c(1,1,1.5,1.2),"cm"))
-}  else {GRAPH <- GRAPH +  ggtitle("Shooting percentage") +
-  theme(plot.margin=unit(c(1,1,1,1),"cm"))} 
+  GRAPH <- GRAPH +  ggtitle("Points per Shot")
+}  else {GRAPH <- GRAPH +  ggtitle("Shooting percentage")}
 
   
   return(GRAPH)
 }
 
-ShotSeasonGraph(shotDataTotal2017, quant = 0.75, type = "PCT")
+ShotSeasonGraph(shotDataTotal2017, quant = 0.25, MAX_Y = 270, type ="PCT")
 ```
 
 
 ========================================================
 
-```{r, fig.width=10, fig.height=10, fig.align='center',dpi=150}
-ShotSeasonGraph(shotDataTotal2017, quant = 0.75, type = "PPS")
+```{r, fig.width=10, fig.height=10, fig.align='center'}
+ShotSeasonGraph(shotDataTotal2017, quant = 0.25, MAX_Y = 270, type = "PPS")
 
 ```
 
 
-N
+
 ========================================================
 
-```{r,dpi=100}
-OffShotSeasonGraphTeam <- function(SeasondataOff, team, nbins = 30, maxsize = 7, quant = 0.7, type = "PPS") {
-  
-  dataOff <- dplyr::filter(SeasondataOff, TEAM_NAME == team)
-  
-  #Get the maximum and minumum values for x and y
-  xbnds <- range(dataOff$LOC_X)
-  ybnds <- range(dataOff$LOC_Y)
-  #Make hexbin dataframes out of the teams
-  
-  if (type == "PPS"){
-    makeHexData <- function(df) {
-      h <- hexbin(df$LOC_X, df$LOC_Y, nbins, xbnds = xbnds, ybnds = ybnds, IDs = TRUE)
-      data.frame(hcell2xy(h),
-                 PPS = tapply(as.numeric(as.character(df$SHOT_MADE_FLAG))*ifelse(tolower(df$SHOT_TYPE) == "3pt field goal", 3, 2), h@cID, FUN = function(z) sum(z)/length(z)),
-                 ST = tapply(df$SHOT_MADE_FLAG, h@cID, FUN = function(z) length(z)),
-                 cid = h@cell)
-    }
-  }
-  
-  if (type == "PCT"){
-    makeHexData <- function(df) {
-      h <- hexbin(df$LOC_X, df$LOC_Y, nbins, xbnds = xbnds, ybnds = ybnds, IDs = TRUE)
-      data.frame(hcell2xy(h),
-                 PPS = tapply(as.numeric(as.character(df$SHOT_MADE_FLAG)), h@cID, FUN = function(z) sum(z)/length(z)),
-                 ST = tapply(df$SHOT_MADE_FLAG, h@cID, FUN = function(z) length(z)),
-                 cid = h@cell)
-    }
-  }
-  
-  
-  ##Total NBA data
-  Totalhex <- makeHexData(dataOff)
-  
-  
-  #Function to transform hexbins into polygons
-  hex_coord_df <- function(x, y, width, height, size = 1) {
-    # like hex_coord but returns a dataframe of vertices grouped by an id variable
-    dx <- log(size * width / 6)
-    dy <- log(size * height / 2 / sqrt(3))
-    
-    hex_x <- rbind(x - 2 * dx, x - dx, x + dx, x + 2 * dx, x + dx, x - dx)
-    hex_y <- rbind(y, y + dy, y + dy, y, y - dy, y - dy)
-    id    <- rep(1:length(x), each=6)
-    
-    data.frame(cbind(x=as.vector(hex_x), y=as.vector(hex_y), id))
-  }
-  
-  #Transform Hexbins into polygons
-  Totalhex <- filter(Totalhex, ST > quantile(Totalhex$ST, probs = quant))
-  
-  Total <- hex_coord_df(Totalhex$x, Totalhex$y, (0.05*Totalhex$ST), (0.05*Totalhex$ST), size =1)
-  Total$PPS <- rep(Totalhex$PPS, each = 6)
-  
+```{r,fig.width=10, fig.height=10, fig.align='center'}
+
+ShotSeasonGraphTeam <- function(SeasondataOff, offteam) {
+  SeasondataOff <- dplyr::filter(SeasondataOff, TEAM_NAME == offteam)
+  SeasondataOff$SHOT_MADE_FLAG <- ifelse(SeasondataOff$SHOT_MADE_FLAG == "1", "Made", "Missed")
+  SeasondataOff$SHOT_MADE_FLAG <- as.factor(SeasondataOff$SHOT_MADE_FLAG)
   #Make Graph
-  GRAPH <- ggplot(Total, aes(x=x, y = y))+ annotation_custom(court, -250, 250, -52, 418) + geom_polygon(aes(group = id, fill = PPS)) + scale_fill_gradient2(midpoint = median(1.0), low = "blue", high = "red", limits=c(0.1, 2.2)) +
+  GRAPH <- ggplot(SeasondataOff, aes(x=LOC_X, y = LOC_Y))+ annotation_custom(court, -250, 250, -52, 418) + geom_point(aes(color = SHOT_MADE_FLAG), alpha = 0.2) +
     coord_fixed()  +theme(line = element_blank(),
                           axis.title.x = element_blank(),
                           axis.title.y = element_blank(),
                           axis.text.x = element_blank(),
                           axis.text.y = element_blank(),
                           legend.title = element_blank(),
-                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, maxsize)) + ylim(c(-40, 270))+ theme(legend.position="bottom")
-  if(type == "PPS"){
-    GRAPH <- GRAPH +  ggtitle(paste("Points per Shot of", team, sep =" "))
-  }  else {GRAPH <- GRAPH +  ggtitle("Shooting percentage")}
-  
-  
+                          plot.title = element_text(size = 17, lineheight = 1.2, face = "bold"))+ scale_size(range = c(0, maxsize)) + ylim(c(-40, 270))+ theme(legend.position="bottom") +  ggtitle(offteam)
   return(GRAPH)
 }
 
-b <- OffShotSeasonGraphTeam(shotDataTotal2017, team = "Hou",quant = 0.7)
 
-d <- OffShotSeasonGraphTeam(shotDataTotal2017, team = "ORL",quant = 0.7)
+Hou <- ShotSeasonGraphTeam(shotDataTotal2017, "Hou")
+Orl <- ShotSeasonGraphTeam(shotDataTotal2017, "ORL")
 
 library(gridExtra)
 
-grid.arrange(b,d, ncol = 2)
+grid.arrange(Hou,Orl, ncol = 1)
 ```
 
 equaciones
 =========================
 
-$PPS = \frac{Points made}{Shots taken}$
+$PPS = \frac{Points Made}{Shots Taken}$
+
+$APPS =\frac{\sum_{i=1}^{n} (POA_{Offense_i} + POA_{Defense_i})\times ShotsTaken_{Offense_i}}{n\times ShotsTaken_{Offense_Total}}$
+
 
 ========================================================
 
@@ -332,7 +303,9 @@ Spread
 ========================================================
 
 ```{r}
-ggplot(past_games, aes(x=HomeRes)) + geom_histogram(bins = 10) + geom_density(alpha=.2, fill="#FF6666")
+
+Diferencia <- past_games$HomeRes
+hist(Diferencia)
 ```
 
 

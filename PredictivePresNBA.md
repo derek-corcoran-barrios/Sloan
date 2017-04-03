@@ -248,38 +248,46 @@ y generar datos como este:
 </tbody>
 </table>
 
-========================================================
-
+Todos los tiros del 2017
+======================================================
 
 <img src="PredictivePresNBA-figure/unnamed-chunk-4-1.png" title="plot of chunk unnamed-chunk-4" alt="plot of chunk unnamed-chunk-4" style="display: block; margin: auto;" />
 
-
 ========================================================
+
 
 <img src="PredictivePresNBA-figure/unnamed-chunk-5-1.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" style="display: block; margin: auto;" />
 
 
-N
 ========================================================
 
-![plot of chunk unnamed-chunk-6](PredictivePresNBA-figure/unnamed-chunk-6-1.png)
+<img src="PredictivePresNBA-figure/unnamed-chunk-6-1.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" style="display: block; margin: auto;" />
+
+
+
+========================================================
+
+<img src="PredictivePresNBA-figure/unnamed-chunk-7-1.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" style="display: block; margin: auto;" />
 
 equaciones
 =========================
 
-$PPS = \frac{Points made}{Shots taken}$
+$PPS = \frac{Points Made}{Shots Taken}$
 
-========================================================
+$APPS =\frac{\sum_{i=1}^{n} (POA_{Offense_i} + POA_{Defense_i})\times ShotsTaken_{Offense_i}}{n\times ShotsTaken_{Offense_Total}}$
 
-![plot of chunk unnamed-chunk-7](PredictivePresNBA-figure/unnamed-chunk-7-1.png)
 
-Spread
 ========================================================
 
 ![plot of chunk unnamed-chunk-8](PredictivePresNBA-figure/unnamed-chunk-8-1.png)
 
+Spread
+========================================================
+
+![plot of chunk unnamed-chunk-9](PredictivePresNBA-figure/unnamed-chunk-9-1.png)
+
 
 ========================================================
 
 
-<img src="PredictivePresNBA-figure/unnamed-chunk-9-1.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" style="display: block; margin: auto;" />
+<img src="PredictivePresNBA-figure/unnamed-chunk-10-1.png" title="plot of chunk unnamed-chunk-10" alt="plot of chunk unnamed-chunk-10" style="display: block; margin: auto;" />
