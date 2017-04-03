@@ -1,4 +1,11 @@
-Modelos espaciales para la NBA
+<style>
+.reveal h1, .reveal h2, .reveal h3 {
+  word-wrap: normal;
+  -moz-hyphens: none;
+}
+</style>
+
+Usando analisis espaciales para entender el Basquetbol
 ========================================================
 author: Derek Corcoran
 date: "`r Sys.Date()`"
@@ -22,6 +29,8 @@ left: 60%
 ***
 
 ![alt text](51KkoapPY2L._AC_UL320_SR216,320_.jpg)
+
+2004
 
 =======================================================
 incremental: true
@@ -120,7 +129,6 @@ court <- readRDS("court.rds")
 
 ***
 <small>
-
 - Seguimiento de jugadores en tiempo real con 6 camaras
 - Información registrada 25 veces por segundo
 - Algunas de los valores registrados
@@ -141,10 +149,11 @@ Esto permite seguimientos como este
 
 y generar datos como este:
 ========================================================
-
-```{r}
-knitr::kable(head(shotDataTotal2016[,c(5,13,17,18,19,21,23,24)], 15), format = "html")
+<small>
+```{r, results="asis"}
+knitr::kable(head(shotDataTotal2016[,c(5,13,17,18,19,21,23,24)], 7), format = "markdown")
 ```
+.</small>
 
 Todos los tiros del 2017
 ======================================================
@@ -282,11 +291,19 @@ library(gridExtra)
 grid.arrange(Hou,Orl, ncol = 1)
 ```
 
-Offensive Shot Chart Deffensive Shot Chart
+A tale of 2 Shot Charts
 ========================================
 
-```{r,fig.width=10, fig.height=10, fig.align='center', cache = TRUE}
+```{r,fig.width=9, fig.height=9, fig.align='center', cache = TRUE}
 grid.arrange(SasOff,SasDef, ncol = 1)
+```
+
+A tale of 2 Shot Charts
+========================================
+
+```{r,fig.width=9, fig.height=9, fig.align='center', cache = TRUE}
+PhiDef <- readRDS("PhiDef.rds")
+grid.arrange(SasOff,PhiDef, ncol = 1)
 ```
 
 ecuaciones
@@ -297,16 +314,36 @@ $PPS = \frac{Points Made}{Shots Taken}$
 ![alt text](Fig1.png)
 
 
-ecuaciones 2
 =========================
-
+$POA_{i} = PPS_{Team_{i}}-PPS_{League_{i}}$
 $APPS =\frac{\sum_{i=1}^{n} (POA_{Offense_i} + POA_{Defense_i})\times ShotsTaken_{Offense_i}}{n\times ShotsTaken_{Offense_Total}}$
 
 ![alt text](Fig2.png)
+<small>
+Invirtiendo con el equipo de casa atacando tenemos DefAPPS
+.</small>
+
+===================================
 
 
-========================================================
+```{r, cache = TRUE, fig.width=16, fig.height=10, fig.align='center',}
+Com1 <- readRDS("PhiSas.rds")
+Com3 <- readRDS("SasPhi.rds")
+grid.arrange(Com1$charts,Com3$charts,ncol=1)
+```
 
+Datos colectados
+=======================
+<small>
+* Usamos partidos de temporada regular desde el 2013 hasta el 2017
+* Partidos de playoff de 2012 a 2016
+* Total de partidos `r NROW(past_games) + NROW(FinalOdds)`
+* Debido a alta variabilidad en el inicio de la temprorada n final = `r NROW(past_gamesFiltPlayoff)`
+* Total de tiros de análisis `r NROW(rbind(shotDataTotal2017,shotDataTotal2016,shotDataTotal2015, shotDataTotal2014, shotDataTotal2013)) + NROW(shotDataTotal2012)`
+* DefAPPS y OffAPPS calculados para cada partido
+.</small>
+
+***
 ```{r}
 Model1 <-nls(defAPPS ~ SSasympOff(day, A, lrc, c0), data = DFDates)
 DFDates$pred <- predict(Model1)
@@ -318,18 +355,79 @@ ggplot(DFDates, aes(x = day, y = defAPPS))+ geom_point(aes(color = Season)) + ge
 
 ```
 
+
+
 Spread
 ========================================================
 
-```{r}
+```{r, cache = TRUE, fig.width=16, fig.height=10, fig.align='center',}
+panel.hist <- function(x, ...)
+{
+    usr <- par("usr"); on.exit(par(usr))
+    par(usr = c(usr[1:2], 0, 1.5) )
+    h <- hist(x, plot = FALSE)
+    breaks <- h$breaks; nB <- length(breaks)
+    y <- h$counts; y <- y/max(y)
+    rect(breaks[-nB], 0, breaks[-1], y, col = "cyan", ...)
+}
 
-Diferencia <- past_games$HomeRes
-hist(Diferencia)
+panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor, ...)
+{
+    usr <- par("usr"); on.exit(par(usr))
+    par(usr = c(0, 1, 0, 1))
+    r <- cor(x, y)
+    txt <- format(c(r, 0.123456789), digits = digits)[1]
+    txt <- paste0(prefix, txt)
+    if(missing(cex.cor)) cex.cor <- 0.8/strwidth(txt)
+    text(0.5, 0.5, txt, cex = cex.cor * r)
+}
+
+pairs(past_gamesFiltPlayoff[,c(7,8,9)], panel = panel.smooth, diag.panel = panel.hist, upper.panel = panel.cor)
 ```
 
 
+Boosted Regression Trees
 ========================================================
 
+* Algoritmo de Machine Learning
+* Spread ~ OffAPPS + DefAPPS
+* Training set de `r NROW(dplyr::filter(past_gamesFiltPlayoff, Season != 2017 & Type == "regular_season" | Season != 2016 & Type == "Playoffs"))`partidos
+* Test set `r NROW(dplyr::filter(past_gamesFiltPlayoff, Season == 2017 & Type == "regular_season" | Season == 2016 & Type == "Playoffs"))` partidos
+
+![BRT](https://image.slidesharecdn.com/slides-140224130205-phpapp02/95/gradient-boosted-regression-trees-in-scikitlearn-8-638.jpg)
+
+
+=======================================================
+
+
+
+```{r}
+
+library(caret)
+
+testNBA <- dplyr::filter(past_gamesFiltPlayoff, Season == 2017 & Type == "regular_season" | Season == 2016 & Type == "Playoffs")
+
+testNBA$PredictedBRT <- predict(BRT2017_31_Mar, testNBA[,7:8])
+
+TestNBAb <- testNBA[complete.cases(testNBA),]
+library(reshape2)
+predict_comparison <- melt(TestNBAb, id.vars = "HomeRes", measure.vars = c("VegasPred", "PredictedBRT"))
+
+ggplot(testNBA, aes(x = HomeRes, y = PredictedBRT)) + geom_smooth() + geom_point() + xlab("Diferencia") + ylab("Diferencia predicha") +geom_hline(yintercept = 0)+ theme_classic()
+
+```
+
+Comparación con predicciones de las Vegas
+========================================================
+
+```{r, cache = TRUE, fig.width=16, fig.height=10, fig.align='center',}
+ggplot(predict_comparison, aes(x = HomeRes, y = value)) + geom_point(aes(color = variable)) + geom_smooth(method = lm, aes(fill=variable, color = variable)) + xlab("Diferencia") + ylab("Diferencia predicha") + theme(legend.position = "bottom") + geom_hline(yintercept = 0)+ theme_classic()
+```
+
+* Predicciones de las Vegas: RMSE = `r round(postResample(pred = TestNBAb$VegasPred, obs = TestNBAb$HomeRes)[1],2)`, R^2 = `r round(postResample(pred = TestNBAb$VegasPred, obs = TestNBAb$HomeRes)[2],2)`
+* Predicciones modelo BRT:RMSE = `r round(postResample(pred = TestNBAb$PredictedBRT, obs = TestNBAb$HomeRes)[1],2)`, R^2 = `r round(postResample(pred = TestNBAb$PredictedBRT, obs = TestNBAb$HomeRes)[2],2)`
+
+========================================================
 
 ```{r,fig.width=10, fig.height=10, fig.align='center'}
 For.predictions <- expand.grid(defAPPS = seq(from = min(past_gamesFiltPlayoff$defAPPS), to = max(past_gamesFiltPlayoff$defAPPS), length.out = 100), 

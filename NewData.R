@@ -429,14 +429,12 @@ set.seed(7)
 BRT2017_31_Mar <- train(x = trainNBA[,c(7,8)],y = trainNBA[,9], method = "gbm",  preProcess = c("center", "scale"), verbose = FALSE, trControl = ctrl, tuneGrid = grid)
 saveRDS(BRT2017_31_Mar, "BRT2017_31_Mar.rds")
 
+BRT2017_31_Mar <- readRDS("BRT2017_31_Mar.rds")
+
 testNBA$PredictedBRT <- predict(BRT2017_31_Mar, testNBA[,7:8])
 
 
-postResample(pred = testNBA$PredictedBRT, obs = testNBA$HomeRes)
-postResample(pred = testNBA$VegasPred, obs = testNBA$HomeRes)
-
-
-ggplot(testNBA, aes(x = HomeRes, y = PredictedBRT)) + geom_smooth() + geom_point() 
+ggplot(testNBA, aes(x = HomeRes, y = PredictedBRT)) + geom_smooth() + geom_point() + xlab("Diferencia") + ylab("Diferencia predicha")
 
 #####3d plot
 

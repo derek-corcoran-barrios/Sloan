@@ -12,3 +12,7 @@ lattice
 caret
 hexbin
 gridExtra
+survival
+gbm
+plyr
+reshape2
