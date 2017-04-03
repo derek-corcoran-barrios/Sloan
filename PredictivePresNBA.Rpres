@@ -72,6 +72,10 @@ past_games <- readRDS("past_games.rds")
 
 DFDates <- readRDS("DFDates.rds")
 
+SasOff <- readRDS("SasOff.rds")
+SasDef <- readRDS("SasDef.rds")
+
+
 shotDataTotal2017<- readRDS("shotDataTotal2017.rds")
 shotDataTotal2017$GAME_DATE <- lubridate::ymd(shotDataTotal2017$GAME_DATE)
 saveRDS(shotDataTotal2017, "shotDataTotal2017.rds")
@@ -278,12 +282,27 @@ library(gridExtra)
 grid.arrange(Hou,Orl, ncol = 1)
 ```
 
-equaciones
+Offensive Shot Chart Deffensive Shot Chart
+========================================
+
+```{r,fig.width=10, fig.height=10, fig.align='center', cache = TRUE}
+grid.arrange(SasOff,SasDef, ncol = 1)
+```
+
+ecuaciones
 =========================
 
 $PPS = \frac{Points Made}{Shots Taken}$
 
+![alt text](Fig1.png)
+
+
+ecuaciones 2
+=========================
+
 $APPS =\frac{\sum_{i=1}^{n} (POA_{Offense_i} + POA_{Defense_i})\times ShotsTaken_{Offense_i}}{n\times ShotsTaken_{Offense_Total}}$
+
+![alt text](Fig2.png)
 
 
 ========================================================

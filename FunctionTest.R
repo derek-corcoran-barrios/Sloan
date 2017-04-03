@@ -15,6 +15,7 @@ library(dplyr)
 #function to make the hexbin dataframe
 
 #shot Comparison function
+shotDataTotal2016 <- readRDS("shotDataTotal2016.rds")
 
 shotDataTotal2017 <- readRDS("shotDataTotal2017.rds")
 court <- readRDS("court.rds")
@@ -171,7 +172,7 @@ a <- OffShotSeasonGraphTeam(shotDataTotal2017, team = "GSW",quant = 0.7)
 
 b <- OffShotSeasonGraphTeam(shotDataTotal2017, team = "Hou",quant = 0.7)
 
-c <- OffShotSeasonGraphTeam(shotDataTotal2017, team = "Phi",quant = 0.7)
+C <- OffShotSeasonGraphTeam(shotDataTotal2017, team = "Phi",quant = 0.7)
 
 d <- OffShotSeasonGraphTeam(shotDataTotal2017, team = "ORL",quant = 0.7)
 
