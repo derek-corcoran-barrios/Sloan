@@ -195,20 +195,20 @@ Offensive_teams <- as.character(unique(shotDataTotal2017$TEAM_NAME))
 
 defenseve_names <- names(shotDatafDef2017)
 
-df <- data.frame(matrix(ncol = 30, nrow = 30))
-colnames(df) <- as.character(unique(shotDataTotal2017$TEAM_NAME))
-rownames(df) <- names(shotDatafDef2017)
-
-for (i in 1:length(Offensive_teams)) {
-  for (j in 1:length(defenseve_names)){
-    df[rownames(df) == defenseve_names[j],colnames(df) == Offensive_teams[i]] <- ComparisonPPS(OffTeam = Offensive_teams[i], DefTown = defenseve_names[j], SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017, nbins = 30)$PPSAA
-  }
-}
-
-
-datos2017 <- df
-
-write.csv(datos2017, "datos2017.csv")
+# df <- data.frame(matrix(ncol = 30, nrow = 30))
+# colnames(df) <- as.character(unique(shotDataTotal2017$TEAM_NAME))
+# rownames(df) <- names(shotDatafDef2017)
+# 
+# for (i in 1:length(Offensive_teams)) {
+#   for (j in 1:length(defenseve_names)){
+#     df[rownames(df) == defenseve_names[j],colnames(df) == Offensive_teams[i]] <- ComparisonPPS(OffTeam = Offensive_teams[i], DefTown = defenseve_names[j], SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017, nbins = 30)$PPSAA
+#   }
+# }
+# 
+# 
+# datos2017 <- df
+#
+# write.csv(datos2017, "datos2017.csv")
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -313,7 +313,9 @@ for(i in 1:NROW(future_games)) {
 
 pacman::p_load(caret)
 
-BRT <- readRDS("BRT2017_17_Jan.rds")
+#BRT <- readRDS("BRT2017_17_Jan.rds")
+BRT <- readRDS("BRT2017_31_Mar.rds")
+
 
 future_games$spread <- round(predict(BRT, data.frame(defAPPS = unlist(future_games$defAPPS), offAPPS = unlist(future_games$offAPPS)), type="raw"), digits = 2)
 

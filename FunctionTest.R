@@ -20,6 +20,7 @@ shotDataTotal2016 <- readRDS("shotDataTotal2016.rds")
 shotDataTotal2017 <- readRDS("shotDataTotal2017.rds")
 court <- readRDS("court.rds")
 
+SeasondataOff <- shotDataTotal2017
 
 ShotSeasonGraph <- function(SeasondataOff, nbins = 30, maxsize = 7, quant = 0.7, type = "PPS", MAX_Y = 270) {
   SeasondataOff <- dplyr::filter(SeasondataOff, LOC_Y < MAX_Y)
