@@ -8,7 +8,7 @@
 Usando analisis espaciales para entender el Basquetbol
 ========================================================
 author: Derek Corcoran
-date: "2017-04-03"
+date: "2017-04-19"
 
 La revolucion estadística en la NBA
 ========================================================

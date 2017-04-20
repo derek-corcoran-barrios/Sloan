@@ -429,7 +429,7 @@ ggplot(predict_comparison, aes(x = HomeRes, y = value)) + geom_point(aes(color =
 
 ========================================================
 
-```{r,fig.width=10, fig.height=10, fig.align='center'}
+```{r,fig.width=10, fig.height=10, fig.align='center', cache = TRUE, resolution=400}
 For.predictions <- expand.grid(defAPPS = seq(from = min(past_gamesFiltPlayoff$defAPPS), to = max(past_gamesFiltPlayoff$defAPPS), length.out = 100), 
                                offAPPS =seq(from= min(past_gamesFiltPlayoff$offAPPS),to = max(past_gamesFiltPlayoff$offAPPS), length.out = 100))
 

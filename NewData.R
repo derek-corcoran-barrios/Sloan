@@ -292,6 +292,7 @@ saveRDS(past_games, "past_games.rds")
 past_games <- readRDS("past_games.rds")
 ##Variability
 
+
 dates2017 <- unique(past_games$Date)[unique(past_games$Date) >= dmy("25-10-2016")]
 
 DF2017 <- data.frame(Season = rep(2017, times =length(dates2017)), day = rep(NA, times =length(dates2017)), defAPPS = rep(NA, times = length(dates2017)), dates = dates2017)
@@ -396,14 +397,14 @@ saveRDS(past_gamesFilt, "past_gamesFilt.rds")
 
 FinalOdds <- readRDS("FinalOdds.rds")
 
-past_gamesFiltPlayoff <- rbind.fill(past_gamesFilt, FinalOdds)
+past_gamesFiltPlayoff <- plyr::rbind.fill(past_gamesFilt, FinalOdds)
 past_gamesFiltPlayoff <- dplyr::arrange(past_gamesFiltPlayoff, Date)
 saveRDS(past_gamesFiltPlayoff, "past_gamesFiltPlayoff.rds")
 
 ##Train model
 
 #Divide in train and test set
-
+##START FROM HERE
 past_gamesFiltPlayoff <- readRDS("past_gamesFiltPlayoff.rds")
 
 #Train set playoffs 2012 through 2015 and regular season 2013 through 2016
@@ -415,7 +416,7 @@ testNBA <- dplyr::filter(past_gamesFiltPlayoff, Season == 2017 & Type == "regula
 
 ####Caret version
 library(caret)
-ctrl <- trainControl(method = "repeatedcv", number=10, repeats=3)
+ctrl <- trainControl(method = "repeatedcv", number=10, repeats=10)
 
 
 grid <- expand.grid(interaction.depth = seq(1, 7, by = 2),
@@ -426,12 +427,12 @@ grid <- expand.grid(interaction.depth = seq(1, 7, by = 2),
 
 # train the GBM model
 set.seed(7)
-BRT2017_31_Mar <- train(x = trainNBA[,c(7,8)],y = trainNBA[,9], method = "gbm",  preProcess = c("center", "scale"), verbose = FALSE, trControl = ctrl, tuneGrid = grid)
-saveRDS(BRT2017_31_Mar, "BRT2017_31_Mar.rds")
+BRT2017_20_Abr <- train(x = trainNBA[,c(7,8)],y = trainNBA[,9], method = "gbm",  preProcess = c("center", "scale"), verbose = FALSE, trControl = ctrl, tuneGrid = grid)
+saveRDS(BRT2017_20_Abr, "BRT2017_20_Abr.rds")
 
-BRT2017_31_Mar <- readRDS("BRT2017_31_Mar.rds")
+BRT2017_20_Abr <- readRDS("BRT2017_20_Abr.rds")
 
-testNBA$PredictedBRT <- predict(BRT2017_31_Mar, testNBA[,7:8])
+testNBA$PredictedBRT <- predict(BRT2017_20_Abr, testNBA[,7:8])
 
 
 ggplot(testNBA, aes(x = HomeRes, y = PredictedBRT)) + geom_smooth() + geom_point() + xlab("Diferencia") + ylab("Diferencia predicha")
@@ -441,7 +442,7 @@ ggplot(testNBA, aes(x = HomeRes, y = PredictedBRT)) + geom_smooth() + geom_point
 For.predictions <- expand.grid(defAPPS = seq(from = min(past_gamesFiltPlayoff$defAPPS), to = max(past_gamesFiltPlayoff$defAPPS), length.out = 100), 
                                offAPPS =seq(from= min(past_gamesFiltPlayoff$offAPPS),to = max(past_gamesFiltPlayoff$offAPPS), length.out = 100))
 
-For.predictions$Spread <- predict(BRT2017_31_Mar, For.predictions)
+For.predictions$Spread <- predict(BRT2017_20_Abr, For.predictions)
 
 For.predictions2 <- For.predictions
 For.predictions2$Type <- c("Predicted")
@@ -452,10 +453,4 @@ For.predictions2 <- rbind(For.predictions2, For.predictions3)
 
 #Test 1
 wireframe(Spread ~  offAPPS + defAPPS, group = Type, data = For.predictions2, colorkey = TRUE, drape = TRUE, pretty = TRUE,scales = list(arrows = FALSE), screen = list(z = -220, x = -80), par.settings = list(regions=list(alpha=0.75)))
-#Test 2
-wireframe(Spread ~  offAPPS + defAPPS, group = Type, data = For.predictions2, colorkey = TRUE, drape = TRUE, pretty = TRUE,scales = list(arrows = FALSE), screen = list(z = -220, x = -60), par.settings = list(regions=list(alpha=0.85)))
-#Test3
-wireframe(Spread ~  offAPPS + defAPPS, group = Type, data = For.predictions2, colorkey = TRUE, drape = TRUE, pretty = TRUE,scales = list(arrows = FALSE), screen = list(z = -220, x = -100))
-
-wireframe(Spread ~  offAPPS + defAPPS, data = For.predictions, colorkey = TRUE, drape = TRUE, pretty = TRUE,scales = list(arrows = FALSE), screen = list(z = -220, x = -80))
 
