@@ -421,8 +421,8 @@ ctrl <- trainControl(method = "repeatedcv", number=10, repeats=10)
 
 grid <- expand.grid(interaction.depth = seq(1, 7, by = 2),
                     n.trees = seq(100, 1000, by = 50),
-                    shrinkage = c(0.01, 0.1),
-                    n.minobsinnode=c(1,5,10))
+                    shrinkage = c(0.01, 0.01, 0.1),
+                    n.minobsinnode=c(1,5,10,15, 20))
 
 
 # train the GBM model
@@ -454,3 +454,6 @@ For.predictions2 <- rbind(For.predictions2, For.predictions3)
 #Test 1
 wireframe(Spread ~  offAPPS + defAPPS, group = Type, data = For.predictions2, colorkey = TRUE, drape = TRUE, pretty = TRUE,scales = list(arrows = FALSE), screen = list(z = -220, x = -80), par.settings = list(regions=list(alpha=0.75)))
 
+postResample(pred = testNBA$PredictedBRT, obs = testNBA$HomeRes)
+
+summary(BRT2017_20_Abr$resample)
