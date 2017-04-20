@@ -422,8 +422,8 @@ ctrl <- trainControl(method = "repeatedcv", number=10, repeats=10)
 
 grid <- expand.grid(interaction.depth = seq(1, 7, by = 2),
                     n.trees = seq(100, 1000, by = 50),
-                    shrinkage = c(0.01, 0.01, 0.1),
-                    n.minobsinnode=c(1,5,10,15, 20))
+                    shrinkage = c(0.01, 0.1),
+                    n.minobsinnode=c(1,5,10))
 
 
 # train the GBM model
