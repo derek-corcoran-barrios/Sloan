@@ -130,6 +130,7 @@ colnames(past_games) <- c("Date", "Visitor", "Visit_PTS", "Home", "Home_PTS", "S
 
 past_games$HomeRes <- past_games$Visit_PTS - past_games$Home_PTS
 past_games <- past_games[!is.na(past_games$Date),]
+saveRDS(past_games, "past_games.rds")
 #######load data and functions, not needed in the real one
 shotDataTotal2017<- readRDS("shotDataTotal2017.rds")
 shotDataTotal2017$GAME_DATE <- ymd(shotDataTotal2017$GAME_DATE)
@@ -457,3 +458,10 @@ wireframe(Spread ~  offAPPS + defAPPS, group = Type, data = For.predictions2, co
 postResample(pred = testNBA$PredictedBRT, obs = testNBA$HomeRes)
 
 summary(BRT2017_20_Abr$resample)
+
+WLtestNBA <- testNBA
+
+WLtestNBA$HomeRes <- as.factor(ifelse(WLtestNBA$HomeRes < 0, "W", "L"))
+WLtestNBA$PredictedBRT <- as.factor(ifelse(WLtestNBA$PredictedBRT < 0, "W", "L"))
+
+confusionMatrix(WLtestNBA$PredictedBRT, WLtestNBA$HomeRes)
