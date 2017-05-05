@@ -29,9 +29,12 @@ pacman::p_load(rjson, grid, gridExtra, png, RCurl, ggplot2, jpeg, hexbin, sp, kn
 
 ComparisonPPSc <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, nbins = 40) {
   #Filter the offensive data of the Offensive Team
+  SeasondataOff <- dplyr::filter(SeasondataOff, LOC_Y < 280)
   Off <- filter(SeasondataOff, TEAM_NAME == OffTeam)
   #Filter the Deffensive data of the Defensive team
   deff <- SeasonDataDef[names(SeasonDataDef) == DefTown][[1]]
+  deff <- dplyr::filter(deff, LOC_Y < 280)
+  
   #Get the maximum and minumum values for x and y
   xbnds <- range(c(SeasondataOff$LOC_X, deff$LOC_X))
   ybnds <- range(c(SeasondataOff$LOC_Y, deff$LOC_Y))
@@ -149,7 +152,7 @@ past_games_c$defAPPS <- unlist(past_games_c$defAPPS)
 
 past_games_c$offAPPS <- unlist(past_games_c$offAPPS)
 
-saveRDS(past_games_c, "past_games_c.rds")
+#saveRDS(past_games_c, "past_games_c.rds")
 
 past_games_c <- readRDS("past_games_c.rds")
 
@@ -238,7 +241,7 @@ DFDates_c$Season <- as.factor(DFDates_c$Season)
 
 ggplot(DFDates_c, aes(x = day, y = defAPPS))+ geom_point(aes(color = Season)) + geom_line(aes(y = pred)) + geom_vline(xintercept = ceiling(summary(Model1_c)$coefficients[3]))
 
-saveRDS(DFDates_c, "DFDates_c.rds")
+#saveRDS(DFDates_c, "DFDates_c.rds")
 
 past_gamesFilt_c <- dplyr::filter(past_games_c, Date >= for_filtering_c$dates[1] & Season == 2013 
                                 | Date >= for_filtering_c$dates[2] & Season == 2014 
@@ -250,12 +253,12 @@ past_gamesFilt_c <- dplyr::filter(past_games_c, Date >= for_filtering_c$dates[1]
 past_gamesFilt_c <- past_gamesFilt_c[complete.cases(past_gamesFilt_c),]
 
 
-ggplot(past_gamesFilt, aes(x = HomeRes, y = defAPPS)) + geom_smooth()
+ggplot(past_gamesFilt_c, aes(x = HomeRes, y = defAPPS)) + geom_smooth()
 past_gamesFilt$Type <- "regular_season"
 
 
-saveRDS(for_filtering_c, "for_filtering_c.rds")
-saveRDS(past_gamesFilt_c, "past_gamesFilt_c.rds")
+#saveRDS(for_filtering_c, "for_filtering_c.rds")
+#saveRDS(past_gamesFilt_c, "past_gamesFilt_c.rds")
 
 FinalOdds <- readRDS("FinalOdds.rds")
 FinalOdds <- dplyr::filter(FinalOdds, Season != 2012)
@@ -355,11 +358,11 @@ FinalOdds$defAPPS <- unlist(FinalOdds$defAPPS)
 FinalOdds$offAPPS <- unlist(FinalOdds$offAPPS)
 
 FinalOdds_c <- FinalOdds
-saveRDS(FinalOdds_c, "FinalOdds_c.rds")
+#saveRDS(FinalOdds_c, "FinalOdds_c.rds")
 
 past_gamesFiltPlayoff_c <- plyr::rbind.fill(past_gamesFilt_c, FinalOdds_c)
 past_gamesFiltPlayoff_c <- dplyr::arrange(past_gamesFiltPlayoff_c, Date)
-saveRDS(past_gamesFiltPlayoff_c, "past_gamesFiltPlayoff_c.rds")
+#saveRDS(past_gamesFiltPlayoff_c, "past_gamesFiltPlayoff_c.rds")
 
 
 ##Train model
@@ -389,7 +392,7 @@ grid <- expand.grid(interaction.depth = seq(1, 7, by = 2),
 # train the GBM model
 set.seed(7)
 BRT2017_20_Abr_c <- train(x = trainNBA_c[,c(7,8)],y = trainNBA_c[,9], method = "gbm",  preProcess = c("center", "scale"), verbose = TRUE, trControl = ctrl, tuneGrid = grid)
-saveRDS(BRT2017_20_Abr_c, "BRT2017_20_Abr_c.rds")
+#saveRDS(BRT2017_20_Abr_c, "BRT2017_20_Abr_c.rds")
 
 BRT2017_20_Abr_c <- readRDS("BRT2017_20_Abr_c.rds")
 
