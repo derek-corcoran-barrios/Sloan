@@ -29,15 +29,17 @@ pacman::p_load(rjson, grid, gridExtra, png, RCurl, ggplot2, jpeg, hexbin, sp, kn
 
 ComparisonPPSc <- function(OffTeam, DefTown, SeasondataOff, SeasonDataDef, nbins = 40) {
   #Filter the offensive data of the Offensive Team
-  SeasondataOff <- dplyr::filter(SeasondataOff, LOC_Y < 280)
+  SeasondataOff <- dplyr::filter(SeasondataOff, LOC_Y < 270)
   Off <- filter(SeasondataOff, TEAM_NAME == OffTeam)
   #Filter the Deffensive data of the Defensive team
   deff <- SeasonDataDef[names(SeasonDataDef) == DefTown][[1]]
-  deff <- dplyr::filter(deff, LOC_Y < 280)
+  deff <- dplyr::filter(deff, LOC_Y < 270)
   
   #Get the maximum and minumum values for x and y
   xbnds <- range(c(SeasondataOff$LOC_X, deff$LOC_X))
   ybnds <- range(c(SeasondataOff$LOC_Y, deff$LOC_Y))
+  print(xbnds)
+  print(ybnds)
   #Make hexbin dataframes out of the teams
   makeHexData <- function(df) {
     h <- hexbin(df$LOC_X, df$LOC_Y, nbins, xbnds = xbnds, ybnds = ybnds, IDs = TRUE)
@@ -107,11 +109,11 @@ for(i in 1:NROW(past_games_c)) {
     shotDatafDef2015Temp <- shotDatafDef2015
     shotDatafDef2015Temp[[past_games_c$Home[i]]] <- dplyr::filter(shotDatafDef2015[[past_games_c$Home[i]]], GAME_DATE < past_games_c$Date[i])
     past_games_c$defAPPS[i] <- ComparisonPPSc(OffTeam = past_games_c$Home[i], DefTown = past_games_c$Visitor[i], SeasondataOff = dplyr::filter(shotDataTotal2015, GAME_DATE < past_games_c$Date[i]), SeasonDataDef = shotDatafDef2015Temp)
-  }else if (past_games_c$Season[i] == 2014 & i >10){
+  }else if (past_games_c$Season[i] == 2014){
     shotDatafDef2014Temp <- shotDatafDef2014
     shotDatafDef2014Temp[[past_games_c$Home[i]]] <- dplyr::filter(shotDatafDef2014[[past_games_c$Home[i]]], GAME_DATE < past_games_c$Date[i])
     past_games_c$defAPPS[i] <- ComparisonPPSc(OffTeam = past_games_c$Home[i], DefTown = past_games_c$Visitor[i], SeasondataOff = dplyr::filter(shotDataTotal2014, GAME_DATE < past_games_c$Date[i]), SeasonDataDef = shotDatafDef2014Temp)
-  }else if (past_games_c$Season[i] == 2013 & i >20){
+  }else if (past_games_c$Season[i] == 2013){
     shotDatafDef2013Temp <- shotDatafDef2013
     shotDatafDef2013Temp[[past_games_c$Home[i]]] <- dplyr::filter(shotDatafDef2013[[past_games_c$Home[i]]], GAME_DATE < past_games_c$Date[i])
     past_games_c$defAPPS[i] <- ComparisonPPSc(OffTeam = past_games_c$Home[i], DefTown = past_games_c$Visitor[i], SeasondataOff = dplyr::filter(shotDataTotal2013, GAME_DATE < past_games_c$Date[i]), SeasonDataDef = shotDatafDef2013Temp)
