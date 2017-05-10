@@ -98,41 +98,30 @@ past_games_c <- merge(past_games_c, DFDates_c, all = TRUE)
 
 library(ggplot2)
 library(gridExtra)
-a <- ggplot(past_games_c, aes(x = day, y = offAPPS)) + geom_line(aes(color = Visitor, lty= as.factor(Season)))
+a <- ggplot(past_games_c, aes(x = day, y = offAPPS)) + geom_line(aes(color = Visitor, lty= as.factor(Season))) + theme(legend.position = "bottom") + guides(color=guide_legend(nrow=2, byrow=TRUE)) + scale_linetype(guide = 'none')
 b <- ggplot(past_games_c, aes(x = day, y = defAPPS)) + geom_line(aes(color = Visitor, lty= as.factor(Season)))
+
+g_legend<-function(a.gplot){
+  tmp <- ggplot_gtable(ggplot_build(a.gplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)}
+
+e <- g_legend(a)
+
 c <- a + theme(legend.position = "none")
 d <- b + theme(legend.position = "none")
 
-grid.arrange(c, d)
-grid.arrange(c, d, ncol = 2)
-
+grid.arrange(c, d, e, heights=c(0.45, 0.45, 0.10))
 past_games_c <- past_games_c[complete.cases(past_games_c),]
 
-#Model1_c <-nls(defAPPS ~ SSasympOff(day, A, lrc, c0), data = past_games_c)
-#DFDates_c$pred <- predict(Model1_c)
-#ceiling(summary(Model1_c)$coefficients[3])
-#for_filtering_c <- DFDates_c[DFDates_c$day ==ceiling(summary(Model1_c)$coefficients[3]),]
-#DFDates_c$Season <- as.factor(DFDates_c$Season)
-#ggplot(DFDates_c, aes(x = day, y = defAPPS))+ geom_point(aes(color = Season)) + geom_line(aes(y = pred)) + geom_vline(xintercept = ceiling(summary(Model1_c)$coefficients[3]))
 
-#saveRDS(DFDates_c, "DFDates_c.rds")
+past_gamesFilt_c <- dplyr::filter(past_games_c, day >= 50)
 
-past_gamesFilt_c <- dplyr::filter(past_games_c, Date >= for_filtering_c$dates[1] & Season == 2013 
-                                  | Date >= for_filtering_c$dates[2] & Season == 2014 
-                                  | Date >= for_filtering_c$dates[3] & Season == 2015
-                                  | Date >= for_filtering_c$dates[4] & Season == 2016
-                                  | Date >= for_filtering_c$dates[5] & Season == 2017)
-
-
-past_gamesFilt_c <- past_gamesFilt_c[complete.cases(past_gamesFilt_c),]
-
-
-ggplot(past_gamesFilt_c, aes(x = HomeRes, y = defAPPS)) + geom_smooth()
 past_gamesFilt$Type <- "regular_season"
 
 
-#saveRDS(for_filtering_c, "for_filtering_c.rds")
-#saveRDS(past_gamesFilt_c, "past_gamesFilt_c.rds")
+saveRDS(past_gamesFilt_c, "past_gamesFilt_c.rds")
 
 FinalOdds <- readRDS("FinalOdds.rds")
 FinalOdds <- dplyr::filter(FinalOdds, Season != 2012)
@@ -205,38 +194,35 @@ FinalOdds$Home <- gsub("CHI", "Chi", as.character(FinalOdds$Home))
 FinalOdds$Home <- gsub("ATL", "Atl", as.character(FinalOdds$Home))
 FinalOdds$Home <- gsub("DET", "Det", as.character(FinalOdds$Home))
 
+
+Playoffs <- list()
 for(i in 1:NROW(FinalOdds)) {
   if (FinalOdds$Season[i] == 2016){
-    shotDatafDef2016Temp <- shotDatafDef2016
-    shotDatafDef2016Temp[[FinalOdds$Visitor[i]]] <- dplyr::filter(shotDatafDef2016[[FinalOdds$Visitor[i]]], GAME_DATE < FinalOdds$Date[i])
-    FinalOdds$offAPPS[i] <- ComparisonPPSc(OffTeam = FinalOdds$Visitor[i], DefTown = FinalOdds$Home[i], SeasondataOff = dplyr::filter(shotDataTotal2016, GAME_DATE < FinalOdds$Date[i]), SeasonDataDef = shotDatafDef2016Temp)
+    Playoffs[[i]] <- Get_Apps(VisitorTeam = FinalOdds$Visitor[i], HomeTeam = FinalOdds$Home[i], Seasondata = dplyr::filter(shotDataTotal2016, GAME_DATE < FinalOdds$Date[i]))
   }else if (FinalOdds$Season[i] == 2015){
-    shotDatafDef2015Temp <- shotDatafDef2015
-    shotDatafDef2015Temp[[FinalOdds$Visitor[i]]] <- dplyr::filter(shotDatafDef2015[[FinalOdds$Visitor[i]]], GAME_DATE < FinalOdds$Date[i])
-    FinalOdds$offAPPS[i] <- ComparisonPPSc(OffTeam = FinalOdds$Visitor[i], DefTown = FinalOdds$Home[i], SeasondataOff = dplyr::filter(shotDataTotal2015, GAME_DATE < FinalOdds$Date[i]), SeasonDataDef = shotDatafDef2015Temp)
-  }else if (FinalOdds$Season[i] == 2014 & i >10){
-    shotDatafDef2014Temp <- shotDatafDef2014
-    shotDatafDef2014Temp[[FinalOdds$Visitor[i]]] <- dplyr::filter(shotDatafDef2014[[FinalOdds$Visitor[i]]], GAME_DATE < FinalOdds$Date[i])
-    FinalOdds$offAPPS[i] <- ComparisonPPSc(OffTeam = FinalOdds$Visitor[i], DefTown = FinalOdds$Home[i], SeasondataOff = dplyr::filter(shotDataTotal2014, GAME_DATE < FinalOdds$Date[i]), SeasonDataDef = shotDatafDef2014Temp)
-  }else if (FinalOdds$Season[i] == 2013 & i >20){
-    shotDatafDef2013Temp <- shotDatafDef2013
-    shotDatafDef2013Temp[[FinalOdds$Visitor[i]]] <- dplyr::filter(shotDatafDef2013[[FinalOdds$Visitor[i]]], GAME_DATE < FinalOdds$Date[i])
-    FinalOdds$offAPPS[i] <- ComparisonPPSc(OffTeam = FinalOdds$Visitor[i], DefTown = FinalOdds$Home[i], SeasondataOff = dplyr::filter(shotDataTotal2013, GAME_DATE < FinalOdds$Date[i]), SeasonDataDef = shotDatafDef2013Temp)
+    Playoffs[[i]] <- Get_Apps(VisitorTeam = FinalOdds$Visitor[i], HomeTeam = FinalOdds$Home[i], Seasondata = dplyr::filter(shotDataTotal2015, GAME_DATE < FinalOdds$Date[i]))
+  }else if (FinalOdds$Season[i] == 2014){
+    Playoffs[[i]] <- Get_Apps(VisitorTeam = FinalOdds$Visitor[i], HomeTeam = FinalOdds$Home[i], Seasondata = dplyr::filter(shotDataTotal2014, GAME_DATE < FinalOdds$Date[i]))
+  }else if (FinalOdds$Season[i] == 2013){
+    Playoffs[[i]] <- Get_Apps(VisitorTeam = FinalOdds$Visitor[i], HomeTeam = FinalOdds$Home[i], Seasondata = dplyr::filter(shotDataTotal2013, GAME_DATE < FinalOdds$Date[i]))  
   }else{
-    FinalOdds$offAPPS[i] <- NA
+    Playoffs[[i]] <- NA
   }
+  print(paste(i, "of", NROW(FinalOdds)))
 }
 
-FinalOdds$defAPPS <- unlist(FinalOdds$defAPPS)
 
-FinalOdds$offAPPS <- unlist(FinalOdds$offAPPS)
+Playoffs <- do.call("rbind", Playoffs)
+
+FinalOdds[,7:8] <- Playoffs[,1:2]
+
 
 FinalOdds_c <- FinalOdds
-#saveRDS(FinalOdds_c, "FinalOdds_c.rds")
+saveRDS(FinalOdds_c, "FinalOdds_c.rds")
 
 past_gamesFiltPlayoff_c <- plyr::rbind.fill(past_gamesFilt_c, FinalOdds_c)
 past_gamesFiltPlayoff_c <- dplyr::arrange(past_gamesFiltPlayoff_c, Date)
-#saveRDS(past_gamesFiltPlayoff_c, "past_gamesFiltPlayoff_c.rds")
+saveRDS(past_gamesFiltPlayoff_c, "past_gamesFiltPlayoff_c.rds")
 
 
 ##Train model
@@ -265,12 +251,12 @@ grid <- expand.grid(interaction.depth = seq(1, 7, by = 2),
 
 # train the GBM model
 set.seed(7)
-BRT2017_20_Abr_c <- train(x = trainNBA_c[,c(7,8)],y = trainNBA_c[,9], method = "gbm",  preProcess = c("center", "scale"), verbose = TRUE, trControl = ctrl, tuneGrid = grid)
-#saveRDS(BRT2017_20_Abr_c, "BRT2017_20_Abr_c.rds")
+BRT2017_10_May_c <- train(x = trainNBA_c[,c(7,8)],y = trainNBA_c[,9], method = "gbm",  preProcess = c("center", "scale"), verbose = TRUE, trControl = ctrl, tuneGrid = grid)
+saveRDS(BRT2017_10_May_c, "BRT2017_10_May_c.rds")
 
-BRT2017_20_Abr_c <- readRDS("BRT2017_20_Abr_c.rds")
+BRT2017_10_May_c <- readRDS("BRT2017_10_May_c.rds")
 
-testNBA_c$PredictedBRT <- predict(BRT2017_20_Abr_c, testNBA_c[,7:8])
+testNBA_c$PredictedBRT <- predict(BRT2017_10_May_c, testNBA_c[,7:8])
 
 
 ggplot(testNBA_c, aes(x = HomeRes, y = PredictedBRT)) + geom_smooth() + geom_point() + xlab("Diferencia") + ylab("Diferencia predicha")
@@ -280,7 +266,7 @@ ggplot(testNBA_c, aes(x = HomeRes, y = PredictedBRT)) + geom_smooth() + geom_poi
 For.predictions_c <- expand.grid(defAPPS = seq(from = min(past_gamesFiltPlayoff_c$defAPPS), to = max(past_gamesFiltPlayoff_c$defAPPS), length.out = 100), 
                                  offAPPS =seq(from= min(past_gamesFiltPlayoff_c$offAPPS, na.rm = TRUE),to = max(past_gamesFiltPlayoff_c$offAPPS, na.rm = TRUE), length.out = 100))
 
-For.predictions_c$Spread <- predict(BRT2017_20_Abr_c, For.predictions_c)
+For.predictions_c$Spread <- predict(BRT2017_10_May_c, For.predictions_c)
 
 For.predictions2_c <- For.predictions_c
 For.predictions2_c$Type <- c("Predicted")
