@@ -100,8 +100,11 @@ library(ggplot2)
 library(gridExtra)
 a <- ggplot(past_games_c, aes(x = day, y = offAPPS)) + geom_line(aes(color = Visitor, lty= as.factor(Season)))
 b <- ggplot(past_games_c, aes(x = day, y = defAPPS)) + geom_line(aes(color = Visitor, lty= as.factor(Season)))
+c <- a + theme(legend.position = "none")
+d <- b + theme(legend.position = "none")
 
-grid.arrange(a, b)
+grid.arrange(c, d)
+grid.arrange(c, d, ncol = 2)
 
 past_games_c <- past_games_c[complete.cases(past_games_c),]
 
