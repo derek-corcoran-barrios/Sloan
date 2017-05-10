@@ -232,6 +232,7 @@ past_gamesFiltPlayoff_c <- readRDS("past_gamesFiltPlayoff_c.rds")
 
 #Train set playoffs 2013 through 2015 and regular season 2013 through 2016
 trainNBA_c <- dplyr::filter(past_gamesFiltPlayoff_c, Season != 2017 & Type == "regular_season" | Season != 2016 & Type == "Playoffs")
+trainNBA_c <- trainNBA_c[!is.na(trainNBA_c$defAPPS),]
 testNBA_c <- dplyr::filter(past_gamesFiltPlayoff_c, Season == 2017 & Type == "regular_season" | Season == 2016 & Type == "Playoffs")
 
 
