@@ -36,6 +36,7 @@ for(i in 1:NROW(past_games_c)) {
 }
 
 APPS <- do.call("rbind", APPS)
+saveRDS(APPS, "APPS.rds")
 
 past_games_c[,7:8] <- APPS[,1:2]
 #saveRDS(past_games_c, "past_games_c.rds")
@@ -44,11 +45,9 @@ past_games_c[,7:8] <- APPS[,1:2]
 library(lubridate)
 
 dates2017_c <- unique(past_games_c$Date)[unique(past_games_c$Date) >= dmy("25-10-2016")]
-
 DF2017_c <- data.frame(Season = rep(2017, times =length(dates2017_c)), day = rep(NA, times =length(dates2017_c)), Date = dates2017_c)
 
 for(i in 1:length(dates2017_c)) {
-  shotDatafDef2017Temp <- shotDatafDef2017
   DF2017_c$day[i] <- i
   print(i)
 }
@@ -60,7 +59,6 @@ dates2016_c <- unique(past_games_c$Date)[unique(past_games_c$Date) >= dmy("27-10
 DF2016_c <- data.frame(Season = rep(2016, times =length(dates2016_c)), day = rep(NA, times =length(dates2016_c)), Date = dates2016_c)
 
 for(i in 1:length(dates2016_c)) {
-  shotDatafDef2016Temp <- shotDatafDef2016
   DF2016_c$day[i] <- i
   print(i)
 }
@@ -113,12 +111,12 @@ c <- a + theme(legend.position = "none")
 d <- b + theme(legend.position = "none")
 
 grid.arrange(c, d, e, heights=c(0.45, 0.45, 0.10))
-past_games_c <- past_games_c[complete.cases(past_games_c),]
+past_games_c <- past_games_c[!is.na(past_games_c$defAPPS),]
 
 
-past_gamesFilt_c <- dplyr::filter(past_games_c, day >= 50)
+past_gamesFilt_c <- dplyr::filter(past_games_c, day >= 25)
 
-past_gamesFilt$Type <- "regular_season"
+past_gamesFilt_c$Type <- "regular_season"
 
 
 saveRDS(past_gamesFilt_c, "past_gamesFilt_c.rds")
@@ -230,6 +228,7 @@ saveRDS(past_gamesFiltPlayoff_c, "past_gamesFiltPlayoff_c.rds")
 #Divide in train and test set
 ##START FROM HERE
 past_gamesFiltPlayoff_c <- readRDS("past_gamesFiltPlayoff_c.rds")
+
 
 #Train set playoffs 2013 through 2015 and regular season 2013 through 2016
 trainNBA_c <- dplyr::filter(past_gamesFiltPlayoff_c, Season != 2017 & Type == "regular_season" | Season != 2016 & Type == "Playoffs")
