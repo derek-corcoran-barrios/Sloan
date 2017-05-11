@@ -52,8 +52,6 @@ for(i in 1:length(dates2017_c)) {
   print(i)
 }
 
-#Params <- data.frame(season = 2017, As)
-#ceiling(summary(Model1)$coefficients[3])
 library(lubridate)
 dates2016_c <- unique(past_games_c$Date)[unique(past_games_c$Date) >= dmy("27-10-2015") & unique(past_games_c$Date) <= dmy("13-04-2016")]
 DF2016_c <- data.frame(Season = rep(2016, times =length(dates2016_c)), day = rep(NA, times =length(dates2016_c)), Date = dates2016_c)
@@ -263,7 +261,7 @@ ggplot(testNBA_c, aes(x = HomeRes, y = PredictedBRT)) + geom_smooth() + geom_poi
 
 ################################HASTA ACA!!!!
 
-For.predictions_c <- expand.grid(defAPPS = seq(from = min(past_gamesFiltPlayoff_c$defAPPS), to = max(past_gamesFiltPlayoff_c$defAPPS), length.out = 100), 
+For.predictions_c <- expand.grid(defAPPS = seq(from = min(past_gamesFiltPlayoff_c$defAPPS, na.rm = TRUE), to = max(past_gamesFiltPlayoff_c$defAPPS, na.rm = TRUE), length.out = 100), 
                                  offAPPS =seq(from= min(past_gamesFiltPlayoff_c$offAPPS, na.rm = TRUE),to = max(past_gamesFiltPlayoff_c$offAPPS, na.rm = TRUE), length.out = 100))
 
 For.predictions_c$Spread <- predict(BRT2017_10_May_c, For.predictions_c)
@@ -280,7 +278,7 @@ wireframe(Spread ~  offAPPS + defAPPS, group = Type, data = For.predictions2_c, 
 
 postResample(pred = testNBA_c$PredictedBRT, obs = testNBA_c$HomeRes)
 
-summary(BRT2017_20_Abr_c$resample)
+summary(BRT2017_10_May_c$resample)
 
 WLtestNBA_c <- testNBA_c
 
@@ -289,32 +287,4 @@ WLtestNBA_c$PredictedBRT <- as.factor(ifelse(WLtestNBA_c$PredictedBRT < 0, "W", 
 
 confusionMatrix(WLtestNBA_c$PredictedBRT, WLtestNBA_c$HomeRes, positive = "W")
 
-df <- data.frame(matrix(ncol = 30, nrow = 30))
-colnames(df) <- as.character(unique(shotDataTotal2017$TEAM_NAME))
-rownames(df) <- names(shotDatafDef2017)
-
-Offensive_teams <- as.character(unique(shotDataTotal2017$TEAM_NAME))
-defenseve_names <- names(shotDatafDef2017)
-
-for (i in 1:length(Offensive_teams)) {
-  for (j in 1:length(defenseve_names)){
-    df[rownames(df) == defenseve_names[j],colnames(df) == Offensive_teams[i]] <- ComparisonPPSc(OffTeam = Offensive_teams[i], DefTown = defenseve_names[j], SeasondataOff = shotDataTotal2017, SeasonDataDef = shotDatafDef2017)
-  }
-}
-
-ROWS <- sort(rownames(df))
-COLS <- sort(colnames(df))
-df2 <- df
-for (i in 1:length(ROWS)) {
-  df[rownames(df) == COLS[i], colnames(df) == ROWS[i]] <- NA 
-}
-
-offrating <- colMeans(df, na.rm = TRUE)*50
-defrating <- rowMeans(df, na.rm = TRUE)*-50
-
-offratingDF <- data.frame(Team = colnames(df), offrating = offrating)
-defratingDF <- data.frame(Team = rownames(df), defrating = defrating)
-
-netDF <- merge.data.frame(offratingDF, defratingDF)
-netDF$netrating <- netDF$offrating + netDF$defrating
-
+netDF <- SpatialBall::SpatialRating(Seasondata = shotDataTotal2017)
