@@ -1,0 +1,84 @@
+---
+title: "NBA Finals preview"
+author: "Derek Corcoran"
+date: "May 27, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+```
+
+# The long wait
+
+As we wait for the finals
+
+
+```{r}
+library(SpatialBall)
+library(knitr)
+library(dplyr)
+data(season2017)
+season2016 <- readRDS("shotDataTotal2016.rds")
+season2015 <- readRDS("shotDataTotal2015.rds")
+```
+
+```{r, cache=TRUE, results='hide'}
+Rating2017<- SpatialRating(Seasondata = season2017)
+Rating2015<- SpatialRating(Seasondata = season2015)
+Rating2016<- SpatialRating(Seasondata = season2016)
+
+```
+
+```{r}
+kable(head(Rating2015,8), caption = "Spatial rating 2015")
+```
+
+```{r}
+kable(head(Rating2016,8), caption = "Spatial rating 2016")
+```
+
+```{r}
+kable(head(Rating2017,4), caption = "Spatial rating 2017")
+```
+
+```{r}
+
+
+
+#Golden State home
+
+Get_Apps(HomeTeam = "GSW", VisitorTeam = "Cle", Seasondata = season2017)
+
+OffShotSeasonGraphTeam(Seasondata = season2017, team = "GSW")
+DefShotSeasonGraphTeam(Seasondata = season2017, team = "GSW")
+
+OffShotSeasonGraphTeam(Seasondata = season2017, team = "Cle")
+DefShotSeasonGraphTeam(Seasondata = season2017, team = "Cle")
+
+
+Get_Apps(HomeTeam = "GSW", VisitorTeam = "Cle", Seasondata = season2016)
+Get_Apps(HomeTeam = "GSW", VisitorTeam = "Cle", Seasondata = season2015)
+
+#Cleveland Home
+
+Get_Apps(HomeTeam = "Cle", VisitorTeam = "GSW", Seasondata = season2017)
+Get_Apps(HomeTeam = "Cle", VisitorTeam = "GSW", Seasondata = season2016)
+Get_Apps(HomeTeam = "Cle", VisitorTeam = "GSW", Seasondata = season2015)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+
+This year, at the Bay Area, we predict a spread of `r round(Get_Apps(HomeTeam = "GSW", VisitorTeam = "Cle", Seasondata = season2017)$spread, 2)`, compare that to last year, where before the first game our algorithm would predict a spread of `r round(Get_Apps(HomeTeam = "GSW", VisitorTeam = "Cle", Seasondata = season2016)$spread, 2)` or the first series (2015), where Golden State was predicted 
+
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

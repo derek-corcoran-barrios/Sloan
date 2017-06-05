@@ -43,11 +43,11 @@ HEX4<-  ggplot(S2017, aes(LOC_X, LOC_Y, z = Points))+ annotation_custom(court, -
 
 
 
-HEX10<-  ggplot(S2017, aes(LOC_X, LOC_Y, z = Points))+ annotation_custom(court, -250, 250, -52, 418) +
-  stat_summary_hex(bins = 10,
+HEX8<-  ggplot(S2017, aes(LOC_X, LOC_Y, z = Points))+ annotation_custom(court, -250, 250, -52, 418) +
+  stat_summary_hex(bins = 8,
                    fun = function(z) {
                      mean(z)
-                   }, alpha = 0.8) + scale_fill_gradient2(midpoint = 1, low = "blue", high = "red", limits=c(0, 2)) + theme_void() + coord_fixed(xlim = c(-250, 250), ylim = c(-51, 270)) + theme(legend.position="none") + ggtitle("Bin = 10")  + theme(plot.title = element_text(hjust = 0.5))
+                   }, alpha = 0.8) + scale_fill_gradient2(midpoint = 1, low = "blue", high = "red", limits=c(0, 2)) + theme_void() + coord_fixed(xlim = c(-250, 250), ylim = c(-51, 270)) + theme(legend.position="none") + ggtitle("Bin = 8")  + theme(plot.title = element_text(hjust = 0.5))
 
 HEX26<-  ggplot(S2017, aes(LOC_X, LOC_Y, z = Points))+ annotation_custom(court, -250, 250, -52, 418) +
   stat_summary_hex(bins = 26,
@@ -56,14 +56,14 @@ HEX26<-  ggplot(S2017, aes(LOC_X, LOC_Y, z = Points))+ annotation_custom(court, 
                    }, alpha = 0.8) + scale_fill_gradient2(midpoint = 1, low = "blue", high = "red", limits=c(0, 2)) + theme_void() + coord_fixed(xlim = c(-250, 250), ylim = c(-51, 270)) + theme(legend.position="none") + ggtitle("Bin = 26")  + theme(plot.title = element_text(hjust = 0.5)) 
 
 
-HEX36<-  ggplot(S2017, aes(LOC_X, LOC_Y, z = Points))+ annotation_custom(court, -250, 250, -52, 418) +
-  stat_summary_hex(bins = 36,
+HEX1<-  ggplot(S2017, aes(LOC_X, LOC_Y, z = Points))+ annotation_custom(court, -250, 250, -52, 418) +
+  stat_summary_hex(bins = 1,
                    fun = function(z) {
                      mean(z)
-                   }, alpha = 0.8) + scale_fill_gradient2(midpoint = 1, low = "blue", high = "red", limits=c(0, 2)) + theme_void() + coord_fixed(xlim = c(-250, 250), ylim = c(-51, 270)) + theme(legend.position="none") + ggtitle("Bin = 36")  + theme(plot.title = element_text(hjust = 0.5))
+                   }, alpha = 0.8) + scale_fill_gradient2(midpoint = 1, low = "blue", high = "red", limits=c(0, 2)) + theme_void() + coord_fixed(xlim = c(-250, 250), ylim = c(-51, 270)) + theme(legend.position="none") + ggtitle("Bin = 1")  + theme(plot.title = element_text(hjust = 0.5))
 
 
 library(gridExtra)
 
-grid.arrange(HEX4, HEX10, HEX26, HEX36, mylegend,  layout_matrix=rbind(c(1,1,2,2), c(1,1,2,2) ,c(3,3,4,4), c(3,3,4,4), c(5,5,5,5)))
+grid.arrange(HEX4, HEX8, HEX26, HEX1, mylegend,  layout_matrix=rbind(c(1,1,2,2), c(1,1,2,2) ,c(3,3,4,4), c(3,3,4,4), c(5,5,5,5)))
  
