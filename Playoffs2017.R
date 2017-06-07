@@ -1,6 +1,13 @@
 
-pacman::p_load(XML, lubridate)
+pacman::p_load(XML, lubridate, googlesheets)
 
+gs_ls()
+b<-gs_key("1jqxdmvj9QSVm5qPKegV2m7R5qUygF6WpGgI7t9qICe0" )
+FullOdds <- gs_read(b) 
+colnames(FullOdds) <- make.names(colnames(FullOdds))
+FullOdds$Date <- dmy(FullOdds$Date)
+
+saveRDS(FullOdds, "FullOdds.rds")
 
 #Gather data
 ## Year 2012
@@ -147,3 +154,5 @@ Test2017 <- merge(test, Playoffs2017, all = TRUE)
 saveRDS(Test2017, "Test2017.rds")
 
 write.csv(Test2017, "Test2017.csv")
+
+Test2017 <- readRDS("Test2017.rds")
