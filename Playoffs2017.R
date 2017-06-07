@@ -229,4 +229,4 @@ Test2017 <- readRDS("Test2017.rds")
 FullOdds <- readRDS("FullOdds.rds")
 
 
-
+DF3 <- merge(Test2017[,-13], FullOdds, all = T)
