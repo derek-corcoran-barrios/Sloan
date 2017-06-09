@@ -5,6 +5,7 @@ gs_ls()
 b<-gs_key("1jqxdmvj9QSVm5qPKegV2m7R5qUygF6WpGgI7t9qICe0" )
 FullOdds <- gs_read(b) 
 colnames(FullOdds) <- make.names(colnames(FullOdds))
+colnames(FullOdds) <- c("Date", "Visitor", "Visit_PTS", "Home", "Home_PTS", "Result", "VegasPred", "ATS", "Total", "OU")
 FullOdds$Date <- dmy(FullOdds$Date)
 
 FullOdds$Visitor <- gsub("MIN" , "Min", as.character(FullOdds$Visitor))
@@ -176,9 +177,13 @@ schedule$Season <- 2017
 
 schedule$HomeRes <- schedule$Visit_PTS - schedule$Home_PTS
 
+#####Start from here
+
 library(SpatialBall)
 
 data("season2017")
+
+
 
 Playoffs2017 <- list()
 
@@ -232,6 +237,10 @@ FullOdds <- readRDS("FullOdds.rds")
 DF3 <- merge(Test2017[,-13], FullOdds, all = T)
 
 DF3 <- DF3[!is.na(DF3$PredBRT),]
+DF3 <- DF3[!is.na(DF3$HomeRes),]
+
+saveRDS(DF3, "DF3.rds")
+
 
 library(caret)
 
