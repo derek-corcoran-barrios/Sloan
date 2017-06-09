@@ -230,3 +230,12 @@ FullOdds <- readRDS("FullOdds.rds")
 
 
 DF3 <- merge(Test2017[,-13], FullOdds, all = T)
+
+DF3 <- DF3[!is.na(DF3$PredBRT),]
+
+library(caret)
+
+postResample(DF3$PredBRT, DF3$HomeRes)
+
+postResample(DF3$VegasPred, DF3$HomeRes)
+
