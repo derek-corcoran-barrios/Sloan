@@ -16,4 +16,6 @@ sum(nrow(season2017), nrow(season2016),nrow(season2015), nrow(season2014), nrow(
 #SpatialNetRating
 
 Rank <- SpatialRating(season2017)
+colnames(Rank) <- c("Team", "OffSBR", "DefSBR", "NetSBR")
 
+stargazer::stargazer(Rank, summary = FALSE, style = "qje")
