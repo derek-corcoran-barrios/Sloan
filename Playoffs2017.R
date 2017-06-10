@@ -1,9 +1,11 @@
 
-pacman::p_load(XML, lubridate, googlesheets)
+pacman::p_load(XML, lubridate, googlesheets, beepr)
 
 gs_ls()
 b<-gs_key("1jqxdmvj9QSVm5qPKegV2m7R5qUygF6WpGgI7t9qICe0" )
+c <- gs_key("1K1VY-1kQVUB96vFqe8YrX-lfTWpMYAYLO2yhLHXE_ss")
 FullOdds <- gs_read(b) 
+Missing <- gs_read(c)
 colnames(FullOdds) <- make.names(colnames(FullOdds))
 colnames(FullOdds) <- c("Date", "Visitor", "Visit_PTS", "Home", "Home_PTS", "Result", "VegasPred", "ATS", "Total", "OU")
 FullOdds$Date <- dmy(FullOdds$Date)
@@ -76,8 +78,8 @@ FullOdds$Home <- gsub("CHI", "Chi", as.character(FullOdds$Home))
 FullOdds$Home <- gsub("ATL", "Atl", as.character(FullOdds$Home))
 FullOdds$Home <- gsub("DET", "Det", as.character(FullOdds$Home))
 
-
-
+Missing <- Missing[,-1]
+saveRDS(Missing, "Missing.rds")
 saveRDS(FullOdds, "FullOdds.rds")
 
 #Gather data
@@ -223,6 +225,7 @@ for (i in 1:nrow(test)){
   }
 }
 
+beep(8)
 
 Test2017 <- merge(test, Playoffs2017, all = TRUE)
 
