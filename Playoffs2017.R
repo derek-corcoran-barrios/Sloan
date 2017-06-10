@@ -242,6 +242,11 @@ DF3 <- merge(Test2017[,-13], FullOdds, all = T)
 DF3 <- DF3[!is.na(DF3$PredBRT),]
 DF3 <- DF3[!is.na(DF3$HomeRes),]
 
+DF3 <- merge(DF3, Missing, all = T)
+DF3 <- DF3[!is.na(DF3$HomeRes),]
+
+
+
 saveRDS(DF3, "DF3.rds")
 
 
