@@ -242,8 +242,11 @@ DF3 <- merge(Test2017[,-13], FullOdds, all = T)
 DF3 <- DF3[!is.na(DF3$PredBRT),]
 DF3 <- DF3[!is.na(DF3$HomeRes),]
 
-DF3 <- merge(DF3, Missing, all = T)
+Missing$Date <- mdy(Missing$Date)
+
+DF3 <- merge(DF3[,c(1:11,14)], Missing[,c(1:11,14)], all = T)
 DF3 <- DF3[!is.na(DF3$HomeRes),]
+DF3 <- DF3[!is.na(DF3$VegasPred),]
 
 
 
@@ -256,3 +259,5 @@ postResample(DF3$PredBRT, DF3$HomeRes)
 
 postResample(DF3$VegasPred, DF3$HomeRes)
 
+
+View(DF3)

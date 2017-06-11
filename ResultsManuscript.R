@@ -57,3 +57,19 @@ For.predictions2 <- rbind(For.predictions2, For.predictions3)
 
 #Test 1
 wireframe(Spread ~  offAPPS + defAPPS, group = Type, data = For.predictions2, colorkey = TRUE, drape = TRUE, pretty = TRUE,scales = list(arrows = FALSE), screen = list(z = -220, x = -80), par.settings = list(regions=list(alpha=0.75)))
+
+
+
+###########################Accuracy, etc confussion matrix DF3 is the real test set
+
+DF3 <- readRDS("DF3.rds")
+
+ClassificationWin <- data.frame(Winner = ifelse(DF3$HomeRes < 0, "H", "V"), BRTWinner = ifelse(DF3$PredBRT < 0, "H", "V"), VegasWinner = ifelse(DF3$VegasPred < 0, "H", "V"))
+
+
+confusionMatrix(ClassificationWin$BRTWinner, ClassificationWin$Winner)
+
+confusionMatrix(ClassificationWin$VegasWinner, ClassificationWin$Winner)
+
+(558 + 248)/nrow(DF3)
+
