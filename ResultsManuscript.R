@@ -61,6 +61,7 @@ wireframe(Spread ~  offAPPS + defAPPS, group = Type, data = For.predictions2, co
 
 
 ###########################Accuracy, etc confussion matrix DF3 is the real test set
+library(caret)
 
 DF3 <- readRDS("DF3.rds")
 
@@ -71,5 +72,33 @@ confusionMatrix(ClassificationWin$BRTWinner, ClassificationWin$Winner)
 
 confusionMatrix(ClassificationWin$VegasWinner, ClassificationWin$Winner)
 
-(558 + 248)/nrow(DF3)
+(598 + 354)/nrow(DF3)
+#####Rsquareds
+
+
+postResample(DF3$PredBRT, DF3$HomeRes)
+
+postResample(DF3$VegasPred, DF3$HomeRes)
+
+#####Table best performance of model compared to vegas
+
+
+TAT <- DF3
+TAT$DifBRT <- abs(TAT$PredBRT - TAT$HomeRes)
+TAT$DifVegas <- abs(TAT$VegasPred - TAT$HomeRes)
+#Most Negative results in Compare are the best results for Vegas, the more Positive best results for us
+TAT$Compare <- TAT$DifVegas - TAT$DifBRT
+
+TATPlayoffs <- dplyr::filter(TAT, Type == "Playoffs")
+
+#Best games for vegas
+BestVegas <- head(dplyr::arrange(TATPlayoffs, Compare), 10)
+BestVegas <- BestVegas[,-c(7,8,10)]
+colnames(BestVegas) <- c("Date", "Visitor", "Visit PTS", "Home", "Home PTS", "Season", "Spread", "BRT Pred", "Vegas Pred", "DifBRT", "DifVegas", "Comparison")
+stargazer::stargazer(BestVegas, summary = FALSE)
+#best games for me
+BestBRT <- head(dplyr::arrange(TATPlayoffs, desc(Compare)), 10)
+BestBRT <- BestBRT[,-c(7,8,10)]
+colnames(BestBRT) <- c("Date", "Visitor", "Visit PTS", "Home", "Home PTS", "Season", "Spread", "BRT Pred", "Vegas Pred", "DifBRT", "DifVegas", "Comparison")
+stargazer::stargazer(BestBRT, summary = FALSE)
 
