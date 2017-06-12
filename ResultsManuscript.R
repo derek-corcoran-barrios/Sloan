@@ -95,10 +95,49 @@ TATPlayoffs <- dplyr::filter(TAT, Type == "Playoffs")
 BestVegas <- head(dplyr::arrange(TATPlayoffs, Compare), 10)
 BestVegas <- BestVegas[,-c(7,8,10)]
 colnames(BestVegas) <- c("Date", "Visitor", "Visit PTS", "Home", "Home PTS", "Season", "Spread", "BRT Pred", "Vegas Pred", "DifBRT", "DifVegas", "Comparison")
-stargazer::stargazer(BestVegas, summary = FALSE)
+
+stargazer::stargazer(BestVegas, summary = FALSE, digits = 2, rownames = FALSE)
 #best games for me
 BestBRT <- head(dplyr::arrange(TATPlayoffs, desc(Compare)), 10)
 BestBRT <- BestBRT[,-c(7,8,10)]
 colnames(BestBRT) <- c("Date", "Visitor", "Visit PTS", "Home", "Home PTS", "Season", "Spread", "BRT Pred", "Vegas Pred", "DifBRT", "DifVegas", "Comparison")
-stargazer::stargazer(BestBRT, summary = FALSE)
+BestBRT <- BestBRT[,-c(1,8,9)]
+stargazer::stargazer(BestBRT, summary = FALSE, digits = 2, rownames = FALSE)
+
+
+
+str(season2017)
+
+library(dplyr)
+a <-rbind(season2017, season2016, season2015, season2014, season2013)
+a <- a[,c(13,22)]
+#a$GAME_DATE <- as.factor(a$GAME_DATE)
+
+
+a <- a %>% group_by(GAME_DATE, SHOT_TYPE) %>% tally() %>% group_by(GAME_DATE) %>%
+  mutate(countT= sum(n)) %>%
+  group_by(SHOT_TYPE, add=TRUE) %>%
+  mutate(per=round(100*n/countT,2))
+
+a <- a[,c(1,2,5)]
+
+a <- filter(a, SHOT_TYPE == "3PT Field Goal")
+
+ggplot(a, aes(x = GAME_DATE, y = per)) + geom_smooth()
+
+
+b <- rbind(DF3[,c(1,9)], train[,c(1,9)])
+b$HomeRes <- abs(b$HomeRes)
+b <- b %>% group_by(Date) %>% summarise(Spread = mean(HomeRes))
+
+colnames(a)<-c("Date", "SHOT_TYPE", "per")
+
+
+c <- merge(a,b)
+
+
+ggplot(c, aes(x = per, y = Spread)) + geom_smooth()
+ggplot(c, aes(x = Date, y = Spread)) + geom_smooth() + geom_point()
+
+
 
