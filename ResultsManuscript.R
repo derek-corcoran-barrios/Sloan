@@ -88,20 +88,25 @@ TAT$DifBRT <- abs(TAT$PredBRT - TAT$HomeRes)
 TAT$DifVegas <- abs(TAT$VegasPred - TAT$HomeRes)
 #Most Negative results in Compare are the best results for Vegas, the more Positive best results for us
 TAT$Compare <- TAT$DifVegas - TAT$DifBRT
+TAT$Win <- as.factor(ifelse(DF3$HomeRes < 0, "H", "V"))
+
+#nosotros
+summary(dplyr::filter(TAT, Compare > 0))
+#Vegas
+summary(dplyr::filter(TAT, Compare < 0))
 
 TATPlayoffs <- dplyr::filter(TAT, Type == "Playoffs")
 
 #Best games for vegas
 BestVegas <- head(dplyr::arrange(TATPlayoffs, Compare), 10)
-BestVegas <- BestVegas[,-c(7,8,10)]
-colnames(BestVegas) <- c("Date", "Visitor", "Visit PTS", "Home", "Home PTS", "Season", "Spread", "BRT Pred", "Vegas Pred", "DifBRT", "DifVegas", "Comparison")
+BestVegas <- BestVegas[,-c(1,7,8,10, 11, 12,15,16)]
+colnames(BestVegas) <- c("Visitor", "Visit PTS", "Home", "Home PTS", "Season", "Spread", "DifBRT", "DifVegas")
 
 stargazer::stargazer(BestVegas, summary = FALSE, digits = 2, rownames = FALSE)
 #best games for me
 BestBRT <- head(dplyr::arrange(TATPlayoffs, desc(Compare)), 10)
-BestBRT <- BestBRT[,-c(7,8,10)]
-colnames(BestBRT) <- c("Date", "Visitor", "Visit PTS", "Home", "Home PTS", "Season", "Spread", "BRT Pred", "Vegas Pred", "DifBRT", "DifVegas", "Comparison")
-BestBRT <- BestBRT[,-c(1,8,9)]
+BestBRT <- BestBRT[,-c(1,7,8,10,11,12,15,16)]
+colnames(BestBRT) <- c("Visitor", "Visit PTS", "Home", "Home PTS", "Season", "Spread", "DifBRT", "DifVegas")
 stargazer::stargazer(BestBRT, summary = FALSE, digits = 2, rownames = FALSE)
 
 
@@ -140,4 +145,16 @@ ggplot(c, aes(x = per, y = Spread)) + geom_smooth()
 ggplot(c, aes(x = Date, y = Spread)) + geom_smooth() + geom_point()
 
 
+library(caret)
+ctrl <- trainControl(method = "repeatedcv", number=10, repeats=10)
 
+
+grid <- expand.grid(interaction.depth = seq(1, 7, by = 2),
+                    n.trees = seq(100, 1000, by = 50),
+                    shrinkage = c(0.01, 0.1),
+                    n.minobsinnode=c(1,5,10))
+
+
+# train the GBM model
+set.seed(7)
+GB <- train(x = train[,c(7,8)],y = train[,9], method = 'rf',  preProcess = c("center", "scale"))

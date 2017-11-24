@@ -20,27 +20,27 @@ pacman::p_load(SpatialBall)
 APPS <- list()
 for(i in 1:NROW(past_games_c)) {
   if (past_games_c$Season[i] == 2017) {
-    APPS[[i]] <- Get_Apps(MAX_Y = 280, HomeTeam = past_games_c$Home[i], VisitorTeam = past_games_c$Visitor[i], Seasondata = dplyr::filter(shotDataTotal2017, GAME_DATE < past_games_c$Date[i]))
+    APPS[[i]] <- Get_Apps_Exp(MAX_Y = 280, HomeTeam = past_games_c$Home[i], VisitorTeam = past_games_c$Visitor[i], Seasondata = dplyr::filter(shotDataTotal2017, GAME_DATE < past_games_c$Date[i]))
   }else if (past_games_c$Season[i] == 2016){
-    APPS[[i]] <- Get_Apps(MAX_Y = 280, HomeTeam = past_games_c$Home[i], VisitorTeam = past_games_c$Visitor[i], Seasondata = dplyr::filter(shotDataTotal2016, GAME_DATE < past_games_c$Date[i]))
+    APPS[[i]] <- Get_Apps_Exp(MAX_Y = 280, HomeTeam = past_games_c$Home[i], VisitorTeam = past_games_c$Visitor[i], Seasondata = dplyr::filter(shotDataTotal2016, GAME_DATE < past_games_c$Date[i]))
   }else if (past_games_c$Season[i] == 2015){
-    APPS[[i]] <- Get_Apps(MAX_Y = 280, HomeTeam = past_games_c$Home[i], VisitorTeam = past_games_c$Visitor[i], Seasondata = dplyr::filter(shotDataTotal2015, GAME_DATE < past_games_c$Date[i]))
+    APPS[[i]] <- Get_Apps_Exp(MAX_Y = 280, HomeTeam = past_games_c$Home[i], VisitorTeam = past_games_c$Visitor[i], Seasondata = dplyr::filter(shotDataTotal2015, GAME_DATE < past_games_c$Date[i]))
   }else if (past_games_c$Season[i] == 2014){
-    APPS[[i]] <- Get_Apps(MAX_Y = 280, HomeTeam = past_games_c$Home[i], VisitorTeam = past_games_c$Visitor[i], Seasondata = dplyr::filter(shotDataTotal2014, GAME_DATE < past_games_c$Date[i]))
+    APPS[[i]] <- Get_Apps_Exp(MAX_Y = 280, HomeTeam = past_games_c$Home[i], VisitorTeam = past_games_c$Visitor[i], Seasondata = dplyr::filter(shotDataTotal2014, GAME_DATE < past_games_c$Date[i]))
   }else if (past_games_c$Season[i] == 2013){
-    APPS[[i]] <- Get_Apps(MAX_Y = 280, HomeTeam = past_games_c$Home[i], VisitorTeam = past_games_c$Visitor[i], Seasondata = dplyr::filter(shotDataTotal2013, GAME_DATE < past_games_c$Date[i]))
+    APPS[[i]] <- Get_Apps_Exp(MAX_Y = 280, HomeTeam = past_games_c$Home[i], VisitorTeam = past_games_c$Visitor[i], Seasondata = dplyr::filter(shotDataTotal2013, GAME_DATE < past_games_c$Date[i]))
   }else{
     APPS[[i]] <- NA
   }
   print(paste(i, "of", NROW(past_games_c)))
 }
 
-APPS <- do.call("rbind", APPS)
-saveRDS(APPS, "APPS.rds")
+ExpAPPS <- do.call("rbind", APPS)
+saveRDS(ExpAPPS, "ExpAPPS.rds")
 
-past_games_c[,7:8] <- APPS[,1:2]
-#saveRDS(past_games_c, "past_games_c.rds")
-#past_games_c <- readRDS("past_games_c.rds")
+past_games_c[,7:8] <- ExpAPPS[,1:2]
+saveRDS(past_games_c, "past_games_c.rds")
+past_games_c <- readRDS("past_games_c.rds")
 
 library(lubridate)
 
@@ -194,13 +194,13 @@ FinalOdds$Home <- gsub("DET", "Det", as.character(FinalOdds$Home))
 Playoffs <- list()
 for(i in 1:NROW(FinalOdds)) {
   if (FinalOdds$Season[i] == 2016){
-    Playoffs[[i]] <- Get_Apps(VisitorTeam = FinalOdds$Visitor[i], HomeTeam = FinalOdds$Home[i], Seasondata = dplyr::filter(shotDataTotal2016, GAME_DATE < FinalOdds$Date[i]))
+    Playoffs[[i]] <- Get_Apps_Exp(VisitorTeam = FinalOdds$Visitor[i], HomeTeam = FinalOdds$Home[i], Seasondata = dplyr::filter(shotDataTotal2016, GAME_DATE < FinalOdds$Date[i]))
   }else if (FinalOdds$Season[i] == 2015){
-    Playoffs[[i]] <- Get_Apps(VisitorTeam = FinalOdds$Visitor[i], HomeTeam = FinalOdds$Home[i], Seasondata = dplyr::filter(shotDataTotal2015, GAME_DATE < FinalOdds$Date[i]))
+    Playoffs[[i]] <- Get_Apps_Exp(VisitorTeam = FinalOdds$Visitor[i], HomeTeam = FinalOdds$Home[i], Seasondata = dplyr::filter(shotDataTotal2015, GAME_DATE < FinalOdds$Date[i]))
   }else if (FinalOdds$Season[i] == 2014){
-    Playoffs[[i]] <- Get_Apps(VisitorTeam = FinalOdds$Visitor[i], HomeTeam = FinalOdds$Home[i], Seasondata = dplyr::filter(shotDataTotal2014, GAME_DATE < FinalOdds$Date[i]))
+    Playoffs[[i]] <- Get_Apps_Exp(VisitorTeam = FinalOdds$Visitor[i], HomeTeam = FinalOdds$Home[i], Seasondata = dplyr::filter(shotDataTotal2014, GAME_DATE < FinalOdds$Date[i]))
   }else if (FinalOdds$Season[i] == 2013){
-    Playoffs[[i]] <- Get_Apps(VisitorTeam = FinalOdds$Visitor[i], HomeTeam = FinalOdds$Home[i], Seasondata = dplyr::filter(shotDataTotal2013, GAME_DATE < FinalOdds$Date[i]))  
+    Playoffs[[i]] <- Get_Apps_Exp(VisitorTeam = FinalOdds$Visitor[i], HomeTeam = FinalOdds$Home[i], Seasondata = dplyr::filter(shotDataTotal2013, GAME_DATE < FinalOdds$Date[i]))  
   }else{
     Playoffs[[i]] <- NA
   }

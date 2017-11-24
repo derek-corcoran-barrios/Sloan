@@ -1,0 +1,89 @@
+---
+title: "Evaluating the Jimmy Butlers Fit with Minnesota"
+author: "Derek Corcoran"
+date: "June 26, 2017"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+## Comparing shot charts from the NBA and Minnesota for 2017
+
+Everyone is very excited about the trade that send Jimmy Butler to the Timberwolves for Zach Lavine, Kris Dunn plus a trade swap. But how does he actually fit's Minnesota's Spatial patterns?
+
+### The Timberwolves were one of the teams that shot threes less frequently
+
+As we see in the shot chart bellow, Minnesota shot threes a lot less frequently than the rest of the league, while attempting more shots than the average NBA team from the elbows.
+
+```{r}
+library(SpatialBall)
+library(gridExtra)
+library(ggplot2)
+data(season2017)
+```
+
+All this points to a not so modern NBA offense. 
+
+
+```{r, fig.cap= "Shot chart for the whole NBA compared to Minnesota for 2017"}
+NBA <- ShotSeasonGraph(season2017) + ggtitle("NBA shot chart 2017")
+Min <- OffShotSeasonGraphTeam(season2017, "Min")
+grid.arrange(NBA, Min, ncol = 2)
+```
+
+### Projected Starting Linup
+
+Most of the media projects the following Starting Lineup for the Timberwolves
+
+* PG Ricky Rubio
+* SG Andrew Wiggins
+* SF Jimmy Butler
+* PF Karl-Anthony Towns
+* C Gorgui Dieng
+
+If we look at the shot chart of that team, we see that none of those players are adept three point shooters
+
+####Rubio
+
+```{r}
+OffShotSeasonGraphPlayer(Seasondata = season2017, "Ricky Rubio")
+
+```
+
+####Wiggins
+
+```{r}
+OffShotSeasonGraphPlayer(Seasondata = season2017, "Andrew Wiggins")
+```
+
+####Butler
+
+```{r}
+OffShotSeasonGraphPlayer(Seasondata = season2017, "Jimmy Butler")
+```
+
+####Towns
+
+```{r}
+OffShotSeasonGraphPlayer(Seasondata = season2017, "Karl-Anthony Towns")
+```
+
+####Dieng
+
+```{r}
+OffShotSeasonGraphPlayer(Seasondata = season2017, "Gorgui Dieng")
+```
+
+```{r, fig.cap= "Shot chart for Minnesota for 2017 taking out Zach LaVine's and Kirs Dunn's shots and adding Jimmy Butler's"}
+Miny2018 <- season2017
+
+Miny2018$TEAM_NAME <- ifelse(Miny2018$PLAYER_NAME == "Zach LaVine" | Miny2018$PLAYER_NAME == "Kris Dunn", "Chi", Miny2018$TEAM_NAME)
+
+Miny2018$TEAM_NAME <- ifelse(Miny2018$PLAYER_NAME == "Jimmy Butler", "Min", Miny2018$TEAM_NAME)
+Min18 <- OffShotSeasonGraphTeam(Miny2018, "Min") + ggtitle("New Minnesota")
+grid.arrange(Min18, Min, ncol = 2)
+```

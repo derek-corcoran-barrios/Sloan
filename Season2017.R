@@ -1,16 +1,3 @@
----
-title: "NBA Projections 2018 season"
-output: html_document
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-
-These are the projected standings predicted by our spatial-based algorithm as of `r format(Sys.time(), '%d %B, %Y')`
-
-```{r Shotscrub, echo=FALSE, message=FALSE, warning=FALSE}
 #Data 2018
 
 if (!require("pacman")) install.packages("pacman")
@@ -143,10 +130,9 @@ Season2018$GAME_DATE <- ymd(Season2018$GAME_DATE)
 
 saveRDS(Season2018, 'Season2018.rds')
 
-```
-
-
-```{r schedulescrub, echo=FALSE, message=FALSE, warning=FALSE}
+########################################################################################
+#######################################Schedule#########################################
+########################################################################################
 
 pacman::p_load(XML, lubridate, rvest, dplyr)
 #Gather data
@@ -246,69 +232,14 @@ schedule[,5] <- gsub("Minnesota Timberwolves", "Min", schedule[,5])
 schedule[,5] <- gsub("Charlotte Bobcats", "Cha", schedule[,5])
 schedule[,5]<- gsub("New Orleans Hornets", "NO", schedule[,5])
 
-```
 
-```{r simulatingGames, echo=FALSE, message=FALSE, warning=FALSE}
-pacman::p_load(SpatialBall, dplyr)
-
-colnames(schedule) <- c("Date", "Start..ET.","VTM", "PTS_Visitor", "HTM", "PTS_Home", "X", "X2", "Notes", "Season")
-
-schedule <- dplyr::select(schedule, Date, VTM, PTS_Visitor, HTM, PTS_Home, Season)
-
-future_games <- schedule[schedule$Date >= Sys.Date(),]
-
-
-results <- list()
-for(i in 1:nrow(future_games)){
-  results[[i]] <- Get_Apps(HomeTeam = future_games$HTM[i], VisitorTeam = future_games$VTM[i], Seasondata = Season2018)
-  message(paste("simulating", i ,"of", nrow(future_games)))
-}
-
-results <- do.call(rbind, results)
-
-future_games <- cbind(future_games, results)
-
-future_games$Home <- ifelse(future_games$spread < 0, "W", "L")
-
-future_games$Visit <- ifelse(future_games$spread > 0, "W", "L")
-
-
-Home <- cbind(future_games$HTM, future_games$Home)
-
-colnames(Home) <- c("Team", "Result")
-
-Visit <- cbind(future_games$VTM, future_games$Visit)
-
-colnames(Visit) <- c("Team", "Result")
-
-AddedStand <- data.frame(rbind(Home, Visit))
-#Wins
-AddedStand_W <- dplyr::filter(AddedStand, Result == "W")
-
-AddedStand_W <- group_by(AddedStand_W, Team)
-
-AddedStand_W <- dplyr::summarize(AddedStand_W, W = n())
-
-#Loses
-
-AddedStand_L <- dplyr::filter(AddedStand, Result == "L")
-
-AddedStand_L <- group_by(AddedStand_L, Team)
-
-AddedStand_L <- dplyr::summarize(AddedStand_L, L = n())
-
-AddedStand <- merge.data.frame(AddedStand_W, AddedStand_L, all = TRUE)
-
-write.csv(AddedStand, "AddedStand.csv")
-saveRDS(future_games, "future_games.rds")
-
-#####Standing scraper
 
 Standings <- "http://www.basketball-reference.com/leagues/NBA_2018.html"
 
 Standings <- read_html(Standings)%>% html_table(fill=TRUE)%>% .[1:2]
 
 Standings <- list(Western = Standings[[2]], Eastern = Standings[[1]])
+
 Standings[[1]]$Conference <- c("West")
 
 Standings[[2]]$Conference <- c("East")
@@ -319,98 +250,3 @@ colnames(Standings[[2]]) <- c("Team", "Current-W", "Current-L", "pct", "GB", "PS
 
 
 Standings <- rbind(Standings[[1]], Standings[[2]])
-
-Standings <- Standings[,c(1,2,3,9)]
-
-Standings$Team <- gsub("76ers", "Phi", Standings$Team)
-
-
-Standings$Team <- gsub("(?<=\\b[A-Z])[^A-Z]+", "", Standings$Team, perl = TRUE)
-
-Standings$Team <- gsub("DP", "Det", Standings$Team)
-Standings$Team<- gsub("AH", "Atl", Standings$Team)
-Standings$Team <- gsub("CB", "Chi", Standings$Team)
-Standings$Team<- gsub("BC", "Bos", Standings$Team)
-Standings$Team<- gsub("CC", "Cle", Standings$Team)
-Standings$Team<- gsub("NOP", "NO", Standings$Team)
-Standings$Team<- gsub("OM", "ORL", Standings$Team)
-Standings$Team<- gsub("WW", "Was", Standings$Team)
-Standings$Team<- gsub("BN", "Bkn", Standings$Team)
-Standings$Team<- gsub("UJ", "Uta", Standings$Team)
-Standings$Team<- gsub("MH", "Mia", Standings$Team)
-Standings$Team<- gsub("CH", "Cha", Standings$Team)
-Standings$Team<- gsub("TR", "Tor", Standings$Team)
-Standings$Team<- gsub("IP", "Ind", Standings$Team)
-Standings$Team<- gsub("HR", "Hou", Standings$Team)
-Standings$Team<- gsub("DN", "Den", Standings$Team)
-Standings$Team<- gsub("MG", "Mem", Standings$Team)
-Standings$Team<- gsub("NYK", "NY", Standings$Team)
-Standings$Team<- gsub("MB", "Mil", Standings$Team)
-Standings$Team<- gsub("OCT", "Okc", Standings$Team)
-Standings$Team<- gsub("SAS", "Sas", Standings$Team)
-Standings$Team<- gsub("DM", "Dal", Standings$Team)
-Standings$Team<- gsub("PS", "Pho", Standings$Team)
-Standings$Team<- gsub("PTB", "Por", Standings$Team)
-Standings$Team<- gsub("LAC", "Lac", Standings$Team)
-Standings$Team<- gsub("SK", "Sac", Standings$Team)
-Standings$Team<- gsub("LAL", "Lal", Standings$Team)
-Standings$Team<- gsub("MT", "Min", Standings$Team)
-Standings$Team<- gsub("PP", "Phi", Standings$Team)
-
-ProjStand <- merge.data.frame(Standings, AddedStand, all = TRUE)
-
-ProjStand[,2] <- as.numeric(as.character(ProjStand[,2]))
-ProjStand[,3] <- as.numeric(as.character(ProjStand[,3]))
-
-
-ProjStand$W <- ProjStand$`Current-W`+ProjStand$W
-ProjStand$L <- ProjStand$`Current-L`+ProjStand$L
-
-
-colnames(ProjStand) <- c("Team", "Current-W", "Current-L", "Conference", "Projected-W", "Projected-L")
-
-ProjStand$`Projected-L`<- ifelse(is.na(ProjStand$`Projected-L`), ProjStand$`Current-L`, ProjStand$`Projected-L`)
-
-ProjStand$`Projected-W`<- ifelse(is.na(ProjStand$`Projected-W`), ProjStand$`Current-W`, ProjStand$`Projected-W`)
-
-ProjStand <- arrange(ProjStand, Conference,desc(`Projected-W`))
-
-write.csv(ProjStand, "ProjStand.csv")
-saveRDS(ProjStand, "ProjStand.rds")
-
-ProjStandW <- dplyr::filter(ProjStand, Conference == "West")
-
-ProjStandE <- dplyr::filter(ProjStand, Conference == "East")
-
-write.csv(ProjStandE, "ProjStandE.csv")
-write.csv(ProjStandW, "ProjStandW.csv")
-```
-
-## Eastern Conference Standings
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-#options(DT.options = list(pageLength = 20, language = list(search = 'Filter:')))
-knitr::kable(ProjStandE)
-#DT::datatable(ProjStandE)
-```
-
-
-## Western Conference Standings
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-knitr::kable(ProjStandW)
-#DT::datatable(ProjStandW)
-
-
-```
-
-## Game predictions
-
-In the table below we present the predicted spread for every NBA game played on `r format(Sys.time(), '%d %B, %Y')`
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-knitr::kable(dplyr::filter(future_games[,c(1,2,4,9,10,11)], Date == Sys.Date()), digits = 3)
-#DT::datatable(dplyr::filter(future_games[,c(1,2,3,6,8,7)], Date == Sys.Date()))
-#write.csv(x = dplyr::filter(future_games, Date == Sys.Date()), file =   paste("Future_games", Sys.Date(),".csv", sep = ""))
-#saveRDS(dplyr::filter(future_games, Date == Sys.Date()),  paste("Future_games", Sys.Date(),".rds", sep = ""))
-```
