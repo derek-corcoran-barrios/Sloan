@@ -1,15 +1,5 @@
 library(hexbin)
 library(lattice)
-x <- rnorm(1e6)
-y <- rnorm(1e6)
-hexbinplot(x ~ y, aspect = 1, bins=50, 
-           #xlab = expression(alpha), ylab = expression(beta), 
-           style = "nested.centroids",
-           panel = function(...) {
-             panel.hexbinplot(...)
-           })
-
-
 
 #########
 #Function to plot
@@ -57,7 +47,7 @@ hexmap(dataAtackB$x,dataAtackB$y,"dodgerblue1", dataAtackB$where, NULL)
 
 ######Avobe Average PPS (AAPPS)
 
-dataAtackA <- data.frame(where = c( "0.15+0.08=0.23", "-0.07+1=0.93", "-0.9+-0.13=-1.03"), x = c(2.5, 2.0, 3.0), y = c(4,3,3), colour = c(3))
+dataAtackA <- data.frame(where = c("0.15+0.08+0.75 \n =0.98", "-0.07+1+1=1.93", "-0.9+-0.13+1=-0.03"), x = c(2.5, 2.0, 3.0), y = c(4,3,3), colour = c(3))
 hexmap(dataAtackA$x,dataAtackA$y,"firebrick1", dataAtackA$where, NULL)
 
 

@@ -15,7 +15,7 @@ shotDataTotal2014<- readRDS("shotDataTotal2014.rds")
 
 shotDataTotal2013<- readRDS("shotDataTotal2013.rds")
 
-pacman::p_load(SpatialBall)
+pacman::p_load(SpatialBall, tidyverse)
 
 APPS <- list()
 for(i in 1:NROW(past_games_c)) {
@@ -39,6 +39,10 @@ ExpAPPS <- do.call("rbind", APPS)
 saveRDS(ExpAPPS, "ExpAPPS.rds")
 
 past_games_c[,7:8] <- ExpAPPS[,1:2]
+past_games_c$Shots <- ExpAPPS$N
+past_games_c$Diff <- ExpAPPS$Diff
+past_games_c <- past_games_c[,c(1:8,10,11,9)]
+
 saveRDS(past_games_c, "past_games_c.rds")
 past_games_c <- readRDS("past_games_c.rds")
 
@@ -94,8 +98,8 @@ past_games_c <- merge(past_games_c, DFDates_c, all = TRUE)
 
 library(ggplot2)
 library(gridExtra)
-a <- ggplot(past_games_c, aes(x = day, y = offAPPS)) + geom_line(aes(color = Visitor, lty= as.factor(Season))) + theme(legend.position = "bottom") + guides(color=guide_legend(nrow=2, byrow=TRUE)) + scale_linetype(guide = 'none')
-b <- ggplot(past_games_c, aes(x = day, y = defAPPS)) + geom_line(aes(color = Visitor, lty= as.factor(Season)))
+a <- ggplot(past_games_c, aes(x = day, y = offAPPS)) + geom_line(aes(color = Visitor, lty= as.factor(Season))) + theme(legend.position = "bottom") + guides(color=guide_legend(nrow=2, byrow=TRUE)) + scale_linetype(guide = 'none') + ylab("Visitor ExpPPS") + geom_vline(xintercept = 25, lty=2, color ="red")
+b <- ggplot(past_games_c, aes(x = day, y = defAPPS)) + geom_line(aes(color = Visitor, lty= as.factor(Season))) + ylab("Home ExpPPS") + geom_vline(xintercept = 25, lty=2, color ="red")
 
 g_legend<-function(a.gplot){
   tmp <- ggplot_gtable(ggplot_build(a.gplot))
@@ -119,6 +123,8 @@ past_gamesFilt_c$Type <- "regular_season"
 
 saveRDS(past_gamesFilt_c, "past_gamesFilt_c.rds")
 
+past_gamesFilt_c <- readRDS("past_gamesFilt_c.rds")
+##Desde aca coso
 FinalOdds <- readRDS("FinalOdds.rds")
 FinalOdds <- dplyr::filter(FinalOdds, Season != 2012)
 
@@ -148,6 +154,7 @@ FinalOdds$Visitor <- gsub("PHI", "Phi", as.character(FinalOdds$Visitor))
 FinalOdds$Visitor <- gsub("WAS", "Was", as.character(FinalOdds$Visitor))
 FinalOdds$Visitor <- gsub("ORL", "ORL", as.character(FinalOdds$Visitor))
 FinalOdds$Visitor <- gsub("GSW", "GSW", as.character(FinalOdds$Visitor))
+FinalOdds$Visitor <- gsub("GS", "GSW", as.character(FinalOdds$Visitor))
 FinalOdds$Visitor <- gsub("NOH", "NO", as.character(FinalOdds$Visitor))
 FinalOdds$Visitor <- gsub("NOP", "NO", as.character(FinalOdds$Visitor))
 FinalOdds$Visitor <- gsub("CLE", "Cle", as.character(FinalOdds$Visitor))
@@ -182,6 +189,7 @@ FinalOdds$Home <- gsub("PHI", "Phi", as.character(FinalOdds$Home))
 FinalOdds$Home <- gsub("WAS", "Was", as.character(FinalOdds$Home))
 FinalOdds$Home <- gsub("ORL", "ORL", as.character(FinalOdds$Home))
 FinalOdds$Home <- gsub("GSW", "GSW", as.character(FinalOdds$Home))
+FinalOdds$Home <- gsub("GS", "GSW", as.character(FinalOdds$Home))
 FinalOdds$Home <- gsub("NOH", "NO", as.character(FinalOdds$Home))
 FinalOdds$Home <- gsub("NOP", "NO", as.character(FinalOdds$Home))
 FinalOdds$Home <- gsub("CLE", "Cle", as.character(FinalOdds$Home))
@@ -211,6 +219,9 @@ for(i in 1:NROW(FinalOdds)) {
 Playoffs <- do.call("rbind", Playoffs)
 
 FinalOdds[,7:8] <- Playoffs[,1:2]
+FinalOdds$Shots <- Playoffs$N
+FinalOdds$Diff <- Playoffs$Diff
+
 
 
 FinalOdds_c <- FinalOdds
@@ -218,6 +229,7 @@ saveRDS(FinalOdds_c, "FinalOdds_c.rds")
 
 past_gamesFiltPlayoff_c <- plyr::rbind.fill(past_gamesFilt_c, FinalOdds_c)
 past_gamesFiltPlayoff_c <- dplyr::arrange(past_gamesFiltPlayoff_c, Date)
+past_gamesFiltPlayoff_c <- rename(HomeExPPS= defAPPS, VisitorPPS = offAPPS)
 saveRDS(past_gamesFiltPlayoff_c, "past_gamesFiltPlayoff_c.rds")
 
 
@@ -230,7 +242,7 @@ past_gamesFiltPlayoff_c <- readRDS("past_gamesFiltPlayoff_c.rds")
 
 #Train set playoffs 2013 through 2015 and regular season 2013 through 2016
 trainNBA_c <- dplyr::filter(past_gamesFiltPlayoff_c, Season != 2017 & Type == "regular_season" | Season != 2016 & Type == "Playoffs")
-trainNBA_c <- trainNBA_c[!is.na(trainNBA_c$defAPPS),]
+trainNBA_c <- trainNBA_c[!is.na(trainNBA_c$HomeRes),]
 testNBA_c <- dplyr::filter(past_gamesFiltPlayoff_c, Season == 2017 & Type == "regular_season" | Season == 2016 & Type == "Playoffs")
 
 
@@ -249,12 +261,20 @@ grid <- expand.grid(interaction.depth = seq(1, 7, by = 2),
 
 # train the GBM model
 set.seed(7)
-BRT2017_10_May_c <- train(x = trainNBA_c[,c(7,8)],y = trainNBA_c[,9], method = "gbm",  preProcess = c("center", "scale"), verbose = TRUE, trControl = ctrl, tuneGrid = grid)
-saveRDS(BRT2017_10_May_c, "BRT2017_10_May_c.rds")
+BRT2017_29_Nov_c <- train(HomeRes ~ HomeExPPS + VisitorExPPS, data = trainNBA_c,method = "gbm",  preProcess = c("center", "scale"), verbose = TRUE, trControl = ctrl, tuneGrid = grid)
+saveRDS(BRT2017_29_Nov_c, "BRT2017_29_Nov_c.rds")
 
-BRT2017_10_May_c <- readRDS("BRT2017_10_May_c.rds")
+BRT2017_29_Nov_Shots <- train(HomeRes ~ HomeExPPS + VisitorExPPS + Shots, data = trainNBA_c,method = "gbm",  preProcess = c("center", "scale"), verbose = TRUE, trControl = ctrl, tuneGrid = grid)
+saveRDS(BRT2017_29_Nov_Shots, "BRT2017_29_Nov_c.rds")
 
-testNBA_c$PredictedBRT <- predict(BRT2017_10_May_c, testNBA_c[,7:8])
+BRT2017_29_Nov_Full <- train(HomeRes ~ HomeExPPS + VisitorExPPS + Shots + Diff + Type, data = trainNBA_c,method = "gbm",  preProcess = c("center", "scale"), verbose = TRUE, trControl = ctrl, tuneGrid = grid)
+saveRDS(BRT2017_29_Nov_Shots, "BRT2017_29_Nov_c.rds")
+
+#Retrain all of training set with parameters
+
+BRT2017_29_Nov_c <- readRDS("BRT2017_29_Nov_c.rds")
+
+testNBA_c$PredictedBRT <- predict(BRT2017_29_Nov_c, testNBA_c[,7:8])
 
 
 ggplot(testNBA_c, aes(x = HomeRes, y = PredictedBRT)) + geom_smooth() + geom_point() + xlab("Diferencia") + ylab("Diferencia predicha")
@@ -264,7 +284,7 @@ ggplot(testNBA_c, aes(x = HomeRes, y = PredictedBRT)) + geom_smooth() + geom_poi
 For.predictions_c <- expand.grid(defAPPS = seq(from = min(past_gamesFiltPlayoff_c$defAPPS, na.rm = TRUE), to = max(past_gamesFiltPlayoff_c$defAPPS, na.rm = TRUE), length.out = 100), 
                                  offAPPS =seq(from= min(past_gamesFiltPlayoff_c$offAPPS, na.rm = TRUE),to = max(past_gamesFiltPlayoff_c$offAPPS, na.rm = TRUE), length.out = 100))
 
-For.predictions_c$Spread <- predict(BRT2017_10_May_c, For.predictions_c)
+For.predictions_c$Spread <- predict(BRT2017_29_Nov_c, For.predictions_c)
 
 For.predictions2_c <- For.predictions_c
 For.predictions2_c$Type <- c("Predicted")
@@ -278,7 +298,7 @@ wireframe(Spread ~  offAPPS + defAPPS, group = Type, data = For.predictions2_c, 
 
 postResample(pred = testNBA_c$PredictedBRT, obs = testNBA_c$HomeRes)
 
-summary(BRT2017_10_May_c$resample)
+summary(BRT2017_29_Nov_c$resample)
 
 WLtestNBA_c <- testNBA_c
 
